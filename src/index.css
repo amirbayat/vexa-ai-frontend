@@ -1,7 +1,9 @@
 @import "tailwindcss";
+@import './assets/fonts/‫‪IRANYekanMsn/IRANYekanMsn.css';
+
 
 @theme {
-  --font-sans: 'Vazirmatn', 'Tahoma', system-ui, sans-serif;
+  --font-sans: 'IRANYekanMsn', 'Tahoma', system-ui, sans-serif;
   --color-brand-50: #ecfdf5;
   --color-brand-100: #d1fae5;
   --color-brand-400: #34d399;

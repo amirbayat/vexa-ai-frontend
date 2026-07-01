@@ -1,0 +1,55 @@
+@font-face {
+    font-family: 'IRANYekanMobileFaNum';
+    font-weight: 850;
+    src: url('../../fonts/IRANYekanMobileFaNum/files/IRANYekanMobileBlackFaNum.ttf')
+        format('truetype');
+}
+
+@font-face {
+    font-family: 'IRANYekanMobileFaNum';
+    font-weight: bold;
+    src: url('../../fonts/IRANYekanMobileFaNum/files/IRANYekanMobileBoldFaNum.ttf')
+        format('truetype');
+}
+
+@font-face {
+    font-family: 'IRANYekanMobileFaNum';
+    font-weight: 850;
+    src: url('../../fonts/IRANYekanMobileFaNum/files/IRANYekanMobileExtraBlackFaNum.ttf')
+        format('truetype');
+}
+
+@font-face {
+    font-family: 'IRANYekanMobileFaNum';
+    font-weight: bold;
+    src: url('../../fonts/IRANYekanMobileFaNum/files/IRANYekanMobileExtraBoldFaNum.ttf')
+        format('truetype');
+}
+
+@font-face {
+    font-family: 'IRANYekanMobileFaNum';
+    font-weight: 300;
+    src: url('../../fonts/IRANYekanMobileFaNum/files/IRANYekanMobileLightFaNum.ttf')
+        format('truetype');
+}
+
+@font-face {
+    font-family: 'IRANYekanMobileFaNum';
+    font-weight: 500;
+    src: url('../../fonts/IRANYekanMobileFaNum/files/IRANYekanMobileMediumFaNum.ttf')
+        format('truetype');
+}
+
+@font-face {
+    font-family: 'IRANYekanMobileFaNum';
+    font-weight: normal;
+    src: url('../../fonts/IRANYekanMobileFaNum/files/IRANYekanMobileRegularFaNum.ttf')
+        format('truetype');
+}
+
+@font-face {
+    font-family: 'IRANYekanMobileFaNum';
+    font-weight: 100;
+    src: url('../../fonts/IRANYekanMobileFaNum/files/IRANYekanMobileThinFaNum.ttf')
+        format('truetype');
+}

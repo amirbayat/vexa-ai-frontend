@@ -1,0 +1,28 @@
+@mixin fontFace($fontWeight) {
+    $baseFontsPath: './files/';
+    $fontWeightString: null;
+    $fontFamily: 'IRANYekan';
+
+    $fontWeights: (
+        850: 'Black',
+        bold: 'Bold',
+        900: 'ExtraBlack',
+        800: 'ExtraBold',
+        300: 'Light',
+        500: 'Medium',
+        normal: 'Regular',
+        100: 'Thin',
+    );
+
+    @each $key, $value in $fontWeights {
+        @if $fontWeight == $key {
+            $fontWeightString: $value;
+        }
+    }
+
+    @font-face {
+        font-family: $fontFamily;
+        font-weight: $fontWeight;
+        src: url('#{$baseFontsPath}IRANYekan#{$fontWeightString}.ttf') format('truetype');
+    }
+}

@@ -44,7 +44,7 @@ export function FeedbackWidget() {
         <div className="fixed inset-0 z-40 bg-black/30" onClick={handleClose} />
       )}
 
-      <div className="fixed bottom-6 left-6 z-50 flex flex-col items-start gap-3">
+      <div className="fixed bottom-[7.5rem] left-6 z-50 flex flex-col items-start gap-3">
         {open && (
           <div className="w-80 rounded-2xl border border-slate-700/60 bg-slate-900 shadow-2xl shadow-black/40 overflow-hidden">
             <div className="flex items-center justify-between border-b border-slate-700/50 px-4 py-3">
