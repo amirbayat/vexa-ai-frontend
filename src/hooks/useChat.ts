@@ -3,11 +3,12 @@ import { useQueryClient } from '@tanstack/react-query'
 import { env } from '@/env'
 import { useChatStore } from '@/store/chat.store'
 import { keys } from '@/queries/keys'
+import type { ConversationDetail, Message } from '@/types/api'
 
 export function useChat(conversationId: string) {
   const qc = useQueryClient()
   const abortRef = useRef<AbortController | null>(null)
-  const { appendStreamingContent, setIsStreaming, resetStreaming } = useChatStore()
+  const { appendStreamingContent, setIsStreaming, resetStreaming, setChatError } = useChatStore()
 
   const sendMessage = useCallback(
     async (content: string, model?: string) => {
@@ -16,7 +17,24 @@ export function useChat(conversationId: string) {
       abortRef.current = ctrl
 
       resetStreaming()
+      setChatError(null)
       setIsStreaming(true)
+
+      // Optimistic: add user message to cache immediately so it shows before the stream starts
+      qc.setQueryData<ConversationDetail>(keys.conv.detail(conversationId), old => {
+        if (!old) return old
+        const optimistic: Message = {
+          id: `opt-${Date.now()}`,
+          conversationId,
+          role: 'USER',
+          content,
+          tokensInput: 0,
+          tokensOutput: 0,
+          model: null,
+          createdAt: new Date().toISOString(),
+        }
+        return { ...old, messages: [...old.messages, optimistic] }
+      })
 
       try {
         const token = localStorage.getItem('access_token')
@@ -33,9 +51,17 @@ export function useChat(conversationId: string) {
           },
         )
 
-        if (!res.ok || !res.body) {
-          throw new Error(`HTTP ${res.status}`)
+        if (!res.ok) {
+          let msg = `خطا (${res.status})`
+          try {
+            const body = await res.json() as { message?: string }
+            if (body.message) msg = body.message
+          } catch { /* ignore */ }
+          setChatError(msg)
+          setIsStreaming(false)
+          return
         }
+        if (!res.body) throw new Error('no body')
 
         const reader = res.body.getReader()
         const decoder = new TextDecoder()
@@ -63,7 +89,6 @@ export function useChat(conversationId: string) {
         }
       } finally {
         setIsStreaming(false)
-        // conversation detail cache باطل می‌شود تا پیام جدید لود شود
         void qc.invalidateQueries({ queryKey: keys.conv.detail(conversationId) })
         void qc.invalidateQueries({ queryKey: keys.conv.list() })
         void qc.invalidateQueries({ queryKey: keys.usage.today() })

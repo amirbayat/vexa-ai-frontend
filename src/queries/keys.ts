@@ -9,6 +9,7 @@ export const keys = {
   usage: {
     today: () => ['usage', 'today'] as const,
     history: (month: string) => ['usage', 'history', month] as const,
+    budget: () => ['usage', 'budget'] as const,
   },
   plans: {
     list: () => ['plans', 'list'] as const,

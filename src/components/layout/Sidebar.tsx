@@ -95,7 +95,11 @@ export function Sidebar() {
       <div className="border-t border-slate-700/50">
         <TokenUsageBar />
         <div className="flex items-center justify-between px-4 py-3">
-          <div className="flex items-center gap-2">
+          <button
+            onClick={() => navigate('/settings/profile')}
+            className="flex items-center gap-2 rounded-xl px-1 py-1 hover:bg-slate-700/50 transition-colors text-right"
+            title={fa.settings.profile}
+          >
             <div className="size-7 rounded-full bg-slate-700 flex items-center justify-center text-xs text-slate-300">
               {me?.phone?.slice(-4) ?? '?'}
             </div>
@@ -105,7 +109,7 @@ export function Sidebar() {
                 {me?.subscription?.plan?.name ?? fa.plans.free}
               </span>
             </div>
-          </div>
+          </button>
           <button
             onClick={() => logoutMut.mutate()}
             className="size-7 flex items-center justify-center rounded-lg text-slate-500 hover:text-red-400 hover:bg-slate-700/60 transition-colors"

@@ -121,6 +121,13 @@ export const fa = {
     paymentFailed: 'ناموفق',
     paymentPending: 'در انتظار',
     refId: (id: string) => `کد پیگیری: ${id}`,
+    wallet: 'کیف پول',
+    walletBalance: 'موجودی کیف پول',
+    dailyBudget: 'بودجه روزانه',
+    spentToday: 'مصرف امروز',
+    remaining: 'باقی‌مانده',
+    budgetSection: 'وضعیت بودجه',
+    usdtRate: 'نرخ دلار (ریال)',
   },
   landing: {
     heroTitle: 'دستیار هوش مصنوعی',

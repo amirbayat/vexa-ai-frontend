@@ -5,6 +5,7 @@ import { useChat } from '@/hooks/useChat'
 import { useChatStore } from '@/store/chat.store'
 import { MessageList } from '@/components/chat/MessageList'
 import { MessageInput } from '@/components/chat/MessageInput'
+import { BudgetWarningBox } from '@/components/chat/BudgetWarningBox'
 import { fa } from '@/locales/fa'
 import { env } from '@/env'
 
@@ -24,10 +25,20 @@ export function ChatPage() {
   }
 
   if (!id) {
-    return <EmptyState onSend={handleFirstMessage} isCreating={createConv.isPending} />
+    return (
+      <>
+        <EmptyState onSend={handleFirstMessage} isCreating={createConv.isPending} />
+        <BudgetWarningBox />
+      </>
+    )
   }
 
-  return <ActiveChat conversationId={id} isStreaming={isStreaming} />
+  return (
+    <>
+      <ActiveChat conversationId={id} isStreaming={isStreaming} />
+      <BudgetWarningBox />
+    </>
+  )
 }
 
 function ActiveChat({ conversationId, isStreaming }: { conversationId: string; isStreaming: boolean }) {

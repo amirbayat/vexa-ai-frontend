@@ -79,3 +79,16 @@ export interface PaymentRecord {
   createdAt: string
   plan: { name: string }
 }
+
+export interface BudgetStatus {
+  dailyBudgetRial: number
+  spentTodayRial: number
+  remainingTodayRial: number
+  monthlyBudgetRial: number
+  spentMonthRial: number
+  walletBalanceRial: number
+  warningLevel: 'none' | 'warning' | 'critical' | 'session_limit' | 'exceeded'
+  cascadeModel: string | null
+  upsellSuggestion: string | null
+  usdtRial: number
+}
