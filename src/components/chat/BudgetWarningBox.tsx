@@ -46,11 +46,12 @@ export function BudgetWarningBox() {
   const walletToman = Math.round(data.walletBalanceRial / 10).toLocaleString('fa-IR')
 
   const levelLabel = {
+    none:          '',
     warning:       'مصرف بالا',
     critical:      'نزدیک به محدودیت',
     session_limit: 'محدودیت فعال',
     exceeded:      'بودجه تمام شد',
-  }[data.warningLevel] ?? ''
+  }[data.warningLevel]
 
   return (
     <div
