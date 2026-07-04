@@ -32,7 +32,6 @@ export function useChat(conversationId: string) {
           images: images ?? null,
           tokensInput: 0,
           tokensOutput: 0,
-          model: null,
           createdAt: new Date().toISOString(),
         }
         return { ...old, messages: [...old.messages, optimistic] }

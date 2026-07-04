@@ -4,6 +4,7 @@ import { useMe } from '@/queries/auth.queries'
 import { env } from '@/env'
 
 const STORAGE_KEY = 'nivo:selectedModel'
+const OPTIMAL_MODE = 'optimal'
 
 const MODEL_DISPLAY: Record<string, string> = {
   'openai/gpt-4o-mini': 'GPT-4o mini',
@@ -15,7 +16,19 @@ const MODEL_DISPLAY: Record<string, string> = {
 }
 
 function displayName(model: string): string {
+  if (model === OPTIMAL_MODE) return 'حالت بهینه'
   return MODEL_DISPLAY[model] ?? model
+}
+
+function OptimalIcon() {
+  return (
+    <svg width="14" height="14" viewBox="0 0 24 24" fill="none" className="text-emerald-400 shrink-0">
+      <path
+        d="M12 2l1.9 5.6L19.5 9.5l-5.6 1.9L12 17l-1.9-5.6L4.5 9.5l5.6-1.9L12 2z"
+        fill="currentColor"
+      />
+    </svg>
+  )
 }
 
 function OpenAIIcon() {
@@ -33,13 +46,15 @@ export function ModelSelector({ currentModel }: { currentModel?: string }) {
   const ref = useRef<HTMLDivElement>(null)
 
   const allowedModels: string[] = (me?.subscription?.plan?.allowedModels ?? [env.VITE_DEFAULT_MODEL])
+  // «حالت بهینه» همیشه به‌عنوان اولین گزینه در دسترس است — سرویس مسیریاب مدل خودش بین مدل‌های مجاز پلن انتخاب می‌کند
+  const options: string[] = [OPTIMAL_MODE, ...allowedModels]
 
-  // pick active: selectedModel if valid for this plan, else fallback to currentModel or default
-  const active = allowedModels.includes(selectedModel ?? '')
+  // pick active: selectedModel if valid, else fallback to currentModel or optimal mode
+  const active = options.includes(selectedModel ?? '')
     ? selectedModel!
-    : (currentModel && allowedModels.includes(currentModel) ? currentModel : allowedModels[0])
+    : (currentModel && options.includes(currentModel) ? currentModel : OPTIMAL_MODE)
 
-  // sync store when stale localStorage value is not in this plan
+  // sync store when stale localStorage value is not valid anymore
   useEffect(() => {
     if (active && active !== selectedModel) setSelectedModel(active)
   }, [active, selectedModel, setSelectedModel])
@@ -58,15 +73,6 @@ export function ModelSelector({ currentModel }: { currentModel?: string }) {
     setOpen(false)
   }
 
-  if (allowedModels.length <= 1) {
-    return (
-      <div className="flex items-center gap-1.5 rounded-lg bg-slate-700/60 px-2.5 py-1">
-        <OpenAIIcon />
-        <span className="text-xs text-slate-400">{displayName(active)}</span>
-      </div>
-    )
-  }
-
   return (
     <div ref={ref} className="relative">
       <button
@@ -75,7 +81,7 @@ export function ModelSelector({ currentModel }: { currentModel?: string }) {
         aria-haspopup="listbox"
         aria-expanded={open}
       >
-        <OpenAIIcon />
+        {active === OPTIMAL_MODE ? <OptimalIcon /> : <OpenAIIcon />}
         <span className="text-xs text-slate-400 group-hover:text-slate-300 transition-colors">
           {displayName(active)}
         </span>
@@ -90,7 +96,7 @@ export function ModelSelector({ currentModel }: { currentModel?: string }) {
 
       {open && (
         <div className="absolute top-full left-0 mt-1.5 z-50 min-w-[160px] rounded-xl border border-slate-700 bg-slate-800 shadow-xl overflow-hidden">
-          {allowedModels.map(model => (
+          {options.map(model => (
             <button
               key={model}
               onClick={() => select(model)}
@@ -100,7 +106,7 @@ export function ModelSelector({ currentModel }: { currentModel?: string }) {
                   : 'text-slate-400 hover:bg-slate-700/50 hover:text-slate-300'
                 }`}
             >
-              <OpenAIIcon />
+              {model === OPTIMAL_MODE ? <OptimalIcon /> : <OpenAIIcon />}
               {displayName(model)}
               {model === active && (
                 <svg viewBox="0 0 12 12" fill="none" className="ml-auto w-3 h-3 text-emerald-500 shrink-0">

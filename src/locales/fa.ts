@@ -72,6 +72,11 @@ export const fa = {
     goToChat: 'رفتن به چت',
     tryAgain: 'تلاش مجدد',
   },
+  messageFeedback: {
+    commentPlaceholder: 'می‌خوای بگی چرا؟ (اختیاری)',
+    submit: 'ارسال',
+    thanks: 'ممنون از بازخوردت',
+  },
   feedback: {
     title: 'نظر و پیشنهاد',
     placeholder: 'نظر، پیشنهاد یا مشکلی دارید؟ بنویسید...',

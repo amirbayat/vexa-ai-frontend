@@ -10,7 +10,6 @@ import { MessageLimitBanner } from '@/components/chat/MessageLimitBanner'
 import { FeedbackWidget } from '@/components/feedback/FeedbackWidget'
 import { ModelSelector } from '@/components/chat/ModelSelector'
 import { fa } from '@/locales/fa'
-import { env } from '@/env'
 
 export function ChatPage() {
   const { id } = useParams<{ id?: string }>()
@@ -20,7 +19,7 @@ export function ChatPage() {
 
   const handleFirstMessage = async (content: string, _images?: string[]) => {
     try {
-      const conv = await createConv.mutateAsync(env.VITE_DEFAULT_MODEL)
+      const conv = await createConv.mutateAsync('optimal')
       navigate(`/chat/${conv.id}`, { state: { initialMessage: content }, replace: true })
     } catch {
       // ignore — user can retype and retry

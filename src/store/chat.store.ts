@@ -31,7 +31,8 @@ export const useChatStore = create<ChatState>(set => ({
   messageStage: 'normal',
   remainingNormal: null,
   remainingThrottled: null,
-  selectedModel: typeof window !== 'undefined' ? (localStorage.getItem('nivo:selectedModel') ?? null) : null,
+  // «حالت بهینه» پیش‌فرض جدید — مسیریاب مدل بر اساس سختی پیام، مدل واقعی را انتخاب می‌کند
+  selectedModel: typeof window !== 'undefined' ? (localStorage.getItem('nivo:selectedModel') ?? 'optimal') : 'optimal',
 
   setSelectedConvId: id => set({ selectedConvId: id }),
   setStreamingContent: text => set({ streamingContent: text }),

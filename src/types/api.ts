@@ -45,8 +45,9 @@ export interface Message {
   images?: string[] | null
   tokensInput: number
   tokensOutput: number
-  model: string | null
   createdAt: string
+  // نکته: مدل واقعی پاسخ‌دهنده عمداً از API حذف شده — می‌تواند توسط مسیریاب مدل بی‌صدا override شده باشد
+  feedback?: { vote: 'UP' | 'DOWN'; comment: string | null } | null
 }
 
 export interface ConversationDetail extends Conversation {
