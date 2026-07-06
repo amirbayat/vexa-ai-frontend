@@ -13,6 +13,7 @@ import { UsagePage } from '@/pages/settings/UsagePage'
 import { TicketsPage } from '@/pages/settings/TicketsPage'
 import { TicketDetailPage } from '@/pages/settings/TicketDetailPage'
 import { LandingPage } from '@/pages/landing/LandingPage'
+import { ContactPage } from '@/pages/contact/ContactPage'
 import type { ReactNode } from 'react'
 
 function ProtectedRoute({ children }: { children: ReactNode }) {
@@ -32,6 +33,7 @@ export function AppRouter() {
     <Routes>
       {/* public */}
       <Route path="/" element={<LandingPage />} />
+      <Route path="/contact" element={<ContactPage />} />
 
       {/* guest */}
       <Route path="/login" element={<GuestRoute><LoginPage /></GuestRoute>} />

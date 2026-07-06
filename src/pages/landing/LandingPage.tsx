@@ -948,6 +948,12 @@ function Footer() {
         <div className="flex items-center gap-6">
           <a href="#pricing" className="hover:text-slate-400 transition-colors">قیمت‌ها</a>
           <Link to="/login" className="hover:text-slate-400 transition-colors">ورود</Link>
+          <Link
+            to="/contact"
+            className="rounded-full border border-white/10 px-4 py-1.5 text-slate-400 hover:border-emerald-500/50 hover:text-emerald-400 transition-colors"
+          >
+            تماس با ما
+          </Link>
         </div>
         <EnamadBadge />
       </div>
