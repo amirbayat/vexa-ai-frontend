@@ -64,6 +64,11 @@ export function MessageInput({ onSend, disabled }: MessageInputProps) {
     el.style.height = `${Math.min(el.scrollHeight, 200)}px`
   }
 
+  const onFocus = () => {
+    // iOS Safari doesn't reliably scroll the focused field above the keyboard on its own
+    setTimeout(() => textareaRef.current?.scrollIntoView({ block: 'end', behavior: 'smooth' }), 300)
+  }
+
   const handleFiles = async (files: FileList | null) => {
     if (!files) return
     const remaining = MAX_IMAGES - images.length
@@ -149,6 +154,7 @@ export function MessageInput({ onSend, disabled }: MessageInputProps) {
           onChange={e => setValue(e.target.value)}
           onKeyDown={onKeyDown}
           onInput={onInput}
+          onFocus={onFocus}
           disabled={disabled}
           placeholder={fa.chat.placeholder}
           rows={1}

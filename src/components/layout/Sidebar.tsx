@@ -5,7 +5,7 @@ import { useMe, useLogout } from '@/queries/auth.queries'
 import { useChatStore } from '@/store/chat.store'
 import { fa } from '@/locales/fa'
 
-export function Sidebar() {
+export function Sidebar({ onNavigate }: { onNavigate?: () => void } = {}) {
   const navigate = useNavigate()
   const { selectedConvId, setSelectedConvId } = useChatStore()
   const { data: me } = useMe()
@@ -18,11 +18,13 @@ export function Sidebar() {
   const handleSelect = (id: string) => {
     setSelectedConvId(id)
     navigate(`/chat/${id}`)
+    onNavigate?.()
   }
 
   const handleNew = () => {
     setSelectedConvId(null)
     navigate('/chat')
+    onNavigate?.()
   }
 
   return (

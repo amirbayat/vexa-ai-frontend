@@ -35,7 +35,7 @@ export function SalesChatbot({ source = 'pricing_page' }: Props) {
   const [loading, setLoading] = useState(false)
   const [isDone, setIsDone] = useState(false)
   const [recommendedPlan, setRecommendedPlan] = useState<string | null>(null)
-  const bottomRef = useRef<HTMLDivElement>(null)
+  const messagesRef = useRef<HTMLDivElement>(null)
   const inputRef = useRef<HTMLTextAreaElement>(null)
   const chatId = useId()
 
@@ -44,7 +44,8 @@ export function SalesChatbot({ source = 'pricing_page' }: Props) {
   }, [])
 
   useEffect(() => {
-    bottomRef.current?.scrollIntoView({ behavior: 'smooth' })
+    const el = messagesRef.current
+    if (el) el.scrollTop = el.scrollHeight
   }, [messages])
 
   async function send() {
@@ -117,6 +118,7 @@ export function SalesChatbot({ source = 'pricing_page' }: Props) {
         {/* Messages */}
         <div
           id={chatId}
+          ref={messagesRef}
           className="flex flex-col gap-3 overflow-y-auto mb-4"
           style={{ maxHeight: '340px', minHeight: '120px' }}
           role="log"
@@ -151,8 +153,6 @@ export function SalesChatbot({ source = 'pricing_page' }: Props) {
               </div>
             </div>
           )}
-
-          <div ref={bottomRef} />
         </div>
 
         {/* CTA after done */}

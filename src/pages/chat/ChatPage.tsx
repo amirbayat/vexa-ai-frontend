@@ -79,7 +79,7 @@ function ActiveChat({ conversationId, isStreaming }: { conversationId: string; i
 
   return (
     <div className="flex flex-1 flex-col overflow-hidden">
-      <div className="flex items-center gap-3 border-b border-slate-700/50 px-6 py-4">
+      <div className="flex items-center gap-3 border-b border-slate-700/50 px-4 py-3 sm:px-6 sm:py-4">
         <h2 className="truncate text-sm font-medium text-slate-200">
           {data.title ?? fa.chat.untitled}
         </h2>

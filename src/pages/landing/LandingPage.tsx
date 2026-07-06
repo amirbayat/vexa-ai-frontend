@@ -563,15 +563,15 @@ function StatsBar() {
     { label: 'درصد رضایت', value: 98, suffix: '٪' },
   ]
   return (
-    <div className="relative overflow-hidden border-y border-white/5 bg-white/[0.02] px-6 py-10">
+    <div className="relative overflow-hidden border-y border-white/5 bg-white/[0.02] px-4 py-8 sm:px-6 sm:py-10">
       <SectionGlow c1="#10B981" c2="#0EA5E9" seed={1} flip />
-      <div className="mx-auto grid max-w-4xl grid-cols-3 gap-6 text-center relative">
+      <div className="mx-auto grid max-w-4xl grid-cols-3 gap-2 text-center relative sm:gap-6">
         {stats.map(s => (
-          <div key={s.label} data-anim="true">
-            <div className="text-3xl font-extrabold text-white sm:text-4xl">
+          <div key={s.label} data-anim="true" className="min-w-0">
+            <div className="text-xl font-extrabold text-white sm:text-3xl lg:text-4xl">
               <Counter to={s.value} suffix={s.suffix} />
             </div>
-            <div className="mt-1 text-sm text-slate-500">{s.label}</div>
+            <div className="mt-1 text-[11px] leading-snug text-slate-500 sm:text-sm">{s.label}</div>
           </div>
         ))}
       </div>
@@ -968,7 +968,7 @@ export function LandingPage() {
   const isLoggedIn = !!me
 
   useEffect(() => {
-    if (!window.location.hash) window.scrollTo({ top: 0, behavior: 'instant' as ScrollBehavior })
+    window.scrollTo({ top: 0, behavior: 'instant' as ScrollBehavior })
   }, [])
 
   return (
