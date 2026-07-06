@@ -5,6 +5,7 @@ import { useMe } from '@/queries/auth.queries'
 import { usePlans } from '@/queries/plans.queries'
 import { SalesChatbot } from '@/components/sales/SalesChatbot'
 import { ExitIntentModal } from '@/components/sales/ExitIntentModal'
+import { env } from '@/env'
 
 // ── InView observer (MutationObserver برای عناصر async مثل plan cards) ───────
 function useInViewObserver() {
@@ -907,19 +908,48 @@ function CtaSection({ isLoggedIn }: { isLoggedIn: boolean }) {
   )
 }
 
+function EnamadBadge() {
+  const { VITE_ENAMAD_ID: id, VITE_ENAMAD_CODE: code } = env
+  if (!id || !code) return null
+
+  const href = `https://trustseal.enamad.ir/?id=${id}&Code=${code}`
+  const src = `https://trustseal.enamad.ir/logo.aspx?id=${id}&Code=${code}`
+
+  return (
+    <a
+      href={href}
+      target="_blank"
+      rel="noopener"
+      referrerPolicy="origin"
+      className="flex shrink-0 items-center justify-center rounded-lg bg-white p-1 shadow-sm"
+    >
+      <img
+        referrerPolicy="origin"
+        src={src}
+        alt="نماد اعتماد الکترونیکی"
+        data-code={code}
+        width={56}
+        height={56}
+        className="h-14 w-14 cursor-pointer object-contain"
+      />
+    </a>
+  )
+}
+
 function Footer() {
   return (
     <footer className="border-t border-white/5 px-6 py-8">
-      <div className="mx-auto flex max-w-6xl items-center justify-between gap-4 text-sm text-slate-600">
+      <div className="mx-auto flex max-w-6xl flex-wrap items-center justify-between gap-4 text-sm text-slate-600">
         <span>
           <span className="text-emerald-400/70 font-bold">ni</span>
           <span className="font-bold">vo</span>
           {' '}· دستیار هوش مصنوعی
         </span>
-        <div className="flex gap-6">
+        <div className="flex items-center gap-6">
           <a href="#pricing" className="hover:text-slate-400 transition-colors">قیمت‌ها</a>
           <Link to="/login" className="hover:text-slate-400 transition-colors">ورود</Link>
         </div>
+        <EnamadBadge />
       </div>
     </footer>
   )
