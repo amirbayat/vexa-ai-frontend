@@ -3,10 +3,16 @@ import { api } from '@/lib/api'
 import { keys } from '@/queries/keys'
 import type { User } from '@/types/api'
 
+export interface WaitlistedInfo {
+  message: string
+  queuePosition: number
+}
+
 interface AuthTokens {
   accessToken: string
   refreshToken: string
   user: User
+  waitlisted: WaitlistedInfo | null
 }
 
 export function useMe() {

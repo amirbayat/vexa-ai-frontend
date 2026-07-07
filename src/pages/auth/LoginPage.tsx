@@ -1,6 +1,7 @@
 import { useState, type FormEvent } from 'react'
-import { useNavigate } from 'react-router-dom'
+import { useNavigate, useSearchParams } from 'react-router-dom'
 import { useSendOtp } from '@/queries/auth.queries'
+import { useCampaignStatus } from '@/queries/campaign.queries'
 import { Button } from '@/components/ui/Button'
 import { Input } from '@/components/ui/Input'
 import { fa } from '@/locales/fa'
@@ -10,6 +11,9 @@ export function LoginPage() {
   const [error, setError] = useState('')
   const navigate = useNavigate()
   const sendOtp = useSendOtp()
+  const { data: campaignStatus } = useCampaignStatus()
+  const [searchParams] = useSearchParams()
+  const waitlistToken = searchParams.get('wl') // لینک پیامک «دسترسی باز شد» — بخش ۱۸.۵
 
   const validate = (val: string) => /^(\+98|0)?9[0-9]{9}$/.test(val)
 
@@ -22,7 +26,7 @@ export function LoginPage() {
     }
     try {
       await sendOtp.mutateAsync(phone)
-      navigate('/otp', { state: { phone } })
+      navigate('/otp', { state: { phone, waitlistToken } })
     } catch {
       setError(fa.common.error)
     }
@@ -41,6 +45,12 @@ export function LoginPage() {
           <h1 className="text-xl font-bold text-slate-100">دستیار هوش مصنوعی</h1>
           <p className="mt-1 text-sm text-slate-500">با شماره موبایل وارد شوید</p>
         </div>
+
+        {campaignStatus?.active && campaignStatus.displayedRemaining !== null && (
+          <div className="mb-4 rounded-xl border border-amber-500/20 bg-amber-500/10 px-4 py-2 text-center text-sm text-amber-300">
+            {fa.waitlist.remainingCapacity(campaignStatus.displayedRemaining)}
+          </div>
+        )}
 
         <form onSubmit={onSubmit} className="space-y-4">
           <Input

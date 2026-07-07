@@ -1,6 +1,7 @@
 import { useState, useEffect, type FormEvent } from 'react'
 import { useNavigate, useLocation } from 'react-router-dom'
-import { useVerifyOtp, useSendOtp } from '@/queries/auth.queries'
+import { useVerifyOtp, useSendOtp, type WaitlistedInfo } from '@/queries/auth.queries'
+import { useActivateWaitlist } from '@/queries/campaign.queries'
 import { Button } from '@/components/ui/Button'
 import { Input } from '@/components/ui/Input'
 import { fa } from '@/locales/fa'
@@ -10,14 +11,18 @@ const RESEND_SECONDS = 120
 export function OtpPage() {
   const navigate = useNavigate()
   const location = useLocation()
-  const phone = (location.state as { phone?: string })?.phone ?? ''
+  const state = location.state as { phone?: string; waitlistToken?: string | null } | null
+  const phone = state?.phone ?? ''
+  const waitlistToken = state?.waitlistToken ?? null
 
   const [code, setCode] = useState('')
   const [error, setError] = useState('')
   const [countdown, setCountdown] = useState(RESEND_SECONDS)
+  const [waitlisted, setWaitlisted] = useState<WaitlistedInfo | null>(null)
 
   const verifyOtp = useVerifyOtp()
   const sendOtp = useSendOtp()
+  const activateWaitlist = useActivateWaitlist()
 
   useEffect(() => {
     if (!phone) {
@@ -34,7 +39,18 @@ export function OtpPage() {
     e.preventDefault()
     setError('')
     try {
-      await verifyOtp.mutateAsync({ phone, code })
+      const result = await verifyOtp.mutateAsync({ phone, code })
+
+      // اگر از لینک پیامک «دسترسی باز شد» آمده، فعال‌سازی را ثبت کن (نیاز به JWT دارد
+      // که همین الان توسط verifyOtp ذخیره شد) — مستقل از وضعیت waitlisted پاسخ فعلی
+      if (waitlistToken) {
+        activateWaitlist.mutate(waitlistToken)
+      }
+
+      if (result.waitlisted) {
+        setWaitlisted(result.waitlisted)
+        return // منتظر تأیید کاربر می‌مانیم، بخش ۱۸.۱۱
+      }
       navigate('/chat', { replace: true })
     } catch {
       setError(fa.common.error)
@@ -51,6 +67,25 @@ export function OtpPage() {
     } catch {
       setError(fa.common.error)
     }
+  }
+
+  if (waitlisted) {
+    return (
+      <div className="flex min-h-screen items-center justify-center bg-slate-950 p-4">
+        <div className="w-full max-w-sm text-center">
+          <div className="mx-auto mb-4 size-14 rounded-2xl bg-amber-500/15 flex items-center justify-center">
+            <svg viewBox="0 0 24 24" fill="none" className="size-7 text-amber-400">
+              <path d="M12 8v4l3 3m6-3a9 9 0 11-18 0 9 9 0 0118 0z" stroke="currentColor" strokeWidth="1.5" strokeLinecap="round" />
+            </svg>
+          </div>
+          <p className="text-slate-100">{waitlisted.message}</p>
+          <p className="mt-2 text-sm text-slate-500">{fa.waitlist.queuePosition(waitlisted.queuePosition)}</p>
+          <Button className="mt-6 w-full" onClick={() => navigate('/chat', { replace: true })}>
+            {fa.waitlist.gotIt}
+          </Button>
+        </div>
+      </div>
+    )
   }
 
   return (

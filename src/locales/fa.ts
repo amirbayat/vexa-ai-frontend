@@ -18,6 +18,11 @@ export const fa = {
     invalidPhone: 'شماره موبایل معتبر نیست',
     login: 'ورود',
   },
+  waitlist: {
+    remainingCapacity: (n: number) => `ظرفیت باقی‌مانده‌ی ثبت‌نام: ${n} نفر`,
+    queuePosition: (n: number) => `شما نفر ${n} در صف هستید`,
+    gotIt: 'متوجه شدم',
+  },
   chat: {
     newChat: 'مکالمه جدید',
     placeholder: 'پیام خود را بنویسید...',

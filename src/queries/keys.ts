@@ -28,4 +28,7 @@ export const keys = {
     list: () => ['tickets'] as const,
     detail: (id: string) => ['tickets', id] as const,
   },
+  campaign: {
+    status: () => ['campaign', 'status'] as const,
+  },
 } as const
