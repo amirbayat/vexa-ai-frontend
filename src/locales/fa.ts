@@ -80,6 +80,7 @@ export const fa = {
     gateways: {
       zarinpal: 'زرین‌پال',
       vandar: 'وندار',
+      zibal: 'زیبال',
     },
   },
   messageFeedback: {

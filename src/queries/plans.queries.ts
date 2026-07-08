@@ -11,7 +11,7 @@ export function usePlans() {
   })
 }
 
-export type PaymentGatewayName = 'zarinpal' | 'vandar'
+export type PaymentGatewayName = 'zarinpal' | 'vandar' | 'zibal'
 
 export function useEnabledGateways() {
   return useQuery({
