@@ -10,6 +10,7 @@ export function CallbackPage() {
   const qc = useQueryClient()
   const [status, setStatus] = useState<'success' | 'failed' | null>(null)
   const refId = params.get('refId')
+  const invoiceId = params.get('invoiceId')
 
   useEffect(() => {
     const s = params.get('status')
@@ -42,6 +43,14 @@ export function CallbackPage() {
             >
               {fa.payment.goToChat}
             </button>
+            {invoiceId && (
+              <button
+                onClick={() => navigate(`/settings/invoices/${invoiceId}`)}
+                className="w-full rounded-xl border border-slate-700 py-3 text-sm text-slate-300 hover:border-slate-600 transition-colors"
+              >
+                {fa.invoice.view}
+              </button>
+            )}
           </>
         ) : status === 'failed' ? (
           <>

@@ -97,6 +97,16 @@ export function ProfilePage() {
             value={new Date(me.subscription.periodEnd).toLocaleDateString('fa-IR')}
           />
         )}
+        <Link
+          to="/settings/invoices"
+          className="mt-4 flex items-center justify-center gap-1.5 rounded-xl border border-slate-700 py-2.5 text-sm text-slate-300 hover:border-slate-600 hover:text-slate-100 transition-colors"
+        >
+          <svg viewBox="0 0 20 20" fill="none" className="size-4">
+            <path d="M6 2h6l4 4v12H6V2z" stroke="currentColor" strokeWidth="1.5" strokeLinejoin="round" />
+            <path d="M8 10h4M8 13h4" stroke="currentColor" strokeWidth="1.5" strokeLinecap="round" />
+          </svg>
+          {fa.settings.viewInvoices}
+        </Link>
       </div>
 
       {/* budget status */}

@@ -3,6 +3,7 @@ import { clsx } from 'clsx'
 import { useConversations, useArchiveConversation } from '@/queries/conversation.queries'
 import { useMe, useLogout } from '@/queries/auth.queries'
 import { useChatStore } from '@/store/chat.store'
+import { PlanUpgradeBadge } from './PlanUpgradeBadge'
 import { fa } from '@/locales/fa'
 
 export function Sidebar({ onNavigate }: { onNavigate?: () => void } = {}) {
@@ -31,7 +32,10 @@ export function Sidebar({ onNavigate }: { onNavigate?: () => void } = {}) {
     <aside className="flex h-full w-64 shrink-0 flex-col border-l border-slate-700/50 bg-slate-900">
       {/* header */}
       <div className="flex items-center justify-between px-4 py-4 border-b border-slate-700/50">
-        <span className="text-sm font-semibold text-emerald-400">دستیار هوش مصنوعی</span>
+        <div className="flex items-center gap-2">
+          <img src="/brand/nivo-icon.svg" alt="نیوو" className="size-6 rounded-md" />
+          <span className="text-sm font-semibold text-emerald-400">نیوو</span>
+        </div>
         <button
           onClick={handleNew}
           className="size-8 flex items-center justify-center rounded-lg text-slate-400 hover:bg-slate-700/60 hover:text-emerald-400 transition-colors"
@@ -41,6 +45,10 @@ export function Sidebar({ onNavigate }: { onNavigate?: () => void } = {}) {
             <path d="M12 5v14M5 12h14" stroke="currentColor" strokeWidth="2" strokeLinecap="round" />
           </svg>
         </button>
+      </div>
+
+      <div className="px-4 py-3 border-b border-slate-700/50">
+        <PlanUpgradeBadge />
       </div>
 
       {/* conversations */}

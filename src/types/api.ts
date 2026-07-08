@@ -82,6 +82,20 @@ export interface PaymentRecord {
   plan: { name: string }
 }
 
+export interface Invoice {
+  id: string
+  number: number
+  paymentId: string
+  planName: string
+  amount: number
+  taxAmount: number
+  provider: 'ZARINPAL' | 'VANDAR' | 'ZIBAL'
+  refId: string | null
+  buyerName: string | null
+  buyerPhone: string
+  issuedAt: string
+}
+
 export interface BudgetStatus {
   dailyBudgetRial: number
   spentTodayRial: number

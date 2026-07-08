@@ -4,6 +4,7 @@ import { useVerifyOtp, useSendOtp, type WaitlistedInfo } from '@/queries/auth.qu
 import { useActivateWaitlist } from '@/queries/campaign.queries'
 import { Button } from '@/components/ui/Button'
 import { Input } from '@/components/ui/Input'
+import { toEnglishDigits } from '@/lib/digits'
 import { fa } from '@/locales/fa'
 
 const RESEND_SECONDS = 120
@@ -19,6 +20,7 @@ export function OtpPage() {
   const [error, setError] = useState('')
   const [countdown, setCountdown] = useState(RESEND_SECONDS)
   const [waitlisted, setWaitlisted] = useState<WaitlistedInfo | null>(null)
+  const [autoSubmittedCode, setAutoSubmittedCode] = useState<string | null>(null)
 
   const verifyOtp = useVerifyOtp()
   const sendOtp = useSendOtp()
@@ -35,8 +37,7 @@ export function OtpPage() {
     return () => clearInterval(timer)
   }, [phone, navigate])
 
-  const onSubmit = async (e: FormEvent) => {
-    e.preventDefault()
+  const submit = async () => {
     setError('')
     try {
       const result = await verifyOtp.mutateAsync({ phone, code })
@@ -56,6 +57,19 @@ export function OtpPage() {
       setError(fa.common.error)
     }
   }
+
+  const onSubmit = async (e: FormEvent) => {
+    e.preventDefault()
+    await submit()
+  }
+
+  // سابمیت خودکار وقتی کد ۶ رقمی کامل شد (bugs.md #2)
+  useEffect(() => {
+    if (code.length === 6 && code !== autoSubmittedCode && !verifyOtp.isPending) {
+      setAutoSubmittedCode(code)
+      void submit()
+    }
+  }, [code])
 
   const onResend = async () => {
     if (countdown > 0) return
@@ -108,7 +122,7 @@ export function OtpPage() {
             maxLength={6}
             placeholder="● ● ● ● ● ●"
             value={code}
-            onChange={e => setCode(e.target.value.replace(/\D/g, ''))}
+            onChange={e => setCode(toEnglishDigits(e.target.value).replace(/\D/g, ''))}
             error={error}
             autoFocus
             dir="ltr"

@@ -12,6 +12,8 @@ import { SubscriptionPage } from '@/pages/settings/SubscriptionPage'
 import { UsagePage } from '@/pages/settings/UsagePage'
 import { TicketsPage } from '@/pages/settings/TicketsPage'
 import { TicketDetailPage } from '@/pages/settings/TicketDetailPage'
+import { InvoicesPage } from '@/pages/settings/InvoicesPage'
+import { InvoiceDetailPage } from '@/pages/settings/InvoiceDetailPage'
 import { LandingPage } from '@/pages/landing/LandingPage'
 import { ContactPage } from '@/pages/contact/ContactPage'
 import type { ReactNode } from 'react'
@@ -62,6 +64,8 @@ export function AppRouter() {
         <Route path="profile" element={<ProfilePage />} />
         <Route path="subscription" element={<SubscriptionPage />} />
         <Route path="usage" element={<UsagePage />} />
+        <Route path="invoices" element={<InvoicesPage />} />
+        <Route path="invoices/:id" element={<InvoiceDetailPage />} />
         <Route path="tickets" element={<TicketsPage />} />
         <Route path="tickets/:id" element={<TicketDetailPage />} />
       </Route>

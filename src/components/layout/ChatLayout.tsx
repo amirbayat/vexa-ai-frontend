@@ -1,6 +1,7 @@
 import { useState, type ReactNode } from 'react'
 import { clsx } from 'clsx'
 import { Sidebar } from './Sidebar'
+import { PlanUpgradeBadge } from './PlanUpgradeBadge'
 import { useVisualViewportHeight } from '@/hooks/useVisualViewportHeight'
 
 interface ChatLayoutProps {
@@ -41,7 +42,11 @@ export function ChatLayout({ children }: ChatLayoutProps) {
               <path d="M4 6h16M4 12h16M4 18h16" stroke="currentColor" strokeWidth="1.8" strokeLinecap="round" />
             </svg>
           </button>
-          <span className="text-sm font-semibold text-emerald-400">دستیار هوش مصنوعی</span>
+          <img src="/brand/nivo-icon.svg" alt="نیوو" className="size-6 rounded-md" />
+          <span className="text-sm font-semibold text-emerald-400">نیوو</span>
+          <div className="ms-auto">
+            <PlanUpgradeBadge />
+          </div>
         </div>
         {children}
       </main>

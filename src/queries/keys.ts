@@ -22,6 +22,10 @@ export const keys = {
     history: () => ['payments', 'history'] as const,
     gateways: () => ['payments', 'gateways'] as const,
   },
+  invoices: {
+    list: () => ['invoices', 'list'] as const,
+    detail: (id: string) => ['invoices', 'detail', id] as const,
+  },
   profile: {
     update: () => ['profile', 'update'] as const,
   },

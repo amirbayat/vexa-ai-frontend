@@ -1,0 +1,48 @@
+import { useNavigate } from 'react-router-dom'
+import { useInvoices } from '@/queries/invoices.queries'
+import { fa } from '@/locales/fa'
+
+export function InvoicesPage() {
+  const navigate = useNavigate()
+  const { data: invoices, isLoading } = useInvoices()
+
+  return (
+    <div className="space-y-5">
+      <h2 className="text-base font-semibold text-slate-100">{fa.invoice.title}</h2>
+
+      <div className="rounded-2xl border border-slate-700/60 bg-slate-800/40 overflow-hidden">
+        {isLoading ? (
+          <div className="flex items-center justify-center py-12 text-sm text-slate-400">
+            {fa.common.loading}
+          </div>
+        ) : !invoices || invoices.length === 0 ? (
+          <div className="flex items-center justify-center py-12 text-sm text-slate-400">
+            {fa.invoice.noInvoices}
+          </div>
+        ) : (
+          <div className="divide-y divide-slate-700/40">
+            {invoices.map(inv => (
+              <button
+                key={inv.id}
+                onClick={() => navigate(`/settings/invoices/${inv.id}`)}
+                className="w-full flex items-center justify-between px-5 py-4 text-right hover:bg-slate-700/20 transition-colors"
+              >
+                <div className="flex flex-col gap-1 min-w-0">
+                  <span className="text-sm font-medium text-slate-200 truncate">
+                    {fa.invoice.number(inv.number)}
+                  </span>
+                  <span className="text-xs text-slate-500">
+                    {new Date(inv.issuedAt).toLocaleDateString('fa-IR')} — {inv.planName}
+                  </span>
+                </div>
+                <span className="flex-shrink-0 text-sm font-medium text-emerald-400" dir="ltr">
+                  {(inv.amount / 10).toLocaleString('fa-IR')} {fa.common.toman}
+                </span>
+              </button>
+            ))}
+          </div>
+        )}
+      </div>
+    </div>
+  )
+}

@@ -1,11 +1,13 @@
 import { NavLink, Outlet, useNavigate } from 'react-router-dom'
 import { clsx } from 'clsx'
+import { PlanUpgradeBadge } from './PlanUpgradeBadge'
 import { fa } from '@/locales/fa'
 
 const navItems = [
   { to: '/settings/profile', label: fa.settings.profile },
   { to: '/settings/subscription', label: fa.settings.subscription },
   { to: '/settings/usage', label: fa.settings.usage },
+  { to: '/settings/invoices', label: fa.settings.invoices },
   { to: '/settings/tickets', label: fa.settings.tickets },
 ]
 
@@ -26,6 +28,9 @@ export function SettingsLayout() {
             {fa.common.back}
           </button>
           <h1 className="text-xl font-bold text-slate-100">{fa.settings.title}</h1>
+          <div className="ms-auto">
+            <PlanUpgradeBadge />
+          </div>
         </div>
 
         <div className="flex flex-col gap-6 sm:flex-row">
