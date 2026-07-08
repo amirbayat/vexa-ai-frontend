@@ -1,6 +1,7 @@
 import { useMemo } from 'react'
 import { clsx } from 'clsx'
 import { useUsageHistory, usePaymentHistory } from '@/queries/settings.queries'
+import { useFeatureFlags } from '@/queries/config.queries'
 import { fa } from '@/locales/fa'
 
 function currentMonth() {
@@ -12,6 +13,7 @@ function currentMonth() {
 
 export function UsagePage() {
   const month = useMemo(() => currentMonth(), [])
+  const { data: flags } = useFeatureFlags()
   const { data: history, isLoading: loadingHistory } = useUsageHistory(month)
   const { data: payments, isLoading: loadingPayments } = usePaymentHistory()
 
@@ -34,6 +36,7 @@ export function UsagePage() {
 
   return (
     <div className="space-y-6">
+      {flags?.showMonthlyTokenUsage && (
       <div className="rounded-2xl border border-slate-700/60 bg-slate-800/40 p-6">
         <h2 className="mb-4 text-sm font-medium text-slate-300">{fa.settings.usageChart}</h2>
 
@@ -93,6 +96,7 @@ export function UsagePage() {
           </div>
         )}
       </div>
+      )}
 
       <div className="rounded-2xl border border-slate-700/60 bg-slate-800/40 p-6">
         <h2 className="mb-4 text-sm font-medium text-slate-300">{fa.settings.paymentHistory}</h2>

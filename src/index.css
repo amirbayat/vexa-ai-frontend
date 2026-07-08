@@ -46,19 +46,6 @@ body {
 .ai-content ul  { list-style: disc;    padding-right: 1.4em; margin-bottom: 0.75em; }
 .ai-content ol  { list-style: decimal; padding-right: 1.4em; margin-bottom: 0.75em; }
 .ai-content li  { margin-bottom: 0.25em; }
-.ai-content code {
-  background: rgba(255,255,255,0.08);
-  border-radius: 4px; padding: 0.1em 0.35em;
-  font-family: monospace; font-size: 0.88em;
-  direction: ltr; display: inline-block;
-}
-.ai-content pre {
-  background: rgba(0,0,0,0.35);
-  border-radius: 8px; padding: 0.85em 1em;
-  overflow-x: auto; margin-bottom: 0.75em;
-  direction: ltr;
-}
-.ai-content pre code { background: none; padding: 0; }
 .ai-content strong { font-weight: 600; }
 .ai-content em     { font-style: italic; }
 .ai-content a      { color: #34d399; text-decoration: underline; }

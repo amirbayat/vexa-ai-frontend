@@ -48,7 +48,7 @@ export function TicketDetailPage() {
         onClick={() => navigate('/settings/tickets')}
         className="flex items-center gap-1.5 text-sm text-slate-400 hover:text-slate-200 transition-colors"
       >
-        <svg viewBox="0 0 20 20" fill="currentColor" className="size-4 rotate-180">
+        <svg viewBox="0 0 20 20" fill="currentColor" className="size-4">
           <path fillRule="evenodd" d="M7.293 14.707a1 1 0 010-1.414L10.586 10 7.293 6.707a1 1 0 011.414-1.414l4 4a1 1 0 010 1.414l-4 4a1 1 0 01-1.414 0z" clipRule="evenodd" />
         </svg>
         {fa.ticket.backToList}

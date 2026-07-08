@@ -1,11 +1,20 @@
 import { useEffect, useRef, useState } from 'react'
-import DOMPurify from 'dompurify'
+import ReactMarkdown from 'react-markdown'
+import remarkGfm from 'remark-gfm'
 import { clsx } from 'clsx'
 import { useChatStore } from '@/store/chat.store'
-import { renderMarkdown } from '@/lib/markdown'
+import { CodeBlock, PrePassthrough } from '@/components/chat/CodeBlock'
 import { useSubmitMessageFeedback } from '@/queries/message-feedback.queries'
 import { fa } from '@/locales/fa'
 import type { Message } from '@/types/api'
+
+function LinkNewTab({ href, children }: { href?: string; children?: React.ReactNode }) {
+  return (
+    <a href={href} target="_blank" rel="noopener noreferrer">
+      {children}
+    </a>
+  )
+}
 
 interface MessageListProps {
   messages: Message[]
@@ -118,9 +127,6 @@ function MessageBubble({
   streaming?: boolean
 }) {
   const isUser = role === 'USER'
-  const sanitizedHtml = !isUser
-    ? DOMPurify.sanitize(renderMarkdown(content))
-    : null
 
   return (
     <div>
@@ -165,8 +171,14 @@ function MessageBubble({
               'bg-slate-800 text-slate-100 rounded-tr-sm ai-content',
               streaming && 'border border-emerald-500/30',
             )}
-            dangerouslySetInnerHTML={{ __html: sanitizedHtml! }}
-          />
+          >
+            <ReactMarkdown
+              remarkPlugins={[remarkGfm]}
+              components={{ code: CodeBlock, pre: PrePassthrough, a: LinkNewTab }}
+            >
+              {content}
+            </ReactMarkdown>
+          </div>
         )}
       </div>
 

@@ -36,4 +36,7 @@ export const keys = {
   campaign: {
     status: () => ['campaign', 'status'] as const,
   },
+  config: {
+    features: () => ['config', 'features'] as const,
+  },
 } as const

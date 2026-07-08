@@ -98,7 +98,15 @@ function ActiveChat({ conversationId, isStreaming }: { conversationId: string; i
 
 function EmptyState({ onSend, isCreating }: { onSend: (content: string, images?: string[]) => void; isCreating: boolean }) {
   return (
-    <div className="flex flex-1 flex-col">
+    <div className="flex flex-1 flex-col overflow-hidden">
+      <div className="flex items-center gap-3 border-b border-slate-700/50 px-4 py-3 sm:px-6 sm:py-4">
+        <h2 className="truncate text-sm font-medium text-slate-200">{fa.chat.untitled}</h2>
+        <div className="mr-auto flex items-center gap-2 shrink-0">
+          <ModelSelector />
+          <FeedbackWidget />
+        </div>
+      </div>
+
       <div className="flex flex-1 flex-col items-center justify-center gap-4 p-8">
         <div className="size-20 rounded-3xl bg-emerald-500/10 flex items-center justify-center">
           <svg viewBox="0 0 24 24" fill="none" className="size-10 text-emerald-500/60">

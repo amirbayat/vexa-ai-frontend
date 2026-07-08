@@ -1,9 +1,10 @@
 import { useState, useEffect } from 'react'
 import { Link } from 'react-router-dom'
 import { clsx } from 'clsx'
-import { useMe } from '@/queries/auth.queries'
+import { useMe, useLogout } from '@/queries/auth.queries'
 import { useUpdateProfile } from '@/queries/settings.queries'
 import { useBudgetStatus } from '@/queries/usage.queries'
+import { useFeatureFlags } from '@/queries/config.queries'
 import { Input } from '@/components/ui/Input'
 import { Button } from '@/components/ui/Button'
 import { fa } from '@/locales/fa'
@@ -31,6 +32,8 @@ export function ProfilePage() {
   const { data: me } = useMe()
   const update = useUpdateProfile()
   const { data: budget } = useBudgetStatus()
+  const { data: flags } = useFeatureFlags()
+  const logoutMut = useLogout()
   const [name, setName] = useState(me?.name ?? '')
   const [saved, setSaved] = useState(false)
 
@@ -110,7 +113,7 @@ export function ProfilePage() {
       </div>
 
       {/* budget status */}
-      {budget && (
+      {budget && flags?.showDailyBudget && (
         <div className="rounded-2xl border border-slate-700/60 bg-slate-800/40 p-6">
           <h3 className="text-sm font-semibold text-slate-200 mb-4">{fa.settings.budgetSection}</h3>
 
@@ -152,6 +155,16 @@ export function ProfilePage() {
           )}
         </div>
       )}
+
+      <button
+        onClick={() => logoutMut.mutate()}
+        className="flex w-full items-center justify-center gap-1.5 rounded-xl border border-red-500/20 py-2.5 text-sm text-red-400 hover:bg-red-500/10 transition-colors"
+      >
+        <svg viewBox="0 0 24 24" fill="none" className="size-4">
+          <path d="M9 21H5a2 2 0 01-2-2V5a2 2 0 012-2h4M16 17l5-5-5-5M21 12H9" stroke="currentColor" strokeWidth="1.5" strokeLinecap="round" strokeLinejoin="round" />
+        </svg>
+        {fa.nav.logout}
+      </button>
     </div>
   )
 }

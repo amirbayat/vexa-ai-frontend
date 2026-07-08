@@ -22,16 +22,6 @@ export function useSettingsSubscription() {
   })
 }
 
-export function useCancelSubscription() {
-  const qc = useQueryClient()
-  return useMutation({
-    mutationFn: () => api.delete('/subscriptions/me').then(r => r.data),
-    onSuccess: () => {
-      void qc.invalidateQueries({ queryKey: keys.sub.current() })
-    },
-  })
-}
-
 export function useUsageHistory(month: string) {
   return useQuery({
     queryKey: keys.usage.history(month),

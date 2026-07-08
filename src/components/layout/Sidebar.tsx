@@ -1,7 +1,7 @@
 import { useNavigate } from 'react-router-dom'
 import { clsx } from 'clsx'
 import { useConversations, useArchiveConversation } from '@/queries/conversation.queries'
-import { useMe, useLogout } from '@/queries/auth.queries'
+import { useMe } from '@/queries/auth.queries'
 import { useChatStore } from '@/store/chat.store'
 import { PlanUpgradeBadge } from './PlanUpgradeBadge'
 import { fa } from '@/locales/fa'
@@ -12,7 +12,6 @@ export function Sidebar({ onNavigate }: { onNavigate?: () => void } = {}) {
   const { data: me } = useMe()
   const { data, fetchNextPage, hasNextPage } = useConversations()
   const archiveMut = useArchiveConversation()
-  const logoutMut = useLogout()
 
   const conversations = data?.pages.flatMap(p => p.items) ?? []
 
@@ -101,33 +100,22 @@ export function Sidebar({ onNavigate }: { onNavigate?: () => void } = {}) {
       </div>
 
       {/* footer */}
-      <div className="border-t border-slate-700/50">
-        <div className="flex items-center justify-between px-4 py-3">
-          <button
-            onClick={() => navigate('/settings/profile')}
-            className="flex items-center gap-2 rounded-xl px-1 py-1 hover:bg-slate-700/50 transition-colors text-right"
-            title={fa.settings.profile}
-          >
-            <div className="size-7 rounded-full bg-slate-700 flex items-center justify-center text-xs text-slate-300">
-              {me?.phone?.slice(-4) ?? '?'}
-            </div>
-            <div className="flex flex-col">
-              <span className="text-xs text-slate-300">{me?.name ?? me?.phone}</span>
-              <span className="text-[10px] text-slate-600">
-                {me?.subscription?.plan?.name ?? fa.plans.free}
-              </span>
-            </div>
-          </button>
-          <button
-            onClick={() => logoutMut.mutate()}
-            className="size-7 flex items-center justify-center rounded-lg text-slate-500 hover:text-red-400 hover:bg-slate-700/60 transition-colors"
-            title={fa.nav.logout}
-          >
-            <svg viewBox="0 0 24 24" fill="none" className="size-4">
-              <path d="M9 21H5a2 2 0 01-2-2V5a2 2 0 012-2h4M16 17l5-5-5-5M21 12H9" stroke="currentColor" strokeWidth="1.5" strokeLinecap="round" strokeLinejoin="round" />
-            </svg>
-          </button>
-        </div>
+      <div className="border-t border-slate-700/50 p-3">
+        <button
+          onClick={() => navigate('/settings/profile')}
+          className="flex w-full items-center gap-2.5 rounded-xl px-2.5 py-2 hover:bg-slate-700/50 transition-colors text-right"
+        >
+          <div className="size-8 rounded-full bg-slate-700 flex items-center justify-center text-xs text-slate-300 shrink-0">
+            {me?.phone?.slice(-4) ?? '?'}
+          </div>
+          <div className="flex min-w-0 flex-1 flex-col">
+            <span className="truncate text-xs font-medium text-slate-200">{me?.name ?? me?.phone}</span>
+            <span className="text-[10px] text-slate-500">{fa.settings.viewProfile}</span>
+          </div>
+          <svg viewBox="0 0 20 20" fill="currentColor" className="size-4 shrink-0 text-slate-500">
+            <path fillRule="evenodd" d="M7.293 14.707a1 1 0 010-1.414L10.586 10 7.293 6.707a1 1 0 011.414-1.414l4 4a1 1 0 010 1.414l-4 4a1 1 0 01-1.414 0z" clipRule="evenodd" />
+          </svg>
+        </button>
       </div>
     </aside>
   )

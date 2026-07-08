@@ -1,15 +1,10 @@
-import { useState } from 'react'
 import { Link } from 'react-router-dom'
 import { clsx } from 'clsx'
-import { useSettingsSubscription, useCancelSubscription } from '@/queries/settings.queries'
-import { Button } from '@/components/ui/Button'
+import { useSettingsSubscription } from '@/queries/settings.queries'
 import { fa } from '@/locales/fa'
 
 export function SubscriptionPage() {
   const { data: sub, isLoading } = useSettingsSubscription()
-  const cancel = useCancelSubscription()
-  const [confirming, setConfirming] = useState(false)
-  const [cancelDone, setCancelDone] = useState(false)
 
   if (isLoading) {
     return (
@@ -35,15 +30,6 @@ export function SubscriptionPage() {
 
   const isActive = sub.status === 'ACTIVE'
 
-  function handleCancel() {
-    cancel.mutate(undefined, {
-      onSuccess: () => {
-        setCancelDone(true)
-        setConfirming(false)
-      },
-    })
-  }
-
   return (
     <div className="space-y-4">
       <div className="rounded-2xl border border-slate-700/60 bg-slate-800/40 p-6 space-y-4">
@@ -60,17 +46,19 @@ export function SubscriptionPage() {
                 : 'bg-slate-700/60 text-slate-400',
             )}
           >
-            {sub.status}
+            {fa.settings.subscriptionStatus[sub.status]}
           </span>
         </div>
 
         <div className="grid gap-3 sm:grid-cols-2">
-          <div>
-            <p className="text-xs text-slate-500">توکن رایگان روزانه</p>
-            <p className="mt-0.5 text-sm text-slate-200">
-              {sub.plan.dailyFreeTokens.toLocaleString('fa-IR')}
-            </p>
-          </div>
+          {sub.plan.dailyFreeTokens > 0 && (
+            <div>
+              <p className="text-xs text-slate-500">{fa.settings.dailyGiftTokens}</p>
+              <p className="mt-0.5 text-sm text-slate-200">
+                {sub.plan.dailyFreeTokens.toLocaleString('fa-IR')}
+              </p>
+            </div>
+          )}
           <div>
             <p className="text-xs text-slate-500">{fa.settings.periodEnd}</p>
             <p className="mt-0.5 text-sm text-slate-200">
@@ -82,43 +70,6 @@ export function SubscriptionPage() {
         {sub.cancelAtPeriodEnd && (
           <div className="rounded-xl border border-amber-500/30 bg-amber-500/10 px-4 py-3">
             <p className="text-sm text-amber-400">{fa.settings.cancelAtEnd}</p>
-          </div>
-        )}
-
-        {cancelDone && (
-          <div className="rounded-xl border border-emerald-500/30 bg-emerald-500/10 px-4 py-3">
-            <p className="text-sm text-emerald-400">{fa.settings.cancelDone}</p>
-          </div>
-        )}
-
-        {isActive && !sub.cancelAtPeriodEnd && !cancelDone && (
-          <div>
-            {!confirming ? (
-              <Button variant="danger" size="sm" onClick={() => setConfirming(true)}>
-                {fa.settings.cancelSub}
-              </Button>
-            ) : (
-              <div className="space-y-3">
-                <p className="text-sm text-slate-300">{fa.settings.cancelConfirm}</p>
-                <div className="flex gap-2">
-                  <Button
-                    variant="danger"
-                    size="sm"
-                    loading={cancel.isPending}
-                    onClick={handleCancel}
-                  >
-                    {fa.common.confirm}
-                  </Button>
-                  <Button
-                    variant="ghost"
-                    size="sm"
-                    onClick={() => setConfirming(false)}
-                  >
-                    {fa.common.cancel}
-                  </Button>
-                </div>
-              </div>
-            )}
           </div>
         )}
       </div>
