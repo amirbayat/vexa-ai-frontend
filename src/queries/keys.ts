@@ -14,6 +14,7 @@ export const keys = {
   },
   plans: {
     list: () => ['plans', 'list'] as const,
+    modelCatalog: () => ['plans', 'model-catalog'] as const,
   },
   sub: {
     current: () => ['subscription', 'current'] as const,

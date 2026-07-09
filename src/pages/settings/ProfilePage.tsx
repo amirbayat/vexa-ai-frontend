@@ -53,7 +53,7 @@ export function ProfilePage() {
 
   const planName = me?.subscription?.plan.name ?? 'رایگان'
   const planPrice = me?.subscription?.plan.priceMonthly
-    ? Math.round(me.subscription.plan.priceMonthly / 10).toLocaleString('fa-IR') + ' تومان/ماه'
+    ? me.subscription.plan.priceMonthly.toLocaleString('fa-IR') + ' تومان/ماه'
     : 'رایگان'
 
   return (
@@ -122,29 +122,29 @@ export function ProfilePage() {
               <div className="flex justify-between text-xs text-slate-400 mb-1">
                 <span>{fa.settings.spentToday}</span>
                 <span dir="ltr">
-                  {Math.round(budget.spentTodayRial / 10).toLocaleString('fa-IR')} / {Math.round(budget.dailyBudgetRial / 10).toLocaleString('fa-IR')} تومان
+                  {budget.spentTodayToman.toLocaleString('fa-IR')} / {budget.dailyBudgetToman.toLocaleString('fa-IR')} تومان
                 </span>
               </div>
-              <BudgetBar spent={budget.spentTodayRial} total={budget.dailyBudgetRial} />
+              <BudgetBar spent={budget.spentTodayToman} total={budget.dailyBudgetToman} />
             </div>
 
             <InfoRow
               label={fa.settings.remaining}
-              value={`${Math.round(budget.remainingTodayRial / 10).toLocaleString('fa-IR')} تومان`}
-              highlight={budget.remainingTodayRial > 0}
+              value={`${budget.remainingTodayToman.toLocaleString('fa-IR')} تومان`}
+              highlight={budget.remainingTodayToman > 0}
             />
 
-            {budget.walletBalanceRial > 0 && (
+            {budget.walletBalanceToman > 0 && (
               <InfoRow
                 label={fa.settings.walletBalance}
-                value={`${Math.round(budget.walletBalanceRial / 10).toLocaleString('fa-IR')} تومان`}
+                value={`${budget.walletBalanceToman.toLocaleString('fa-IR')} تومان`}
                 highlight
               />
             )}
 
             <InfoRow
               label={fa.settings.usdtRate}
-              value={budget.usdtRial.toLocaleString('fa-IR')}
+              value={budget.usdtToman.toLocaleString('fa-IR')}
             />
           </div>
 

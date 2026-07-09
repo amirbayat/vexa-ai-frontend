@@ -36,7 +36,7 @@ export function InvoicesPage() {
                   </span>
                 </div>
                 <span className="flex-shrink-0 text-sm font-medium text-emerald-400" dir="ltr">
-                  {(inv.amount / 10).toLocaleString('fa-IR')} {fa.common.toman}
+                  {inv.amount.toLocaleString('fa-IR')} {fa.common.toman}
                 </span>
               </button>
             ))}

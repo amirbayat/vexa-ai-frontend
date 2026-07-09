@@ -127,7 +127,7 @@ export function UsagePage() {
                     </td>
                     <td className="py-3 text-slate-300">{p.plan.name}</td>
                     <td className="py-3 text-slate-300">
-                      {(p.amount / 10).toLocaleString('fa-IR')} {fa.common.toman}
+                      {p.amount.toLocaleString('fa-IR')} {fa.common.toman}
                     </td>
                     <td className="py-3">
                       <span className={clsx('rounded-full px-2 py-0.5 text-xs', statusClass(p.status))}>

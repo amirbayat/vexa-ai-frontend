@@ -5,6 +5,7 @@ import { useMe } from '@/queries/auth.queries'
 import { usePlans } from '@/queries/plans.queries'
 import { SalesChatbot } from '@/components/sales/SalesChatbot'
 import { ExitIntentModal } from '@/components/sales/ExitIntentModal'
+import { ModelShowcase } from '@/components/models/ModelShowcase'
 import { env } from '@/env'
 
 // ── InView observer (MutationObserver برای عناصر async مثل plan cards) ───────
@@ -898,19 +899,20 @@ function PricingSection() {
                       ) : (
                         <>
                           <span className="text-4xl font-extrabold text-white">
-                            {(plan.priceMonthly / 10).toLocaleString('fa-IR')}
+                            {plan.priceMonthly.toLocaleString('fa-IR')}
                           </span>
                           <span className="text-slate-500 text-sm">تومان/ماه</span>
                         </>
                       )}
                     </div>
                   </div>
-                  <ul className="mb-8 flex-1 space-y-3">
+                  <ul className="mb-6 space-y-3">
                     {[
-                      `${plan.dailyFreeTokens.toLocaleString('fa-IR')} توکن رایگان روزانه`,
-                      plan.monthlyTotalTokens > 0 ? `${(plan.monthlyTotalTokens / 1000).toLocaleString('fa-IR')}K توکن ماهانه` : null,
+                      isFree
+                        ? `${plan.dailyFreeTokens.toLocaleString('fa-IR')} توکن رایگان روزانه`
+                        : `${(plan.monthlyTotalTokens / 1000).toLocaleString('fa-IR')}K توکن ماهانه`,
                       'پشتیبانی ۲۴/۷',
-                    ].filter(Boolean).map(feat => (
+                    ].map(feat => (
                       <li key={feat} className="flex items-center gap-2.5 text-sm text-slate-300">
                         <svg viewBox="0 0 16 16" fill="none" className="size-4 shrink-0 text-emerald-500">
                           <path d="M3 8l3.5 3.5L13 4.5" stroke="currentColor" strokeWidth="1.5" strokeLinecap="round" strokeLinejoin="round"/>
@@ -919,6 +921,9 @@ function PricingSection() {
                       </li>
                     ))}
                   </ul>
+                  <div className="mb-8 flex-1">
+                    <ModelShowcase modelNames={plan.allowedModels} max={5} />
+                  </div>
                   <Link to="/login"
                     className={clsx(
                       'block rounded-xl py-3 text-center text-sm font-semibold transition-all active:scale-95',

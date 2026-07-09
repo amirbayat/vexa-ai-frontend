@@ -2,18 +2,16 @@ import { useState, useRef, useEffect } from 'react'
 import { useNavigate } from 'react-router-dom'
 import { useChatStore } from '@/store/chat.store'
 import { useMe } from '@/queries/auth.queries'
+import { useModelCatalog } from '@/queries/plans.queries'
 import { env } from '@/env'
-import { MODEL_CATALOG, OPTIMAL_MODE, OPTIMAL_DESCRIPTION } from '@/lib/model-catalog'
+import { OPTIMAL_MODE, OPTIMAL_DESCRIPTION } from '@/lib/model-catalog'
+import { ProviderIcon } from '@/components/models/ProviderIcon'
 
 const STORAGE_KEY = 'nivo:selectedModel'
+const TOP_N = 4
 
-const MODEL_DISPLAY: Record<string, string> = Object.fromEntries(
-  MODEL_CATALOG.flatMap(m => [[m.id, m.displayName], [m.id.replace('openai/', ''), m.displayName]]),
-)
-
-function displayName(model: string): string {
-  if (model === OPTIMAL_MODE) return 'مدل بهینه'
-  return MODEL_DISPLAY[model] ?? model
+function shortName(model: string): string {
+  return model.includes('/') ? model.split('/')[1] : model
 }
 
 function OptimalIcon() {
@@ -27,29 +25,34 @@ function OptimalIcon() {
   )
 }
 
-function OpenAIIcon() {
-  return (
-    <svg width="14" height="14" viewBox="0 0 24 24" fill="currentColor" className="text-slate-400 shrink-0">
-      <path d="M22.28 9.28a5.76 5.76 0 0 0-.49-4.73 5.83 5.83 0 0 0-6.27-2.8A5.76 5.76 0 0 0 11.19 0a5.82 5.82 0 0 0-5.55 4.04 5.76 5.76 0 0 0-3.84 2.79 5.83 5.83 0 0 0 .72 6.84 5.76 5.76 0 0 0 .49 4.73 5.83 5.83 0 0 0 6.27 2.8A5.76 5.76 0 0 0 12.81 24a5.82 5.82 0 0 0 5.55-4.04 5.76 5.76 0 0 0 3.84-2.79 5.83 5.83 0 0 0-.72-6.84zm-8.47 11.88a4.31 4.31 0 0 1-2.77-1 .5.5 0 0 0 .05-.03l4.6-2.66a.74.74 0 0 0 .38-.65v-6.5l1.95 1.12a.07.07 0 0 1 .04.05v5.38a4.33 4.33 0 0 1-4.25 4.29zM3.42 17.57a4.3 4.3 0 0 1-.52-2.89.5.5 0 0 0 .05.03l4.6 2.66a.76.76 0 0 0 .75 0l5.62-3.24v2.24a.07.07 0 0 1-.03.06l-4.65 2.69a4.34 4.34 0 0 1-5.82-1.55zm-1.39-9.49a4.3 4.3 0 0 1 2.24-1.9v5.47a.75.75 0 0 0 .38.65l5.62 3.24-1.95 1.12a.07.07 0 0 1-.07 0L3.6 13.97a4.33 4.33 0 0 1-1.57-5.89zm16.03 3.72-5.62-3.24 1.95-1.13a.07.07 0 0 1 .07 0l4.65 2.68a4.32 4.32 0 0 1-.67 7.8v-5.47a.74.74 0 0 0-.38-.64zM19.9 8.1a.5.5 0 0 0-.05-.03l-4.6-2.66a.76.76 0 0 0-.76 0L8.88 8.65V6.41a.07.07 0 0 1 .03-.06l4.65-2.68a4.32 4.32 0 0 1 6.34 4.43zm-12.22 4-1.95-1.12a.07.07 0 0 1-.04-.05V5.54a4.32 4.32 0 0 1 7.08-3.32.5.5 0 0 0-.05.03L8.13 4.9a.74.74 0 0 0-.38.65zm1.06-2.28 2.5-1.44 2.5 1.44v2.87l-2.5 1.44-2.5-1.44z" />
-    </svg>
-  )
-}
-
 export function ModelSelector({ currentModel }: { currentModel?: string }) {
   const { selectedModel, setSelectedModel } = useChatStore()
   const { data: me } = useMe()
+  const { data: catalog } = useModelCatalog()
   const navigate = useNavigate()
   const [open, setOpen] = useState(false)
   const ref = useRef<HTMLDivElement>(null)
 
   const allowedModels: string[] = (me?.subscription?.plan?.allowedModels ?? [env.VITE_DEFAULT_MODEL])
+  const topModels = allowedModels.slice(0, TOP_N)
+  const moreCount = allowedModels.length - topModels.length
+
+  function displayName(model: string): string {
+    if (model === OPTIMAL_MODE) return 'مدل بهینه'
+    return catalog?.find(m => m.name === model)?.displayName ?? shortName(model)
+  }
+
+  function providerOf(model: string): string {
+    return catalog?.find(m => m.name === model)?.provider ?? 'openai'
+  }
+
   // «حالت بهینه» همیشه به‌عنوان اولین گزینه در دسترس است — سرویس مسیریاب مدل خودش بین مدل‌های مجاز پلن انتخاب می‌کند
-  const options: string[] = [OPTIMAL_MODE, ...allowedModels]
+  const options: string[] = [OPTIMAL_MODE, ...topModels]
 
   // pick active: selectedModel if valid, else fallback to currentModel or optimal mode
-  const active = options.includes(selectedModel ?? '')
-    ? selectedModel!
-    : (currentModel && options.includes(currentModel) ? currentModel : OPTIMAL_MODE)
+  const active = (selectedModel && [OPTIMAL_MODE, ...allowedModels].includes(selectedModel))
+    ? selectedModel
+    : (currentModel && [OPTIMAL_MODE, ...allowedModels].includes(currentModel) ? currentModel : OPTIMAL_MODE)
 
   // sync store when stale localStorage value is not valid anymore
   useEffect(() => {
@@ -76,14 +79,14 @@ export function ModelSelector({ currentModel }: { currentModel?: string }) {
   }
 
   return (
-    <div ref={ref} className="relative">
+    <div ref={ref} className="relative" dir="rtl">
       <button
         onClick={() => setOpen(v => !v)}
         className="flex items-center gap-1.5 rounded-lg bg-slate-700/60 px-2.5 py-1 hover:bg-slate-700 transition-colors group"
         aria-haspopup="listbox"
         aria-expanded={open}
       >
-        {active === OPTIMAL_MODE ? <OptimalIcon /> : <OpenAIIcon />}
+        {active === OPTIMAL_MODE ? <OptimalIcon /> : <ProviderIcon provider={providerOf(active)} />}
         <span className="text-xs text-slate-400 group-hover:text-slate-300 transition-colors">
           {displayName(active)}
         </span>
@@ -97,37 +100,37 @@ export function ModelSelector({ currentModel }: { currentModel?: string }) {
       </button>
 
       {open && (
-        <div className="absolute top-full left-0 mt-1.5 z-50 min-w-[240px] rounded-xl border border-slate-700 bg-slate-800 shadow-xl overflow-hidden">
+        <div dir="rtl" className="absolute top-full right-0 mt-1.5 z-50 min-w-[260px] rounded-xl border border-slate-700 bg-slate-800 shadow-xl overflow-hidden">
           {options.map(model => (
             <button
               key={model}
               onClick={() => select(model)}
-              className={`w-full flex flex-col gap-1 px-3 py-2.5 text-left text-sm transition-colors
+              className={`w-full flex flex-col gap-1 px-3 py-2.5 text-right text-sm transition-colors
                 ${model === active
                   ? 'bg-slate-700 text-slate-200'
                   : 'text-slate-400 hover:bg-slate-700/50 hover:text-slate-300'
                 }`}
             >
               <span className="flex w-full items-center gap-2">
-                {model === OPTIMAL_MODE ? <OptimalIcon /> : <OpenAIIcon />}
+                {model === OPTIMAL_MODE ? <OptimalIcon /> : <ProviderIcon provider={providerOf(model)} />}
                 {displayName(model)}
                 {model === active && (
-                  <svg viewBox="0 0 12 12" fill="none" className="ml-auto w-3 h-3 text-emerald-500 shrink-0">
+                  <svg viewBox="0 0 12 12" fill="none" className="mr-auto w-3 h-3 text-emerald-500 shrink-0">
                     <path d="M2 6l3 3 5-5" stroke="currentColor" strokeWidth="1.5" strokeLinecap="round" strokeLinejoin="round" />
                   </svg>
                 )}
               </span>
               {model === OPTIMAL_MODE && (
-                <span className="pr-5 text-[11px] leading-relaxed text-slate-500">{OPTIMAL_DESCRIPTION}</span>
+                <span dir="rtl" className="pr-5 text-[11px] leading-relaxed text-slate-500 text-right">{OPTIMAL_DESCRIPTION}</span>
               )}
             </button>
           ))}
 
           <button
             onClick={goToModelsPage}
-            className="w-full border-t border-slate-700/70 px-3 py-2.5 text-xs font-medium text-emerald-400 hover:bg-slate-700/50 transition-colors"
+            className="w-full border-t border-slate-700/70 px-3 py-2.5 text-right text-xs font-medium text-emerald-400 hover:bg-slate-700/50 transition-colors"
           >
-            انتخاب مدل ←
+            {moreCount > 0 ? `مدل‌های بیشتر (${moreCount} مورد دیگر) ←` : 'مشاهده همه مدل‌ها ←'}
           </button>
         </div>
       )}

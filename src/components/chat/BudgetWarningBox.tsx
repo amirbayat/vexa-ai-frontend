@@ -40,10 +40,10 @@ export function BudgetWarningBox() {
   const config = LEVEL_CONFIG[data.warningLevel]
   if (!config.show) return null
 
-  const usedPct = pct(data.spentTodayRial, data.dailyBudgetRial)
-  const spentToman = Math.round(data.spentTodayRial / 10).toLocaleString('fa-IR')
-  const budgetToman = Math.round(data.dailyBudgetRial / 10).toLocaleString('fa-IR')
-  const walletToman = Math.round(data.walletBalanceRial / 10).toLocaleString('fa-IR')
+  const usedPct = pct(data.spentTodayToman, data.dailyBudgetToman)
+  const spentToman = data.spentTodayToman.toLocaleString('fa-IR')
+  const budgetToman = data.dailyBudgetToman.toLocaleString('fa-IR')
+  const walletToman = data.walletBalanceToman.toLocaleString('fa-IR')
 
   const levelLabel = {
     none:          '',
@@ -82,7 +82,7 @@ export function BudgetWarningBox() {
       </div>
 
       {/* wallet */}
-      {data.walletBalanceRial > 0 && (
+      {data.walletBalanceToman > 0 && (
         <p className="mt-2 text-xs text-emerald-400">کیف پول: {walletToman} تومان</p>
       )}
 

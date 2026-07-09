@@ -64,7 +64,7 @@ export function InvoiceDetailPage() {
         <InfoRow label={fa.invoice.plan} value={invoice.planName} />
         <InfoRow
           label={fa.invoice.amount}
-          value={`${(invoice.amount / 10).toLocaleString('fa-IR')} ${fa.common.toman}`}
+          value={`${invoice.amount.toLocaleString('fa-IR')} ${fa.common.toman}`}
         />
         <InfoRow label={fa.invoice.gateway} value={fa.invoice.gateways[invoice.provider]} />
         {invoice.refId && <InfoRow label={fa.invoice.refId} value={invoice.refId} />}

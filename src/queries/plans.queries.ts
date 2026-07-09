@@ -11,6 +11,23 @@ export function usePlans() {
   })
 }
 
+export interface ModelCatalogEntry {
+  name: string
+  displayName: string
+  provider: string
+  tier: 'SIMPLE' | 'MEDIUM' | 'COMPLEX'
+  supportsVision: boolean
+  sortOrder: number
+}
+
+export function useModelCatalog() {
+  return useQuery({
+    queryKey: keys.plans.modelCatalog(),
+    queryFn: () => api.get<ModelCatalogEntry[]>('/plans/model-catalog').then(r => r.data),
+    staleTime: 10 * 60_000,
+  })
+}
+
 export type PaymentGatewayName = 'zarinpal' | 'vandar' | 'zibal'
 
 export function useEnabledGateways() {

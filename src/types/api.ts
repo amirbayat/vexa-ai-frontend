@@ -16,6 +16,15 @@ export interface Plan {
   allowedModels: string[]
   features: Record<string, unknown>
   sortOrder: number
+  isActive: boolean
+  maxInputTokens: number
+  outputThrottleSteps: { afterMessages: number; maxOutputTokens: number }[]
+  dailyMessageLimit: number | null
+  throttledMessageCount: number | null
+  throttledInputTokens: number | null
+  throttledOutputTokens: number | null
+  rollingWindowLimit: number | null
+  rollingWindowHours: number
 }
 
 export interface Subscription {
@@ -97,16 +106,16 @@ export interface Invoice {
 }
 
 export interface BudgetStatus {
-  dailyBudgetRial: number
-  spentTodayRial: number
-  remainingTodayRial: number
-  monthlyBudgetRial: number
-  spentMonthRial: number
-  walletBalanceRial: number
+  dailyBudgetToman: number
+  spentTodayToman: number
+  remainingTodayToman: number
+  monthlyBudgetToman: number
+  spentMonthToman: number
+  walletBalanceToman: number
   warningLevel: 'none' | 'warning' | 'critical' | 'session_limit' | 'exceeded'
   cascadeModel: string | null
   upsellSuggestion: string | null
-  usdtRial: number
+  usdtToman: number
 }
 
 export interface Ticket {
