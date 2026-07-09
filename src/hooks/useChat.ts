@@ -89,13 +89,14 @@ export function useChat(conversationId: string) {
               const parsed = JSON.parse(raw) as {
                 chunk?: string
                 error?: string
+                code?: string
                 info?: string
                 stage?: 'normal' | 'throttled'
                 remainingNormal?: number
                 remainingThrottled?: number
               }
               if (parsed.chunk) appendStreamingContent(parsed.chunk)
-              if (parsed.error) setChatError(parsed.error)
+              if (parsed.error) setChatError(parsed.error, null, undefined, parsed.code ?? null)
               if (parsed.info === 'stage' && parsed.stage) {
                 setMessageStage(
                   parsed.stage,

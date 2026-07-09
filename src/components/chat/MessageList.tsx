@@ -21,7 +21,7 @@ interface MessageListProps {
 }
 
 export function MessageList({ messages }: MessageListProps) {
-  const { streamingContent, isStreaming, chatError, limitPlanTier } = useChatStore()
+  const { streamingContent, isStreaming, chatError, chatErrorCode, limitPlanTier } = useChatStore()
   const containerRef = useRef<HTMLDivElement>(null)
 
   useEffect(() => {
@@ -57,13 +57,24 @@ export function MessageList({ messages }: MessageListProps) {
         </div>
       )}
 
-      {chatError && !isStreaming && <LimitBox message={chatError} planTier={limitPlanTier} />}
+      {chatError && !isStreaming && (
+        <ChatErrorBox message={chatError} planTier={limitPlanTier} code={chatErrorCode} />
+      )}
 
     </div>
   )
 }
 
-function LimitBox({ message, planTier }: { message: string; planTier: string | null }) {
+function ChatErrorBox({ message, planTier, code }: { message: string; planTier: string | null; code: string | null }) {
+  // فقط وقتی واقعاً یک خطای سهمیه/بودجه است (planTier ست شده) عنوان «محدودیت» نشون بده —
+  // خطاهای دیگر (مثلاً مدل در دسترس نیست) نباید با همین قاب گمراه‌کننده نمایش داده شوند
+  const isLimitError = Boolean(planTier)
+  const heading = isLimitError
+    ? 'به محدودیت رسیدید'
+    : code === 'model_unavailable'
+      ? 'مدل در دسترس نیست'
+      : 'خطایی رخ داد'
+
   return (
     <div className="flex justify-center">
       <div className="max-w-sm w-full rounded-2xl border border-red-500/40 bg-red-500/10 p-4">
@@ -72,7 +83,7 @@ function LimitBox({ message, planTier }: { message: string; planTier: string | n
             <circle cx="12" cy="12" r="9" stroke="currentColor" strokeWidth="1.5" />
             <path d="M12 8v4m0 4h.01" stroke="currentColor" strokeWidth="2" strokeLinecap="round" />
           </svg>
-          <span className="text-sm font-semibold text-red-300">به محدودیت رسیدید</span>
+          <span className="text-sm font-semibold text-red-300">{heading}</span>
         </div>
         <p className="text-sm text-red-200/80 leading-relaxed mb-3">{message}</p>
 

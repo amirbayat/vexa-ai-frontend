@@ -7,6 +7,7 @@ interface ChatState {
   streamingContent: string
   isStreaming: boolean
   chatError: string | null
+  chatErrorCode: string | null
   limitPlanTier: string | null
   messageStage: MessageStage
   remainingNormal: number | null
@@ -17,7 +18,7 @@ interface ChatState {
   appendStreamingContent: (chunk: string) => void
   setIsStreaming: (v: boolean) => void
   resetStreaming: () => void
-  setChatError: (msg: string | null, planTier?: string | null, stage?: MessageStage) => void
+  setChatError: (msg: string | null, planTier?: string | null, stage?: MessageStage, code?: string | null) => void
   setMessageStage: (stage: MessageStage, remainingNormal: number | null, remainingThrottled: number | null) => void
   setSelectedModel: (model: string) => void
 }
@@ -27,6 +28,7 @@ export const useChatStore = create<ChatState>(set => ({
   streamingContent: '',
   isStreaming: false,
   chatError: null,
+  chatErrorCode: null,
   limitPlanTier: null,
   messageStage: 'normal',
   remainingNormal: null,
@@ -39,8 +41,8 @@ export const useChatStore = create<ChatState>(set => ({
   appendStreamingContent: chunk => set(s => ({ streamingContent: s.streamingContent + chunk })),
   setIsStreaming: v => set({ isStreaming: v }),
   resetStreaming: () => set({ streamingContent: '', isStreaming: false }),
-  setChatError: (msg, planTier = null, stage) =>
-    set({ chatError: msg, limitPlanTier: planTier ?? null, ...(stage ? { messageStage: stage } : {}) }),
+  setChatError: (msg, planTier = null, stage, code = null) =>
+    set({ chatError: msg, chatErrorCode: code, limitPlanTier: planTier ?? null, ...(stage ? { messageStage: stage } : {}) }),
   setMessageStage: (stage, remainingNormal, remainingThrottled) =>
     set({ messageStage: stage, remainingNormal, remainingThrottled }),
   setSelectedModel: model => set({ selectedModel: model }),
