@@ -116,7 +116,7 @@ export interface BudgetStatus {
   spentMonthToman: number
   walletBalanceToman: number
   warningLevel: 'none' | 'warning' | 'critical' | 'session_limit' | 'exceeded'
-  cascadeModel: string | null
+  usagePct: number
   upsellSuggestion: string | null
   usdtToman: number
 }

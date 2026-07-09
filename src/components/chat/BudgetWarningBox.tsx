@@ -86,11 +86,6 @@ export function BudgetWarningBox() {
         <p className="mt-2 text-xs text-emerald-400">کیف پول: {walletToman} تومان</p>
       )}
 
-      {/* cascade info */}
-      {data.cascadeModel && (
-        <p className="mt-1.5 text-xs text-slate-400">مدل فعلی: {data.cascadeModel}</p>
-      )}
-
       {/* upsell message */}
       {data.upsellSuggestion && (
         <p className={clsx('mt-2 text-xs', config.text)}>{data.upsellSuggestion}</p>
