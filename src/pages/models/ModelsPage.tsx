@@ -84,7 +84,7 @@ export function ModelsPage() {
             onClick={() => navigate(-1)}
             className="mb-4 text-sm text-slate-500 hover:text-slate-300 transition-colors"
           >
-            ← بازگشت
+            → بازگشت
           </button>
           <h1 className="text-2xl font-bold text-slate-100">انتخاب مدل</h1>
           <p className="mt-2 text-slate-500">مدلی که می‌خوای پاسخ‌هات باهاش ساخته شه رو انتخاب کن</p>

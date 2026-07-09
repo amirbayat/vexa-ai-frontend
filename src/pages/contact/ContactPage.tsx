@@ -6,7 +6,7 @@ const PHONE = '09032334441'
 function BackIcon() {
   return (
     <svg viewBox="0 0 16 16" fill="none" className="size-4">
-      <path d="M13 8H3M7 4L3 8l4 4" stroke="currentColor" strokeWidth="1.8" strokeLinecap="round" strokeLinejoin="round" />
+      <path d="M3 8h10M9 4l4 4-4 4" stroke="currentColor" strokeWidth="1.8" strokeLinecap="round" strokeLinejoin="round" />
     </svg>
   )
 }
