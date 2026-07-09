@@ -23,13 +23,21 @@ function fallbackEntry(name: string): ModelCatalogEntry {
   }
 }
 
-export function ModelShowcase({ modelNames, max = 5 }: { modelNames: string[]; max?: number }) {
+interface ModelShowcaseProps {
+  allowedModels: string[]
+  featuredModels: string[]
+  max: number
+}
+
+export function ModelShowcase({ allowedModels, featuredModels, max }: ModelShowcaseProps) {
   const { data: catalog } = useModelCatalog()
   const [open, setOpen] = useState(false)
 
-  const entries = modelNames.map(n => catalog?.find(m => m.name === n) ?? fallbackEntry(n))
-  const top = entries.slice(0, max)
-  const restCount = entries.length - top.length
+  // اگر پلن هنوز مدل‌های ویژه تنظیم نکرده، fallback به allowedModels تا رفتار قبلی نشکند
+  const shownNames = featuredModels.length ? featuredModels : allowedModels
+  const allEntries = allowedModels.map(n => catalog?.find(m => m.name === n) ?? fallbackEntry(n))
+  const top = shownNames.slice(0, max).map(n => catalog?.find(m => m.name === n) ?? fallbackEntry(n))
+  const restCount = allowedModels.length - top.length
 
   return (
     <>
@@ -68,7 +76,7 @@ export function ModelShowcase({ modelNames, max = 5 }: { modelNames: string[]; m
               <button onClick={() => setOpen(false)} className="text-slate-500 hover:text-slate-300">✕</button>
             </div>
             <div className="space-y-3">
-              {entries.map(m => (
+              {allEntries.map(m => (
                 <div key={m.name} className="flex items-start gap-3 rounded-xl border border-slate-800 bg-slate-800/40 p-4">
                   <div className="mt-0.5 flex size-9 shrink-0 items-center justify-center rounded-lg bg-white/5">
                     <ProviderIcon provider={m.provider} size={18} />

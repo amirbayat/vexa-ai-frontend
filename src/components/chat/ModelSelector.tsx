@@ -34,7 +34,9 @@ export function ModelSelector({ currentModel }: { currentModel?: string }) {
   const ref = useRef<HTMLDivElement>(null)
 
   const allowedModels: string[] = (me?.subscription?.plan?.allowedModels ?? [env.VITE_DEFAULT_MODEL])
-  const topModels = allowedModels.slice(0, TOP_N)
+  const featuredModels = me?.subscription?.plan?.featuredModels
+  // اگر پلن مدل‌های ویژه تنظیم نکرده باشد، fallback به ۴ تای اول allowedModels (رفتار قبلی)
+  const topModels = featuredModels?.length ? featuredModels : allowedModels.slice(0, TOP_N)
   const moreCount = allowedModels.length - topModels.length
 
   function displayName(model: string): string {

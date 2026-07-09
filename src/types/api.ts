@@ -17,6 +17,9 @@ export interface Plan {
   features: Record<string, unknown>
   sortOrder: number
   isActive: boolean
+  isPopular: boolean
+  featuredModels: string[]
+  featuredModelsCount: number
   maxInputTokens: number
   outputThrottleSteps: { afterMessages: number; maxOutputTokens: number }[]
   dailyMessageLimit: number | null

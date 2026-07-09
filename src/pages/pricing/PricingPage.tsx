@@ -51,10 +51,10 @@ export function PricingPage() {
         </div>
 
         <div className="grid gap-6 md:grid-cols-3" role="list" aria-label="پلن‌های اشتراک">
-          {plans?.map((plan, i) => {
+          {plans?.map(plan => {
             const isCurrent = plan.id === currentPlanId
             const isFree = plan.priceMonthly === 0
-            const isPopular = !isCurrent && i === 1
+            const isPopular = !isCurrent && plan.isPopular
 
             return (
               <div
@@ -111,7 +111,11 @@ export function PricingPage() {
 
                 <div className="mb-8 flex-1">
                   <p className="mb-3 text-xs font-medium text-slate-500">{fa.plans.models}</p>
-                  <ModelShowcase modelNames={plan.allowedModels} max={5} />
+                  <ModelShowcase
+                    allowedModels={plan.allowedModels}
+                    featuredModels={plan.featuredModels}
+                    max={plan.featuredModelsCount}
+                  />
                 </div>
 
                 {isCurrent ? (

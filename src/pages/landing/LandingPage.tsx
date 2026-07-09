@@ -877,7 +877,7 @@ function PricingSection() {
           <div className="grid gap-6 md:grid-cols-3">
             {plans?.map((plan, i) => {
               const isFree = plan.priceMonthly === 0
-              const isPopular = i === 1
+              const isPopular = plan.isPopular
               return (
                 <div key={plan.id} data-anim="true" data-d={String(i + 1)}
                   className={clsx(
@@ -922,7 +922,11 @@ function PricingSection() {
                     ))}
                   </ul>
                   <div className="mb-8 flex-1">
-                    <ModelShowcase modelNames={plan.allowedModels} max={5} />
+                    <ModelShowcase
+                      allowedModels={plan.allowedModels}
+                      featuredModels={plan.featuredModels}
+                      max={plan.featuredModelsCount}
+                    />
                   </div>
                   <Link to="/login"
                     className={clsx(

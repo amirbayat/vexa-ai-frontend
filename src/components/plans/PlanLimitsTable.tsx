@@ -31,33 +31,9 @@ const ROWS: Row[] = [
     render: p => (p.dailyMessageLimit != null ? `${fmt(p.dailyMessageLimit)} پیام` : 'نامحدود'),
   },
   {
-    label: 'ناحیه محدود بعد از سقف',
-    render: p => (p.throttledMessageCount != null && p.throttledMessageCount > 0
-      ? `${fmt(p.throttledMessageCount)} پیام دیگر با ظرفیت کمتر`
-      : '—'),
-  },
-  {
-    label: 'سقف توکن ورودی (حالت عادی)',
-    render: p => fmt(p.maxInputTokens),
-  },
-  {
-    label: 'سقف توکن ورودی (ناحیه محدود)',
-    render: p => (p.throttledInputTokens != null ? fmt(p.throttledInputTokens) : '—'),
-  },
-  {
-    label: 'سقف توکن خروجی (ناحیه محدود)',
-    render: p => (p.throttledOutputTokens != null ? fmt(p.throttledOutputTokens) : '—'),
-  },
-  {
-    label: 'کاهش پله‌ای خروجی',
-    render: p => (p.outputThrottleSteps?.length
-      ? p.outputThrottleSteps.map(s => `بعد از ${fmt(s.afterMessages)} پیام → ${fmt(s.maxOutputTokens)} توکن`).join(' | ')
-      : '—'),
-  },
-  {
     label: 'محدودیت پنجره‌ی لغزان',
     render: p => (p.rollingWindowLimit != null
-      ? `${fmt(p.rollingWindowLimit)} پیام / ${fmt(p.rollingWindowHours)} ساعت`
+      ? `محدودیت هر ${fmt(p.rollingWindowHours)} ساعت ${fmt(p.rollingWindowLimit)} پیام`
       : 'غیرفعال'),
   },
 ]
