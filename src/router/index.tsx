@@ -6,6 +6,7 @@ import { LoginPage } from '@/pages/auth/LoginPage'
 import { OtpPage } from '@/pages/auth/OtpPage'
 import { ChatPage } from '@/pages/chat/ChatPage'
 import { PricingPage } from '@/pages/pricing/PricingPage'
+import { ModelsPage } from '@/pages/models/ModelsPage'
 import { CallbackPage } from '@/pages/payment/CallbackPage'
 import { ProfilePage } from '@/pages/settings/ProfilePage'
 import { SubscriptionPage } from '@/pages/settings/SubscriptionPage'
@@ -53,6 +54,10 @@ export function AppRouter() {
       <Route
         path="/pricing"
         element={<ProtectedRoute><PricingPage /></ProtectedRoute>}
+      />
+      <Route
+        path="/models"
+        element={<ProtectedRoute><ModelsPage /></ProtectedRoute>}
       />
       <Route path="/payment" element={<CallbackPage />} />
 

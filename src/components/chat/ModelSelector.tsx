@@ -1,22 +1,18 @@
 import { useState, useRef, useEffect } from 'react'
+import { useNavigate } from 'react-router-dom'
 import { useChatStore } from '@/store/chat.store'
 import { useMe } from '@/queries/auth.queries'
 import { env } from '@/env'
+import { MODEL_CATALOG, OPTIMAL_MODE, OPTIMAL_DESCRIPTION } from '@/lib/model-catalog'
 
 const STORAGE_KEY = 'nivo:selectedModel'
-const OPTIMAL_MODE = 'optimal'
 
-const MODEL_DISPLAY: Record<string, string> = {
-  'openai/gpt-4o-mini': 'GPT-4o mini',
-  'openai/gpt-4o': 'GPT-4o',
-  'openai/gpt-4-turbo': 'GPT-4 Turbo',
-  'gpt-4o-mini': 'GPT-4o mini',
-  'gpt-4o': 'GPT-4o',
-  'gpt-4-turbo': 'GPT-4 Turbo',
-}
+const MODEL_DISPLAY: Record<string, string> = Object.fromEntries(
+  MODEL_CATALOG.flatMap(m => [[m.id, m.displayName], [m.id.replace('openai/', ''), m.displayName]]),
+)
 
 function displayName(model: string): string {
-  if (model === OPTIMAL_MODE) return 'حالت بهینه'
+  if (model === OPTIMAL_MODE) return 'مدل بهینه'
   return MODEL_DISPLAY[model] ?? model
 }
 
@@ -42,6 +38,7 @@ function OpenAIIcon() {
 export function ModelSelector({ currentModel }: { currentModel?: string }) {
   const { selectedModel, setSelectedModel } = useChatStore()
   const { data: me } = useMe()
+  const navigate = useNavigate()
   const [open, setOpen] = useState(false)
   const ref = useRef<HTMLDivElement>(null)
 
@@ -73,6 +70,11 @@ export function ModelSelector({ currentModel }: { currentModel?: string }) {
     setOpen(false)
   }
 
+  function goToModelsPage() {
+    setOpen(false)
+    navigate('/models')
+  }
+
   return (
     <div ref={ref} className="relative">
       <button
@@ -95,26 +97,38 @@ export function ModelSelector({ currentModel }: { currentModel?: string }) {
       </button>
 
       {open && (
-        <div className="absolute top-full left-0 mt-1.5 z-50 min-w-[160px] rounded-xl border border-slate-700 bg-slate-800 shadow-xl overflow-hidden">
+        <div className="absolute top-full left-0 mt-1.5 z-50 min-w-[240px] rounded-xl border border-slate-700 bg-slate-800 shadow-xl overflow-hidden">
           {options.map(model => (
             <button
               key={model}
               onClick={() => select(model)}
-              className={`w-full flex items-center gap-2 px-3 py-2.5 text-left text-sm transition-colors
+              className={`w-full flex flex-col gap-1 px-3 py-2.5 text-left text-sm transition-colors
                 ${model === active
                   ? 'bg-slate-700 text-slate-200'
                   : 'text-slate-400 hover:bg-slate-700/50 hover:text-slate-300'
                 }`}
             >
-              {model === OPTIMAL_MODE ? <OptimalIcon /> : <OpenAIIcon />}
-              {displayName(model)}
-              {model === active && (
-                <svg viewBox="0 0 12 12" fill="none" className="ml-auto w-3 h-3 text-emerald-500 shrink-0">
-                  <path d="M2 6l3 3 5-5" stroke="currentColor" strokeWidth="1.5" strokeLinecap="round" strokeLinejoin="round" />
-                </svg>
+              <span className="flex w-full items-center gap-2">
+                {model === OPTIMAL_MODE ? <OptimalIcon /> : <OpenAIIcon />}
+                {displayName(model)}
+                {model === active && (
+                  <svg viewBox="0 0 12 12" fill="none" className="ml-auto w-3 h-3 text-emerald-500 shrink-0">
+                    <path d="M2 6l3 3 5-5" stroke="currentColor" strokeWidth="1.5" strokeLinecap="round" strokeLinejoin="round" />
+                  </svg>
+                )}
+              </span>
+              {model === OPTIMAL_MODE && (
+                <span className="pr-5 text-[11px] leading-relaxed text-slate-500">{OPTIMAL_DESCRIPTION}</span>
               )}
             </button>
           ))}
+
+          <button
+            onClick={goToModelsPage}
+            className="w-full border-t border-slate-700/70 px-3 py-2.5 text-xs font-medium text-emerald-400 hover:bg-slate-700/50 transition-colors"
+          >
+            انتخاب مدل ←
+          </button>
         </div>
       )}
     </div>

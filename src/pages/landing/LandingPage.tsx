@@ -175,6 +175,44 @@ function IconLayers() {
     </svg>
   )
 }
+function IconBriefcase() {
+  return (
+    <svg viewBox="0 0 40 40" fill="none" className="size-8">
+      <rect x="6" y="14" width="28" height="18" rx="2.5" stroke="#10B981" strokeWidth="2" strokeLinejoin="round" />
+      <path d="M14 14v-3a3 3 0 013-3h6a3 3 0 013 3v3" stroke="#10B981" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round" />
+      <path d="M6 21h28" stroke="#10B981" strokeWidth="2" strokeOpacity="0.5" />
+      <rect x="17" y="19" width="6" height="5" rx="1" fill="#10B981" fillOpacity="0.85" />
+    </svg>
+  )
+}
+function IconCamera() {
+  return (
+    <svg viewBox="0 0 40 40" fill="none" className="size-8">
+      <rect x="5" y="12" width="30" height="21" rx="3" stroke="#7C3AED" strokeWidth="2" strokeLinejoin="round" />
+      <path d="M13 12l2.4-4h9.2l2.4 4" stroke="#7C3AED" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round" />
+      <circle cx="20" cy="23" r="6" stroke="#7C3AED" strokeWidth="2" />
+      <circle cx="29" cy="17" r="1.4" fill="#7C3AED" />
+    </svg>
+  )
+}
+function IconBook() {
+  return (
+    <svg viewBox="0 0 40 40" fill="none" className="size-8">
+      <path d="M20 10c-3-2.4-7.5-3-12-2v22c4.5-1 9 -0.4 12 2" stroke="#0EA5E9" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round" />
+      <path d="M20 10c3-2.4 7.5-3 12-2v22c-4.5-1-9-0.4-12 2" stroke="#0EA5E9" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round" />
+      <path d="M20 10v22" stroke="#0EA5E9" strokeWidth="2" strokeOpacity="0.5" />
+    </svg>
+  )
+}
+function IconMore() {
+  return (
+    <svg viewBox="0 0 40 40" fill="none" className="size-8">
+      <circle cx="10" cy="20" r="2.4" fill="#10B981" fillOpacity="0.85" />
+      <circle cx="20" cy="20" r="2.4" fill="#10B981" fillOpacity="0.85" />
+      <circle cx="30" cy="20" r="2.4" fill="#10B981" fillOpacity="0.85" />
+    </svg>
+  )
+}
 
 // ── Global starfield background ───────────────────────────────────────────────
 const STARS = Array.from({ length: 110 }, (_, i) => ({
@@ -605,7 +643,7 @@ function FeaturesSection() {
     {
       Icon: IconLayers,
       title: 'انتخاب آزاد مدل',
-      desc: 'از رایگان تا طلایی — هر پلنی متناسب با نیاز و بودجه‌ات.',
+      desc: 'از رایگان تا پلاس — هر پلنی متناسب با نیاز و بودجه‌ات.',
       bg: 'from-emerald-500/10 to-transparent',
       border: 'border-emerald-500/15 hover:border-emerald-500/40',
     },
@@ -632,6 +670,71 @@ function FeaturesSection() {
               </div>
               <h3 className="font-semibold text-white">{f.title}</h3>
               <p className="mt-2 text-sm leading-relaxed text-slate-400">{f.desc}</p>
+            </div>
+          ))}
+        </div>
+      </div>
+    </section>
+  )
+}
+
+function IdeasSection() {
+  const ideas = [
+    {
+      Icon: IconBriefcase,
+      tag: 'برای کارمندها',
+      title: '«چطوری همه کارات رو این‌قدر سریع انجام می‌دی؟»',
+      desc: 'ایمیل رسمی، خلاصه‌ی گزارش، متن پرزنتیشن — کارهایی که ساعت‌ها وقت می‌گرفت، حالا در چند ثانیه.',
+      bg: 'from-emerald-500/10 to-transparent',
+      border: 'border-emerald-500/15 hover:border-emerald-500/40',
+    },
+    {
+      Icon: IconCamera,
+      tag: 'برای پیج‌گردون‌های اینستاگرام',
+      title: 'هر روز یه ایده‌ی پست تازه',
+      desc: 'ایده‌ی پست، کپشن جذاب و هشتگ مناسب کسب‌وکارت رو بگیر — بدون گیر کردن پای صفحه‌ی خالی.',
+      bg: 'from-violet-600/10 to-transparent',
+      border: 'border-violet-500/15 hover:border-violet-500/40',
+    },
+    {
+      Icon: IconBook,
+      tag: 'برای زبان‌آموزها',
+      title: 'یه معلم زبان همراه، ۲۴ ساعته',
+      desc: 'مکالمه تمرین کن، گرامرت رو تصحیح بگیر، متن بنویس و فوری فیدبک بگیر.',
+      bg: 'from-cyan-500/10 to-transparent',
+      border: 'border-cyan-500/15 hover:border-cyan-500/40',
+    },
+    {
+      Icon: IconMore,
+      tag: 'و خیلی کاربردهای دیگه',
+      title: 'هر شغل و نیازی، یه استفاده‌ی متفاوت',
+      desc: 'این‌جا فقط چندتا نمونه بود — به‌زودی ایده‌های بیشتری براساس نیاز شما اضافه می‌کنیم.',
+      bg: 'from-emerald-500/10 to-transparent',
+      border: 'border-slate-600/20 hover:border-slate-500/40',
+    },
+  ]
+
+  return (
+    <section className="px-6 py-24 relative overflow-hidden">
+      <SectionGlow c1="#7C3AED" c2="#0EA5E9" seed={8} flip />
+      <div className="mx-auto max-w-6xl relative z-10">
+        <div className="mb-14 text-center" data-anim="true">
+          <p className="mb-2 text-sm font-medium text-violet-400 uppercase tracking-widest">ایده‌های استفاده</p>
+          <h2 className="text-3xl font-bold text-white sm:text-4xl">نیوو برای هر کسی یه کاربرد داره</h2>
+        </div>
+        <div className="grid gap-5 sm:grid-cols-2 lg:grid-cols-4">
+          {ideas.map((idea, i) => (
+            <div key={idea.title} data-anim="true" data-d={String(i + 1)}
+              className={clsx(
+                'feature-card relative overflow-hidden rounded-2xl border bg-gradient-to-b p-6 transition-all duration-300',
+                idea.bg, idea.border,
+              )}>
+              <div className="mb-4 size-12 rounded-xl bg-white/5 flex items-center justify-center">
+                <idea.Icon />
+              </div>
+              <p className="mb-1.5 text-xs font-medium text-slate-500">{idea.tag}</p>
+              <h3 className="font-semibold text-white leading-snug">{idea.title}</h3>
+              <p className="mt-2 text-sm leading-relaxed text-slate-400">{idea.desc}</p>
             </div>
           ))}
         </div>
@@ -1047,6 +1150,8 @@ export function LandingPage() {
       <WaveDivider />
       <FeaturesSection />
       <WaveDivider flip />
+      <IdeasSection />
+      <WaveDivider />
       <HowItWorks />
       <WaveDivider />
       <ChatbotSection />

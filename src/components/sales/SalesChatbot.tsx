@@ -20,8 +20,8 @@ function generateSessionId(): string {
 
 const PLAN_LABELS: Record<string, string> = {
   free: 'رایگان',
-  silver: 'نقره‌ای',
-  gold: 'طلایی',
+  silver: 'اکو',
+  gold: 'پلاس',
 }
 
 export function SalesChatbot({ source = 'pricing_page' }: Props) {
