@@ -926,6 +926,7 @@ function PricingSection() {
                       allowedModels={plan.allowedModels}
                       featuredModels={plan.featuredModels}
                       max={plan.featuredModelsCount}
+                      isFree={isFree}
                     />
                   </div>
                   <Link to="/login"
