@@ -24,6 +24,8 @@ const PLAN_LABELS: Record<string, string> = {
   gold: 'پلاس',
 }
 
+const IRAN_MOBILE_RE = /^09\d{9}$/
+
 export function SalesChatbot({ source = 'pricing_page' }: Props) {
   const navigate = useNavigate()
   const { data: me } = useMe()
@@ -35,6 +37,12 @@ export function SalesChatbot({ source = 'pricing_page' }: Props) {
   const [loading, setLoading] = useState(false)
   const [isDone, setIsDone] = useState(false)
   const [recommendedPlan, setRecommendedPlan] = useState<string | null>(null)
+  const [offerDiscount, setOfferDiscount] = useState(false)
+  const [discountDone, setDiscountDone] = useState(false)
+  const [discountPhone, setDiscountPhone] = useState('')
+  const [discountJob, setDiscountJob] = useState('')
+  const [discountSubmitting, setDiscountSubmitting] = useState(false)
+  const [discountError, setDiscountError] = useState<string | null>(null)
   const messagesRef = useRef<HTMLDivElement>(null)
   const inputRef = useRef<HTMLTextAreaElement>(null)
   const chatId = useId()
@@ -67,15 +75,16 @@ export function SalesChatbot({ source = 'pricing_page' }: Props) {
     }).catch(() => { /* best-effort */ })
 
     try {
-      const res = await api.post<{ reply: string; isDone: boolean; recommendedPlan?: string }>(
+      const res = await api.post<{ reply: string; isDone: boolean; recommendedPlan?: string; offerDiscount?: boolean }>(
         '/sales/chat',
         { messages: nextMessages, sessionId: sessionId.current },
       )
-      const { reply, isDone: done, recommendedPlan: plan } = res.data
+      const { reply, isDone: done, recommendedPlan: plan, offerDiscount: discount } = res.data
 
       setMessages(prev => [...prev, { role: 'assistant', content: reply }])
       if (done) setIsDone(true)
       if (plan) setRecommendedPlan(plan)
+      if (discount && !discountDone) setOfferDiscount(true)
     } catch {
       setMessages(prev => [...prev, {
         role: 'assistant',
@@ -96,6 +105,38 @@ export function SalesChatbot({ source = 'pricing_page' }: Props) {
 
   function handleCTA() {
     navigate(me ? '/chat' : '/login')
+  }
+
+  function dismissDiscountOffer() {
+    setOfferDiscount(false)
+  }
+
+  async function submitDiscountOffer() {
+    if (!IRAN_MOBILE_RE.test(discountPhone)) {
+      setDiscountError('شماره موبایل معتبر نیست (مثلاً 09123456789)')
+      return
+    }
+    setDiscountError(null)
+    setDiscountSubmitting(true)
+    try {
+      await api.post('/sales/lead', {
+        sessionId: sessionId.current,
+        phone: discountPhone,
+        ...(discountJob.trim() && { jobTitle: discountJob.trim() }),
+        discountRequested: true,
+        source,
+      })
+      setDiscountDone(true)
+      setOfferDiscount(false)
+      setMessages(prev => [...prev, {
+        role: 'assistant',
+        content: 'ممنون! 🎁 کد تخفیفت رو به همین شماره برات می‌فرستیم.',
+      }])
+    } catch {
+      setDiscountError('مشکلی پیش اومد، دوباره امتحان کن.')
+    } finally {
+      setDiscountSubmitting(false)
+    }
   }
 
   return (
@@ -154,6 +195,54 @@ export function SalesChatbot({ source = 'pricing_page' }: Props) {
             </div>
           )}
         </div>
+
+        {/* پیشنهاد تخفیف — گرفتن شماره وقتی به نظر می‌رسد کاربر الان تصمیم به خرید ندارد */}
+        {offerDiscount && !discountDone && (
+          <div className="mb-4 rounded-xl border border-emerald-500/30 bg-emerald-500/10 p-3.5">
+            <p className="mb-2.5 text-xs text-emerald-300">
+              🎁 یه کد تخفیف ویژه برات کنار می‌ذاریم — شماره‌ت رو بده تا برات بفرستیم.
+            </p>
+            <div className="flex flex-col gap-2">
+              <input
+                type="tel"
+                inputMode="numeric"
+                value={discountPhone}
+                onChange={e => setDiscountPhone(e.target.value.trim())}
+                placeholder="۰۹۱۲۳۴۵۶۷۸۹"
+                dir="ltr"
+                className="rounded-lg border border-slate-600/60 bg-slate-800/60 px-3 py-2 text-sm text-slate-200
+                  placeholder:text-slate-600 focus:outline-none focus:border-emerald-500/50 text-left"
+                aria-label="شماره موبایل"
+              />
+              <input
+                type="text"
+                value={discountJob}
+                onChange={e => setDiscountJob(e.target.value)}
+                placeholder="چیکاره‌ای؟ (اختیاری)"
+                className="rounded-lg border border-slate-600/60 bg-slate-800/60 px-3 py-2 text-sm text-slate-200
+                  placeholder:text-slate-600 focus:outline-none focus:border-emerald-500/50"
+                aria-label="شغل (اختیاری)"
+              />
+              {discountError && <p className="text-xs text-red-400">{discountError}</p>}
+              <div className="flex gap-2">
+                <button
+                  onClick={() => void submitDiscountOffer()}
+                  disabled={discountSubmitting || !discountPhone}
+                  className="flex-1 rounded-lg bg-emerald-500 py-2 text-sm font-semibold text-white hover:bg-emerald-400
+                    active:scale-95 disabled:opacity-40 transition-all"
+                >
+                  {discountSubmitting ? 'در حال ارسال...' : 'ارسال کد تخفیف'}
+                </button>
+                <button
+                  onClick={dismissDiscountOffer}
+                  className="rounded-lg px-3 py-2 text-xs text-slate-500 hover:text-slate-400 transition-colors"
+                >
+                  الان نه
+                </button>
+              </div>
+            </div>
+          </div>
+        )}
 
         {/* CTA after done */}
         {isDone && (
