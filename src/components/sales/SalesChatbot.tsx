@@ -1,7 +1,18 @@
 import { useState, useRef, useEffect, useId } from 'react'
+import ReactMarkdown from 'react-markdown'
+import remarkGfm from 'remark-gfm'
 import { api } from '@/lib/api'
 import { useNavigate } from 'react-router-dom'
 import { useMe } from '@/queries/auth.queries'
+import { CodeBlock, PrePassthrough } from '@/components/chat/CodeBlock'
+
+function LinkNewTab({ href, children }: { href?: string; children?: React.ReactNode }) {
+  return (
+    <a href={href} target="_blank" rel="noopener noreferrer">
+      {children}
+    </a>
+  )
+}
 
 interface Message {
   role: 'user' | 'assistant'
@@ -174,11 +185,20 @@ export function SalesChatbot({ source = 'pricing_page' }: Props) {
               <div
                 className={`rounded-2xl px-4 py-2.5 text-sm leading-relaxed max-w-[82%]
                   ${msg.role === 'assistant'
-                    ? 'bg-slate-700/70 text-slate-200 rounded-tr-sm'
+                    ? 'bg-slate-700/70 text-slate-200 rounded-tr-sm ai-content'
                     : 'bg-emerald-500/20 text-emerald-100 border border-emerald-500/20 rounded-tl-sm'
                   }`}
               >
-                {msg.content}
+                {msg.role === 'assistant' ? (
+                  <ReactMarkdown
+                    remarkPlugins={[remarkGfm]}
+                    components={{ code: CodeBlock, pre: PrePassthrough, a: LinkNewTab }}
+                  >
+                    {msg.content}
+                  </ReactMarkdown>
+                ) : (
+                  msg.content
+                )}
               </div>
             </div>
           ))}
