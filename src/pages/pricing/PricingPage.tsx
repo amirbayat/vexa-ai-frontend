@@ -9,6 +9,7 @@ import {
 } from "@/queries/plans.queries";
 import { useMe } from "@/queries/auth.queries";
 import { SalesChatbot } from "@/components/sales/SalesChatbot";
+import { env } from "@/env";
 import { ExitIntentModal } from "@/components/sales/ExitIntentModal";
 import { GatewayPickerModal } from "@/components/payment/GatewayPickerModal";
 import { ModelShowcase } from "@/components/models/ModelShowcase";
@@ -189,19 +190,21 @@ export function PricingPage() {
         )}
 
         {/* Sales chatbot below plan cards */}
-        <div className="mt-14">
-          <div className="mb-6 text-center">
-            <h2 className="text-xl font-bold text-slate-100">
-              نمیدونی کدوم پلن مناسبته؟
-            </h2>
-            <p className="mt-1 text-sm text-slate-500">
-              از دستیار هوشمند نیوو بپرس
-            </p>
+        {env.VITE_SALES_BOT_ENABLED && (
+          <div className="mt-14">
+            <div className="mb-6 text-center">
+              <h2 className="text-xl font-bold text-slate-100">
+                نمیدونی کدوم پلن مناسبته؟
+              </h2>
+              <p className="mt-1 text-sm text-slate-500">
+                از دستیار هوشمند نیوو بپرس
+              </p>
+            </div>
+            <div className="mx-auto max-w-lg">
+              <SalesChatbot source="pricing_page" />
+            </div>
           </div>
-          <div className="mx-auto max-w-lg">
-            <SalesChatbot source="pricing_page" />
-          </div>
-        </div>
+        )}
       </div>
 
       <ExitIntentModal />

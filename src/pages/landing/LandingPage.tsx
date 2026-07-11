@@ -1164,7 +1164,7 @@ export function LandingPage() {
       <WaveDivider />
       <HowItWorks />
       <WaveDivider />
-      <ChatbotSection />
+      {env.VITE_SALES_BOT_ENABLED && <ChatbotSection />}
       <PricingSection />
       <WaveDivider flip />
       <FaqSection />
