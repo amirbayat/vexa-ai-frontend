@@ -826,7 +826,7 @@ function HowItWorks() {
 
 function ChatbotSection() {
   return (
-    <section className="relative overflow-y-hidden px-6 py-24">
+    <section className="relative overflow-hidden px-6 py-24">
       <SectionGlow c1="#0EA5E9" c2="#10B981" seed={4} />
       <div className="mx-auto max-w-2xl text-center relative">
         <div data-anim="true">
@@ -838,6 +838,8 @@ function ChatbotSection() {
             بذار نیوو با چند سوال کوتاه بهت بگه دقیقاً کجا می‌تونه کمکت کنه.
           </p>
         </div>
+      </div>
+      <div className="mx-auto max-w-4xl relative">
         <div className="mt-10" data-anim="true" data-d="2">
           <SalesChatbot source="homepage" />
         </div>
