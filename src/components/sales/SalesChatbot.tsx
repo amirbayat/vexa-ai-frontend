@@ -155,10 +155,9 @@ export function SalesChatbot({ source = 'pricing_page' }: Props) {
 
   return (
     <div
-      className="sales-chatbot-wrap"
+      className={`sales-chatbot-wrap${hasStarted ? ' expanded' : ''}`}
       aria-label="دستیار فروش نیوو"
       role="region"
-      style={{ width: '100%', maxWidth: hasStarted ? 680 : 420, margin: '0 auto', transition: 'max-width 0.45s cubic-bezier(0.16, 1, 0.3, 1)' }}
     >
       <div className="sales-chatbot-inner">
         {/* Header */}
@@ -365,10 +364,24 @@ export function SalesChatbot({ source = 'pricing_page' }: Props) {
         }
         .sales-chatbot-wrap {
           position: relative;
+          width: 100%;
           border-radius: 20px;
           padding: 2px;
           background: conic-gradient(from var(--sales-angle, 0deg), #4A8FFF, #7C3AED, #0EA5E9, #10B981, #4A8FFF);
           animation: salesSpinBorder 3s linear infinite;
+          transition: width 0.5s cubic-bezier(0.16, 1, 0.3, 1), max-width 0.5s cubic-bezier(0.16, 1, 0.3, 1);
+        }
+        /* حالت theater — مثل یوتیوب، به‌محض شروع مکالمه کل باکس از ستون باریک صفحه بیرون می‌زند و بزرگ می‌شود */
+        .sales-chatbot-wrap.expanded {
+          left: 50%;
+          transform: translateX(-50%);
+          width: 78vw;
+          max-width: 1080px;
+        }
+        @media (max-width: 768px) {
+          .sales-chatbot-wrap.expanded {
+            width: 94vw;
+          }
         }
         @keyframes salesSpinBorder {
           from { --sales-angle: 0deg; }
