@@ -33,52 +33,34 @@ function fallbackEntry(name: string): ModelCatalogEntry {
 
 interface ModelShowcaseProps {
   allowedModels: string[];
-  featuredModels: string[];
-  max: number;
+  description: string;
   isFree: boolean;
 }
 
 export function ModelShowcase({
   allowedModels,
-  featuredModels,
-  max,
+  description,
   isFree,
 }: ModelShowcaseProps) {
   const { data: catalog } = useModelCatalog();
   const [open, setOpen] = useState(false);
 
-  // اگر پلن هنوز مدل‌های ویژه تنظیم نکرده، fallback به allowedModels تا رفتار قبلی نشکند
-  const shownNames = featuredModels.length ? featuredModels : allowedModels;
   const allEntries = allowedModels.map(
     (n) => catalog?.find((m) => m.name === n) ?? fallbackEntry(n),
   );
-  const top = shownNames
-    .slice(0, max)
-    .map((n) => catalog?.find((m) => m.name === n) ?? fallbackEntry(n));
-  const restCount = allowedModels.length - top.length;
 
   return (
     <>
-      <ul className="space-y-2.5">
-        {top.map((m) => (
-          <li
-            key={m.name}
-            className="flex items-center gap-2 text-sm text-slate-300"
-          >
-            <ProviderIcon provider={m.provider} />
-            {m.displayName}
-          </li>
-        ))}
-      </ul>
+      <p className="text-sm leading-relaxed text-slate-300">{description}</p>
 
-      {restCount > 0 && !isFree && (
+      {/* لیست واقعی مدل‌ها فقط با کلیک روی این دکمه (داخل مودال) نشان داده می‌شود */}
+      {!isFree && allowedModels.length > 0 && (
         <button
           onClick={() => setOpen(true)}
           className="mt-3 flex w-full items-center justify-center gap-1.5 rounded-xl border border-slate-700 py-2.5 text-xs font-medium text-slate-300 hover:border-slate-600 hover:text-white transition-colors"
         >
-          {restCount} مدل دیگر
+          مشاهده {allowedModels.length} مدل
           <InfoIcon />
-          مشاهده جزییات
         </button>
       )}
 

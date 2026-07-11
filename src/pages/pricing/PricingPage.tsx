@@ -15,6 +15,7 @@ import { GatewayPickerModal } from "@/components/payment/GatewayPickerModal";
 import { ModelShowcase } from "@/components/models/ModelShowcase";
 import { PlanLimitsTable } from "@/components/plans/PlanLimitsTable";
 import { fa } from "@/locales/fa";
+import { PLAN_TIER_MODEL_DESCRIPTIONS, dailyMessageLimitText } from "@/lib/plan-copy";
 import type { Plan } from "@/types/api";
 
 export function PricingPage() {
@@ -63,10 +64,11 @@ export function PricingPage() {
           role="list"
           aria-label="پلن‌های اشتراک"
         >
-          {plans?.map((plan) => {
+          {plans?.map((plan, index) => {
             const isCurrent = plan.id === currentPlanId;
             const isFree = plan.priceMonthly === 0;
             const isPopular = !isCurrent && plan.isPopular;
+            const dailyLimitText = dailyMessageLimitText(index);
 
             return (
               <div
@@ -125,17 +127,19 @@ export function PricingPage() {
                       {fa.plans.monthly(plan.monthlyTotalTokens)}
                     </div>
                   )}
+                  {dailyLimitText && (
+                    <div className="flex items-center gap-2 text-sm text-slate-300">
+                      <MessageIcon />
+                      {dailyLimitText}
+                    </div>
+                  )}
                 </div>
 
                 <div className="mb-8 flex-1">
-                  <p className="mb-3 text-xs font-medium text-slate-500">
-                    {fa.plans.models}
-                  </p>
                   <ModelShowcase
                     isFree={isFree}
                     allowedModels={plan.allowedModels}
-                    featuredModels={plan.featuredModels}
-                    max={plan.featuredModelsCount}
+                    description={PLAN_TIER_MODEL_DESCRIPTIONS[index] ?? ""}
                   />
                 </div>
 
@@ -231,6 +235,23 @@ function TokenIcon() {
       <path
         d="M8 1.5l1.4 4.2 4.2 1.4-4.2 1.4L8 12.7l-1.4-4.2-4.2-1.4 4.2-1.4L8 1.5z"
         fill="currentColor"
+      />
+    </svg>
+  );
+}
+
+function MessageIcon() {
+  return (
+    <svg
+      viewBox="0 0 16 16"
+      fill="none"
+      className="size-4 shrink-0 text-emerald-500"
+    >
+      <path
+        d="M2 3.5h12v7H6.5L3 13v-2.5H2v-7z"
+        stroke="currentColor"
+        strokeWidth="1.3"
+        strokeLinejoin="round"
       />
     </svg>
   );

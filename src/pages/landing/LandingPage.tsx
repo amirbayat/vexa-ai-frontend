@@ -7,6 +7,7 @@ import { SalesChatbot } from '@/components/sales/SalesChatbot'
 import { ExitIntentModal } from '@/components/sales/ExitIntentModal'
 import { ModelShowcase } from '@/components/models/ModelShowcase'
 import { env } from '@/env'
+import { PLAN_TIER_MODEL_DESCRIPTIONS, dailyMessageLimitText } from '@/lib/plan-copy'
 
 // ── InView observer (MutationObserver برای عناصر async مثل plan cards) ───────
 function useInViewObserver() {
@@ -913,8 +914,9 @@ function PricingSection() {
                       isFree
                         ? `${plan.dailyFreeTokens.toLocaleString('fa-IR')} توکن رایگان روزانه`
                         : `${(plan.monthlyTotalTokens / 1000).toLocaleString('fa-IR')}K توکن ماهانه`,
+                      dailyMessageLimitText(i),
                       'پشتیبانی ۲۴/۷',
-                    ].map(feat => (
+                    ].filter((feat): feat is string => Boolean(feat)).map(feat => (
                       <li key={feat} className="flex items-center gap-2.5 text-sm text-slate-300">
                         <svg viewBox="0 0 16 16" fill="none" className="size-4 shrink-0 text-emerald-500">
                           <path d="M3 8l3.5 3.5L13 4.5" stroke="currentColor" strokeWidth="1.5" strokeLinecap="round" strokeLinejoin="round"/>
@@ -926,8 +928,7 @@ function PricingSection() {
                   <div className="mb-8 flex-1">
                     <ModelShowcase
                       allowedModels={plan.allowedModels}
-                      featuredModels={plan.featuredModels}
-                      max={plan.featuredModelsCount}
+                      description={PLAN_TIER_MODEL_DESCRIPTIONS[i] ?? ''}
                       isFree={isFree}
                     />
                   </div>

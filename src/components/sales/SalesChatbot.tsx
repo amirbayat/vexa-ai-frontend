@@ -23,7 +23,7 @@ interface Props {
   source?: string
 }
 
-const OPENING_MESSAGE = 'سلام! 👋 با ۴ سوال کوتاه بهت می‌گم نیوو دقیقاً کجاها می‌تونه وقتت رو آزاد کنه. شروع کنیم؟'
+const OPENING_MESSAGE = 'سلام! 👋 من دستیار هوش مصنوعی نیوو هستم و آخرین مدل‌های ChatGPT، Claude، Gemini، Grok و ... رو در دسترست قرار می‌دم. بهم بگو شغلت چیه یا بیشترین زمانت رو در روز به چی اختصاص می‌دی، تا بگم چطوری می‌تونم کمک کنم کارات رو سریع‌تر و حرفه‌ای‌تر انجام بدی؟'
 
 function generateSessionId(): string {
   return `sales-${Math.random().toString(36).slice(2)}-${Date.now()}`
@@ -118,7 +118,13 @@ export function SalesChatbot({ source = 'pricing_page' }: Props) {
   }
 
   function handleCTA() {
+    void api.post('/sales/cta-click', { type: 'free_start' }).catch(() => { /* best-effort */ })
     navigate(me ? '/chat' : '/login')
+  }
+
+  function handlePricingCTA() {
+    void api.post('/sales/cta-click', { type: 'pricing' }).catch(() => { /* best-effort */ })
+    navigate('/pricing')
   }
 
   function dismissDiscountOffer() {
@@ -292,7 +298,7 @@ export function SalesChatbot({ source = 'pricing_page' }: Props) {
               </button>
               {!me && (
                 <button
-                  onClick={() => navigate('/pricing')}
+                  onClick={handlePricingCTA}
                   className="w-full rounded-xl border border-slate-600 py-3 text-sm font-medium text-slate-300 hover:border-slate-500 hover:text-slate-200 transition-colors"
                 >
                   مشاهده پلن‌ها
@@ -346,7 +352,7 @@ export function SalesChatbot({ source = 'pricing_page' }: Props) {
             </button>
             {!me && (
               <button
-                onClick={() => navigate('/pricing')}
+                onClick={handlePricingCTA}
                 className="flex-1 rounded-lg border border-slate-700 py-2 text-xs text-slate-400
                   hover:border-slate-600 hover:text-slate-300 transition-colors"
               >
