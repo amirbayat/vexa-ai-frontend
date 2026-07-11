@@ -1,4 +1,5 @@
 import { useState } from "react";
+import { createPortal } from "react-dom";
 import {
   useModelCatalog,
   type ModelCatalogEntry,
@@ -64,50 +65,62 @@ export function ModelShowcase({
         </button>
       )}
 
-      {open && (
-        <div
-          className="fixed inset-0 z-50 flex items-center justify-center bg-black/70 p-4"
-          onClick={() => setOpen(false)}
-        >
+      {open &&
+        createPortal(
           <div
-            dir="rtl"
-            onClick={(e) => e.stopPropagation()}
-            className="max-h-[80vh] w-full max-w-lg overflow-y-auto rounded-2xl border border-slate-700 bg-slate-900 p-6"
+            className="fixed inset-0 z-[100] flex items-center justify-center bg-black/70 p-4 backdrop-blur-sm"
+            style={{ animation: "modelModalFadeIn 0.2s ease both" }}
+            onClick={() => setOpen(false)}
           >
-            <div className="mb-4 flex items-center justify-between">
-              <h3 className="text-lg font-bold text-slate-100">
-                مدل‌های این پلن
-              </h3>
-              <button
-                onClick={() => setOpen(false)}
-                className="text-slate-500 hover:text-slate-300"
-              >
-                ✕
-              </button>
-            </div>
-            <div className="space-y-3">
-              {allEntries.map((m) => (
-                <div
-                  key={m.name}
-                  className="flex items-start gap-3 rounded-xl border border-slate-800 bg-slate-800/40 p-4"
+            <div
+              dir="rtl"
+              onClick={(e) => e.stopPropagation()}
+              className="max-h-[85vh] w-full max-w-3xl overflow-y-auto rounded-3xl border border-slate-700 bg-slate-900 p-8 shadow-2xl"
+              style={{ animation: "modelModalScaleIn 0.25s cubic-bezier(0.16, 1, 0.3, 1) both" }}
+            >
+              <div className="mb-6 flex items-center justify-between">
+                <h3 className="text-xl font-bold text-slate-100">
+                  مدل‌های این پلن
+                </h3>
+                <button
+                  onClick={() => setOpen(false)}
+                  className="flex size-8 items-center justify-center rounded-full text-slate-500 hover:bg-slate-800 hover:text-slate-200 transition-colors"
+                  aria-label="بستن"
                 >
-                  <div className="mt-0.5 flex size-9 shrink-0 items-center justify-center rounded-lg bg-white/5">
-                    <ProviderIcon provider={m.provider} size={18} />
+                  ✕
+                </button>
+              </div>
+              <div className="grid gap-3.5 sm:grid-cols-2">
+                {allEntries.map((m) => (
+                  <div
+                    key={m.name}
+                    className="flex items-start gap-3 rounded-2xl border border-slate-800 bg-slate-800/40 p-4"
+                  >
+                    <div className="mt-0.5 flex size-10 shrink-0 items-center justify-center rounded-xl bg-white/5">
+                      <ProviderIcon provider={m.provider} size={20} />
+                    </div>
+                    <div>
+                      <h4 className="font-semibold text-slate-100">
+                        {m.displayName}
+                      </h4>
+                      <p className="mt-1 text-sm leading-relaxed text-slate-400">
+                        {tierDescription(m.tier)}
+                      </p>
+                    </div>
                   </div>
-                  <div>
-                    <h4 className="font-semibold text-slate-100">
-                      {m.displayName}
-                    </h4>
-                    <p className="mt-1 text-sm leading-relaxed text-slate-400">
-                      {tierDescription(m.tier)}
-                    </p>
-                  </div>
-                </div>
-              ))}
+                ))}
+              </div>
             </div>
-          </div>
-        </div>
-      )}
+            <style>{`
+              @keyframes modelModalFadeIn { from { opacity: 0 } to { opacity: 1 } }
+              @keyframes modelModalScaleIn {
+                from { opacity: 0; transform: scale(0.96) translateY(8px); }
+                to   { opacity: 1; transform: scale(1) translateY(0); }
+              }
+            `}</style>
+          </div>,
+          document.body,
+        )}
     </>
   );
 }

@@ -1,16 +1,27 @@
+import type { Plan } from '@/types/api'
+
 // متن‌های بازاریابی کارت‌های پلن — به ترتیب پلن (۰=رایگان، ۱=اکو، ۲=پلاس).
-// عمداً جدا از داده‌ی واقعی allowedModels/dailyMessageLimit نگه داشته شده — این‌ها متن نمایشی‌اند،
-// نه محدودیت واقعی اعمال‌شده (که همچنان از Plan.rollingWindowLimit و مشابه در بک‌اند کنترل می‌شود).
+// این‌ها فقط توضیح کیفی مدل‌ها هستند؛ اعداد واقعی (محدودیت پیام، پشتیبانی) از خودِ Plan خوانده می‌شوند.
 export const PLAN_TIER_MODEL_DESCRIPTIONS = [
   'آخرین و ساده‌ترین مدل‌های هوش مصنوعی',
   'آخرین و به‌روزترین مدل‌های هوش مصنوعی از خانواده‌ی ChatGPT، Claude، Gemini، Grok و ...',
   'آخرین و به‌روزترین و قوی‌ترین مدل‌های هوش مصنوعی دنیا از خانواده‌ی GPT، Claude، Gemini، Grok و ...',
 ]
 
-export const PLAN_TIER_DAILY_MESSAGE_LIMITS = [5, 70, 200]
+// محدودیت پیام به‌صورت ساعتی، مستقیم از دیتابیس (Plan.rollingWindowLimit/rollingWindowHours) —
+// همان عددی که واقعاً در chat.service.ts اعمال می‌شود، نه یک متن بازاریابی جدا.
+export function hourlyLimitText(plan: Plan): string | null {
+  if (plan.rollingWindowLimit === null) return null
+  return `${plan.rollingWindowLimit.toLocaleString('fa-IR')} پیام هر ${plan.rollingWindowHours.toLocaleString('fa-IR')} ساعت`
+}
 
-export function dailyMessageLimitText(index: number): string | null {
-  const n = PLAN_TIER_DAILY_MESSAGE_LIMITS[index]
-  if (n === undefined) return null
-  return `${n.toLocaleString('fa-IR')} پیام در روز`
+const SUPPORT_LABELS: Record<string, string> = {
+  email: 'پشتیبانی ایمیلی',
+  priority: 'پشتیبانی اولویت‌دار',
+}
+
+// فقط برای پلن‌های پولی معنا دارد — پلن رایگان (community) عمداً چیزی برنمی‌گرداند.
+export function supportText(plan: Plan): string | null {
+  const support = (plan.features as { support?: string } | undefined)?.support
+  return support ? (SUPPORT_LABELS[support] ?? null) : null
 }

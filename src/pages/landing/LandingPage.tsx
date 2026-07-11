@@ -7,7 +7,7 @@ import { SalesChatbot } from '@/components/sales/SalesChatbot'
 import { ExitIntentModal } from '@/components/sales/ExitIntentModal'
 import { ModelShowcase } from '@/components/models/ModelShowcase'
 import { env } from '@/env'
-import { PLAN_TIER_MODEL_DESCRIPTIONS, dailyMessageLimitText } from '@/lib/plan-copy'
+import { PLAN_TIER_MODEL_DESCRIPTIONS, hourlyLimitText, supportText } from '@/lib/plan-copy'
 
 // ── InView observer (MutationObserver برای عناصر async مثل plan cards) ───────
 function useInViewObserver() {
@@ -911,11 +911,8 @@ function PricingSection() {
                   </div>
                   <ul className="mb-6 space-y-3">
                     {[
-                      isFree
-                        ? `${plan.dailyFreeTokens.toLocaleString('fa-IR')} توکن رایگان روزانه`
-                        : `${(plan.monthlyTotalTokens / 1000).toLocaleString('fa-IR')}K توکن ماهانه`,
-                      dailyMessageLimitText(i),
-                      'پشتیبانی ۲۴/۷',
+                      hourlyLimitText(plan),
+                      !isFree ? supportText(plan) : null,
                     ].filter((feat): feat is string => Boolean(feat)).map(feat => (
                       <li key={feat} className="flex items-center gap-2.5 text-sm text-slate-300">
                         <svg viewBox="0 0 16 16" fill="none" className="size-4 shrink-0 text-emerald-500">

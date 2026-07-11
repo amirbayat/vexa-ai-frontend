@@ -15,7 +15,7 @@ import { GatewayPickerModal } from "@/components/payment/GatewayPickerModal";
 import { ModelShowcase } from "@/components/models/ModelShowcase";
 import { PlanLimitsTable } from "@/components/plans/PlanLimitsTable";
 import { fa } from "@/locales/fa";
-import { PLAN_TIER_MODEL_DESCRIPTIONS, dailyMessageLimitText } from "@/lib/plan-copy";
+import { PLAN_TIER_MODEL_DESCRIPTIONS, hourlyLimitText, supportText } from "@/lib/plan-copy";
 import type { Plan } from "@/types/api";
 
 export function PricingPage() {
@@ -68,7 +68,8 @@ export function PricingPage() {
             const isCurrent = plan.id === currentPlanId;
             const isFree = plan.priceMonthly === 0;
             const isPopular = !isCurrent && plan.isPopular;
-            const dailyLimitText = dailyMessageLimitText(index);
+            const limitText = hourlyLimitText(plan);
+            const support = !isFree ? supportText(plan) : null;
 
             return (
               <div
@@ -116,21 +117,16 @@ export function PricingPage() {
                 </div>
 
                 <div className="mb-6 space-y-2.5 border-b border-slate-800 pb-6">
-                  {isFree ? (
-                    <div className="flex items-center gap-2 text-sm text-slate-300">
-                      <TokenIcon />
-                      {fa.plans.dailyFree(plan.dailyFreeTokens)}
-                    </div>
-                  ) : (
-                    <div className="flex items-center gap-2 text-sm text-slate-300">
-                      <TokenIcon />
-                      {fa.plans.monthly(plan.monthlyTotalTokens)}
-                    </div>
-                  )}
-                  {dailyLimitText && (
+                  {limitText && (
                     <div className="flex items-center gap-2 text-sm text-slate-300">
                       <MessageIcon />
-                      {dailyLimitText}
+                      {limitText}
+                    </div>
+                  )}
+                  {support && (
+                    <div className="flex items-center gap-2 text-sm text-slate-300">
+                      <SupportIcon />
+                      {support}
                     </div>
                   )}
                 </div>
@@ -225,7 +221,7 @@ export function PricingPage() {
   );
 }
 
-function TokenIcon() {
+function SupportIcon() {
   return (
     <svg
       viewBox="0 0 16 16"
@@ -233,7 +229,7 @@ function TokenIcon() {
       className="size-4 shrink-0 text-emerald-500"
     >
       <path
-        d="M8 1.5l1.4 4.2 4.2 1.4-4.2 1.4L8 12.7l-1.4-4.2-4.2-1.4 4.2-1.4L8 1.5z"
+        d="M8 1.5a5 5 0 00-5 5v3a1.5 1.5 0 001.5 1.5H5v-4H4.5v-.5a3.5 3.5 0 017 0v.5H11v4h.5A1.5 1.5 0 0013 9.5v-3a5 5 0 00-5-5z"
         fill="currentColor"
       />
     </svg>
