@@ -40,4 +40,7 @@ export const keys = {
   config: {
     features: () => ['config', 'features'] as const,
   },
+  articles: {
+    pinned: () => ['articles', 'pinned'] as const,
+  },
 } as const

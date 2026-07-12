@@ -6,6 +6,7 @@ import { usePlans } from '@/queries/plans.queries'
 import { SalesChatbot } from '@/components/sales/SalesChatbot'
 import { ExitIntentModal } from '@/components/sales/ExitIntentModal'
 import { ModelShowcase } from '@/components/models/ModelShowcase'
+import { PromoBanner } from '@/components/articles/PromoBanner'
 import { env } from '@/env'
 import { PLAN_TIER_MODEL_DESCRIPTIONS, hourlyLimitText, supportText } from '@/lib/plan-copy'
 
@@ -1154,6 +1155,7 @@ export function LandingPage() {
         .particle { position:absolute; border-radius:50%; animation-timing-function:ease-in-out; animation-iteration-count:infinite; }
       `}</style>
 
+      <PromoBanner />
       <Navbar isLoggedIn={isLoggedIn} />
       <Hero isLoggedIn={isLoggedIn} />
       <StatsBar />
