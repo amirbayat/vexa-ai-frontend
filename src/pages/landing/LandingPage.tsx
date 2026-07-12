@@ -509,7 +509,7 @@ function Navbar({ isLoggedIn }: { isLoggedIn: boolean }) {
 
   return (
     <header className={clsx(
-      'fixed top-0 right-0 left-0 z-50 transition-all duration-300',
+      'transition-all duration-300',
       scrolled ? 'bg-[#020C18]/90 backdrop-blur-md border-b border-white/5' : 'bg-transparent',
     )}>
       <div className="mx-auto flex max-w-6xl items-center justify-between px-6 py-4">
@@ -542,7 +542,7 @@ function Navbar({ isLoggedIn }: { isLoggedIn: boolean }) {
 
 function Hero({ isLoggedIn }: { isLoggedIn: boolean }) {
   return (
-    <section className="relative flex min-h-screen items-center overflow-hidden px-6 pt-24 pb-16">
+    <section className="relative flex min-h-screen items-center overflow-hidden px-6 pt-36 pb-16">
       {/* Background grid */}
       <div className="bg-grid pointer-events-none absolute inset-0" />
       {/* Floating particles */}
@@ -1155,8 +1155,10 @@ export function LandingPage() {
         .particle { position:absolute; border-radius:50%; animation-timing-function:ease-in-out; animation-iteration-count:infinite; }
       `}</style>
 
-      <PromoBanner />
-      <Navbar isLoggedIn={isLoggedIn} />
+      <div className="fixed top-0 inset-x-0 z-50">
+        <PromoBanner />
+        <Navbar isLoggedIn={isLoggedIn} />
+      </div>
       <Hero isLoggedIn={isLoggedIn} />
       <StatsBar />
       <WaveDivider />
