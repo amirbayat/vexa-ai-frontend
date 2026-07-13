@@ -12,6 +12,7 @@ export interface OnboardingGiftStatus {
   eligible: boolean
   phase: 'trial' | 'grace' | null
   graceDeadline: string | null
+  welcomeDiscountValidHours: number
   gift: { title: string; description: string; audioUrl: string | null } | null
 }
 

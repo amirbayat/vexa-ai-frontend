@@ -11,6 +11,7 @@ import type { OnboardingGiftStatus } from '@/types/api'
 export function GiftBanner() {
   const { data: status } = useGiftStatus()
   const [open, setOpen] = useState(false)
+  const graceCountdown = useCountdown(status?.phase === 'grace' ? status.graceDeadline : null)
 
   if (!status?.eligible || !status.gift) return null
   const isGrace = status.phase === 'grace'
@@ -26,13 +27,25 @@ export function GiftBanner() {
             : 'border-emerald-500/30 bg-emerald-500/10 hover:bg-emerald-500/15',
         )}
       >
-        <span className={clsx('flex items-center gap-2 text-sm font-medium', isGrace ? 'text-amber-300' : 'text-emerald-300')}>
-          <span>{isGrace ? '⏳' : '🎁'}</span>
-          {isGrace
-            ? 'فرصت محدود: کد تخفیف هدیه رو از دست نده'
-            : 'هدیه ویژه نیوو به کاربران تازه (پادکست صوتی آموزش هوش مصنوعی رایگان + کد تخفیف ارتقا حساب)'}
+        <span className="flex flex-col items-start gap-0.5">
+          <span className={clsx('flex items-center gap-2 text-sm font-medium', isGrace ? 'text-amber-300' : 'text-emerald-300')}>
+            <span>{isGrace ? '⏳' : '🎁'}</span>
+            {isGrace
+              ? 'فرصت محدود: کد تخفیف هدیه رو از دست نده'
+              : 'هدیه ویژه نیوو به کاربران تازه (پادکست صوتی آموزش هوش مصنوعی رایگان + کد تخفیف ارتقا حساب)'}
+          </span>
+          {isGrace && graceCountdown && (
+            <span className="text-xs text-amber-400/80">
+              مهلت استفاده: <span dir="ltr" className="font-mono">{graceCountdown}</span>
+            </span>
+          )}
+          {!isGrace && status.welcomeDiscountValidHours && (
+            <span className="text-xs text-emerald-400/70">
+              کد تخفیف تا {status.welcomeDiscountValidHours} ساعت بعد از دریافت معتبر است
+            </span>
+          )}
         </span>
-        <svg viewBox="0 0 16 16" fill="none" className={clsx('size-4 rotate-180', isGrace ? 'text-amber-400' : 'text-emerald-400')}>
+        <svg viewBox="0 0 16 16" fill="none" className={clsx('size-4 shrink-0 rotate-180', isGrace ? 'text-amber-400' : 'text-emerald-400')}>
           <path d="M6 3l5 5-5 5" stroke="currentColor" strokeWidth="1.5" strokeLinecap="round" strokeLinejoin="round" />
         </svg>
       </button>

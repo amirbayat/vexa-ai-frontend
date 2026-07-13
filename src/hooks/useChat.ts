@@ -133,6 +133,9 @@ export function useChat(conversationId: string) {
         // بنر پایدار محدودیت (بالای اینپوت) بلافاصله بعد از هر تلاش ارسال — موفق یا ناموفق —
         // با آخرین وضعیت واقعی به‌روز شود، نه اینکه تا poll بعدی (تا ۳۰ ثانیه) منتظر بماند.
         void qc.invalidateQueries({ queryKey: keys.usage.messageQuota() })
+        // کارت هدیه هم همین‌جا invalidate می‌شود — trial ممکنه دقیقاً همین پیام به پایان رسیده
+        // باشه و باید بدون reload صفحه، فوراً از حالت trial به grace عوض شه (staleTime قبلاً ۵ دقیقه بود)
+        void qc.invalidateQueries({ queryKey: keys.growth.giftStatus() })
       }
     },
     [conversationId, qc, selectedModel, appendStreamingContent, setIsStreaming, resetStreaming],
