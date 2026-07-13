@@ -1,4 +1,5 @@
 import { useState } from 'react'
+import { useNavigate } from 'react-router-dom'
 import { useGiftStatus, useClaimGift } from '@/queries/growth.queries'
 
 // docs/PRD-growth-traction-features.md بخش ۴.۳ — فقط برای کاربر رایگانِ داخل دوره‌ی
@@ -38,6 +39,7 @@ function GiftModal({
   onClose: () => void
 }) {
   const claimGift = useClaimGift()
+  const navigate = useNavigate()
   const [copied, setCopied] = useState(false)
 
   function copyCode() {
@@ -115,6 +117,12 @@ function GiftModal({
                   اعتبار تا {new Date(claimGift.data.expiresAt).toLocaleString('fa-IR')}
                 </p>
               )}
+              <button
+                onClick={() => navigate('/pricing')}
+                className="mt-3 w-full rounded-lg bg-emerald-500 py-2.5 text-sm font-semibold text-white hover:bg-emerald-400 active:scale-[0.98] transition-all"
+              >
+                ارتقا پلن
+              </button>
             </div>
           )}
           {claimGift.isError && (
