@@ -35,8 +35,8 @@ export function useSendOtp() {
 export function useVerifyOtp() {
   const qc = useQueryClient()
   return useMutation({
-    mutationFn: ({ phone, code }: { phone: string; code: string }) =>
-      api.post<AuthTokens>('/auth/verify-otp', { phone, code }).then(r => r.data),
+    mutationFn: ({ phone, code, referralCode }: { phone: string; code: string; referralCode?: string }) =>
+      api.post<AuthTokens>('/auth/verify-otp', { phone, code, referralCode }).then(r => r.data),
     onSuccess: data => {
       localStorage.setItem('access_token', data.accessToken)
       localStorage.setItem('refresh_token', data.refreshToken)

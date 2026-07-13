@@ -36,6 +36,16 @@ export function ProfilePage() {
   const logoutMut = useLogout()
   const [name, setName] = useState(me?.name ?? '')
   const [saved, setSaved] = useState(false)
+  const [referralCopied, setReferralCopied] = useState(false)
+
+  const referralUrl = me?.referralCode ? `${window.location.origin}/?ref=${me.referralCode}` : ''
+
+  function copyReferralUrl() {
+    if (!referralUrl) return
+    void navigator.clipboard.writeText(referralUrl)
+    setReferralCopied(true)
+    setTimeout(() => setReferralCopied(false), 2000)
+  }
 
   useEffect(() => {
     if (me?.name) setName(me.name)
@@ -111,6 +121,23 @@ export function ProfilePage() {
           {fa.settings.viewInvoices}
         </Link>
       </div>
+
+      {/* معرفی دوستان — docs/PRD-growth-traction-features.md بخش ۶ */}
+      {me?.referralCode && (
+        <div className="rounded-2xl border border-slate-700/60 bg-slate-800/40 p-6">
+          <h3 className="text-sm font-semibold text-slate-200 mb-2">🤝 معرفی دوستان</h3>
+          <p className="mb-4 text-sm text-slate-400">
+            لینکت رو برای دوستات بفرست — وقتی اولین خریدشون رو انجام بدن، هم تو هم دوستت کد تخفیف می‌گیرید.
+          </p>
+          <button
+            onClick={copyReferralUrl}
+            dir="ltr"
+            className="w-full truncate rounded-xl border border-slate-700 bg-slate-800/80 px-4 py-3 text-start text-sm text-emerald-400 hover:border-emerald-500/50 transition-colors"
+          >
+            {referralCopied ? 'کپی شد ✓' : referralUrl}
+          </button>
+        </div>
+      )}
 
       {/* budget status */}
       {budget && flags?.showDailyBudget && (

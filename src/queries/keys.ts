@@ -43,4 +43,7 @@ export const keys = {
   articles: {
     pinned: () => ['articles', 'pinned'] as const,
   },
+  growth: {
+    giftStatus: () => ['growth', 'gift-status'] as const,
+  },
 } as const

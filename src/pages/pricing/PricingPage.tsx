@@ -27,18 +27,21 @@ export function PricingPage() {
   const [pendingPlanId, setPendingPlanId] = useState<string | null>(null);
 
   const currentPlanId = me?.subscription?.planId;
+  const [discountCode, setDiscountCode] = useState("");
+  const [showDiscountInput, setShowDiscountInput] = useState(false);
 
   function handleBuy(planId: string) {
+    const code = discountCode.trim() || undefined;
     if ((gateways?.length ?? 0) > 1) {
       setPendingPlanId(planId);
       return;
     }
-    initPayment.mutate({ planId, gateway: gateways?.[0] });
+    initPayment.mutate({ planId, gateway: gateways?.[0], discountCode: code });
   }
 
   function handleGatewaySelect(gateway: PaymentGatewayName) {
     if (!pendingPlanId) return;
-    initPayment.mutate({ planId: pendingPlanId, gateway });
+    initPayment.mutate({ planId: pendingPlanId, gateway, discountCode: discountCode.trim() || undefined });
   }
 
   if (isLoading) {
@@ -57,6 +60,28 @@ export function PricingPage() {
             {fa.plans.title}
           </h1>
           <p className="mt-2 text-slate-500">{fa.plans.subtitle}</p>
+        </div>
+
+        <div className="mb-6 flex justify-center">
+          {showDiscountInput ? (
+            <div className="flex w-full max-w-xs items-center gap-2">
+              <input
+                type="text"
+                value={discountCode}
+                onChange={(e) => setDiscountCode(e.target.value)}
+                placeholder="کد تخفیف"
+                dir="ltr"
+                className="w-full rounded-xl border border-slate-700 bg-slate-800/60 px-3 py-2 text-sm text-slate-100 placeholder:text-slate-500 focus:outline-none focus:border-emerald-500/50"
+              />
+            </div>
+          ) : (
+            <button
+              onClick={() => setShowDiscountInput(true)}
+              className="text-sm text-emerald-400 hover:text-emerald-300 transition-colors"
+            >
+              کد تخفیف داری؟
+            </button>
+          )}
         </div>
 
         <div

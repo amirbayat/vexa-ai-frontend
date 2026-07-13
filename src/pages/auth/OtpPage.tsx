@@ -40,7 +40,10 @@ export function OtpPage() {
   const submit = async () => {
     setError('')
     try {
-      const result = await verifyOtp.mutateAsync({ phone, code })
+      const referralCode = localStorage.getItem('nivo:referralCode') ?? undefined
+      const result = await verifyOtp.mutateAsync({ phone, code, referralCode })
+      // فقط روی اولین ثبت‌نام اثر واقعی دارد؛ در هر صورت بعد از یک تلاش موفق پاک می‌شود
+      localStorage.removeItem('nivo:referralCode')
 
       // اگر از لینک پیامک «دسترسی باز شد» آمده، فعال‌سازی را ثبت کن (نیاز به JWT دارد
       // که همین الان توسط verifyOtp ذخیره شد) — مستقل از وضعیت waitlisted پاسخ فعلی

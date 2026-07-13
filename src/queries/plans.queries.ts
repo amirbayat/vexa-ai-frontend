@@ -41,8 +41,8 @@ export function useEnabledGateways() {
 
 export function useInitiatePayment() {
   return useMutation({
-    mutationFn: ({ planId, gateway }: { planId: string; gateway?: PaymentGatewayName }) =>
-      api.post<{ paymentUrl: string }>('/payments/initiate', { planId, gateway }).then(r => r.data),
+    mutationFn: ({ planId, gateway, discountCode }: { planId: string; gateway?: PaymentGatewayName; discountCode?: string }) =>
+      api.post<{ paymentUrl: string }>('/payments/initiate', { planId, gateway, discountCode }).then(r => r.data),
     onSuccess: data => {
       window.location.href = data.paymentUrl
     },

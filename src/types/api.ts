@@ -5,6 +5,18 @@ export interface User {
   role: 'USER' | 'ADMIN'
   isActive: boolean
   subscription: Subscription | null
+  referralCode: string
+}
+
+export interface OnboardingGiftStatus {
+  eligible: boolean
+  gift: { title: string; description: string; audioUrl: string | null } | null
+}
+
+export interface ClaimGiftResult {
+  code: string
+  discountPercent: number
+  expiresAt: string | null
 }
 
 export interface Plan {

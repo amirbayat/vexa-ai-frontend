@@ -8,6 +8,15 @@ const queryClient = new QueryClient({
   },
 })
 
+// docs/PRD-growth-traction-features.md بخش ۶.۳ — کاربر ممکن است از لینک معرفی
+// (nivoai.ir/?ref=CODE) وارد شود ولی تا لحظه‌ی ثبت‌نام واقعی (تایید OTP) خیلی بعدتر
+// اتفاق بیفتد؛ پس همین ابتدا (یک‌بار، در بارگذاری اپ) در localStorage نگه می‌داریم
+function captureReferralCode() {
+  const ref = new URLSearchParams(window.location.search).get('ref')
+  if (ref) localStorage.setItem('nivo:referralCode', ref)
+}
+captureReferralCode()
+
 export default function App() {
   return (
     <QueryClientProvider client={queryClient}>
