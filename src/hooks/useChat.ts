@@ -3,7 +3,7 @@ import { useQueryClient } from '@tanstack/react-query'
 import { env } from '@/env'
 import { useChatStore } from '@/store/chat.store'
 import { keys } from '@/queries/keys'
-import type { ConversationDetail, Message } from '@/types/api'
+import type { ConversationDetail, ConversationsPage, Message } from '@/types/api'
 
 export function useChat(conversationId: string) {
   const qc = useQueryClient()
@@ -105,6 +105,7 @@ export function useChat(conversationId: string) {
                 stage?: 'normal' | 'throttled'
                 remainingNormal?: number
                 remainingThrottled?: number
+                title?: string
               }
               if (parsed.chunk) appendStreamingContent(parsed.chunk)
               if (parsed.error) setChatError(parsed.error, parsed.code ?? null)
@@ -113,6 +114,29 @@ export function useChat(conversationId: string) {
                   parsed.stage,
                   parsed.remainingNormal ?? null,
                   parsed.remainingThrottled ?? null,
+                )
+              }
+              // عنوان تازه‌ی مکالمه (فقط اولین پیام) — مستقیم توی کش می‌نشونیم تا همون لحظه توی
+              // سایدبار و هدر دیده شود، بدون نیاز به refetch/reload
+              if (parsed.info === 'title' && parsed.title) {
+                const newTitle = parsed.title
+                qc.setQueryData<ConversationDetail>(keys.conv.detail(conversationId), old =>
+                  old ? { ...old, title: newTitle } : old,
+                )
+                qc.setQueryData<{ pages: ConversationsPage[]; pageParams: unknown[] }>(
+                  keys.conv.list(),
+                  old =>
+                    old
+                      ? {
+                          ...old,
+                          pages: old.pages.map(page => ({
+                            ...page,
+                            items: page.items.map(c =>
+                              c.id === conversationId ? { ...c, title: newTitle } : c,
+                            ),
+                          })),
+                        }
+                      : old,
                 )
               }
             } catch {
