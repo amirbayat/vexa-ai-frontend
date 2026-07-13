@@ -41,7 +41,7 @@ export function GiftBanner() {
           )}
           {!isGrace && status.welcomeDiscountValidHours && (
             <span className="text-xs text-emerald-400/70">
-              کد تخفیف تا {status.welcomeDiscountValidHours} ساعت بعد از دریافت معتبر است
+              کد تخفیف تا {status.welcomeDiscountValidHours} ساعت معتبر است
             </span>
           )}
         </span>
