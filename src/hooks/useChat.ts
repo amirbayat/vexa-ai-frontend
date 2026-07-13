@@ -8,7 +8,7 @@ import type { ConversationDetail, ConversationsPage, Message } from '@/types/api
 export function useChat(conversationId: string) {
   const qc = useQueryClient()
   const abortRef = useRef<AbortController | null>(null)
-  const { appendStreamingContent, setIsStreaming, resetStreaming, setChatError, setMessageStage, selectedModel } = useChatStore()
+  const { appendStreamingContent, setIsStreaming, setIsReasoning, resetStreaming, setChatError, setMessageStage, selectedModel } = useChatStore()
 
   const sendMessage = useCallback(
     async (content: string, images?: string[], model?: string) => {
@@ -106,6 +106,7 @@ export function useChat(conversationId: string) {
                 remainingNormal?: number
                 remainingThrottled?: number
                 title?: string
+                reasoning?: boolean
               }
               if (parsed.chunk) appendStreamingContent(parsed.chunk)
               if (parsed.error) setChatError(parsed.error, parsed.code ?? null)
@@ -115,6 +116,11 @@ export function useChat(conversationId: string) {
                   parsed.remainingNormal ?? null,
                   parsed.remainingThrottled ?? null,
                 )
+              }
+              // مدل‌های reasoning (خانواده‌ی gpt-5) قبل از متن نهایی یک فاز فکرکردن نامرئی دارند —
+              // این نشانگر همون فاز رو نشون می‌ده تا کاربر روی صفحه‌ی خالی گیج نماند
+              if (parsed.info === 'reasoning' && typeof parsed.reasoning === 'boolean') {
+                setIsReasoning(parsed.reasoning)
               }
               // عنوان تازه‌ی مکالمه (فقط اولین پیام) — مستقیم توی کش می‌نشونیم تا همون لحظه توی
               // سایدبار و هدر دیده شود، بدون نیاز به refetch/reload

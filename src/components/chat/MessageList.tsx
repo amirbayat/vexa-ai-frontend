@@ -21,7 +21,7 @@ interface MessageListProps {
 }
 
 export function MessageList({ messages }: MessageListProps) {
-  const { streamingContent, isStreaming, chatError, chatErrorCode } = useChatStore()
+  const { streamingContent, isStreaming, isReasoning, chatError, chatErrorCode } = useChatStore()
   const containerRef = useRef<HTMLDivElement>(null)
 
   useEffect(() => {
@@ -45,7 +45,14 @@ export function MessageList({ messages }: MessageListProps) {
         <MessageBubble role="ASSISTANT" content={streamingContent} streaming />
       )}
 
-      {isStreaming && !streamingContent && (
+      {isStreaming && !streamingContent && isReasoning && (
+        <div className="flex items-center gap-2 px-2 text-sm text-slate-400">
+          <span className="animate-pulse">🤔</span>
+          در حال فکر کردن...
+        </div>
+      )}
+
+      {isStreaming && !streamingContent && !isReasoning && (
         <div className="flex gap-1 items-center px-2">
           {[0, 1, 2].map(i => (
             <span
