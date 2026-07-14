@@ -1,7 +1,7 @@
 import { useState, type FormEvent } from 'react'
 import { useNavigate, useSearchParams } from 'react-router-dom'
 import { useSendOtp } from '@/queries/auth.queries'
-import { useCampaignStatus } from '@/queries/campaign.queries'
+import { useCampaignStatus, useCampaignDisplayCounter } from '@/queries/campaign.queries'
 import { Button } from '@/components/ui/Button'
 import { Input } from '@/components/ui/Input'
 import { toEnglishDigits } from '@/lib/digits'
@@ -13,6 +13,7 @@ export function LoginPage() {
   const navigate = useNavigate()
   const sendOtp = useSendOtp()
   const { data: campaignStatus } = useCampaignStatus()
+  const displayCounter = useCampaignDisplayCounter(campaignStatus)
   const [searchParams] = useSearchParams()
   const waitlistToken = searchParams.get('wl') // لینک پیامک «دسترسی باز شد» — بخش ۱۸.۵
 
@@ -43,9 +44,9 @@ export function LoginPage() {
           <p className="mt-1 text-sm text-slate-500">با شماره موبایل وارد شوید</p>
         </div>
 
-        {campaignStatus?.active && campaignStatus.displayedRemaining !== null && (
+        {campaignStatus?.active && displayCounter !== null && (
           <div className="mb-4 rounded-xl border border-amber-500/20 bg-amber-500/10 px-4 py-2 text-center text-sm text-amber-300">
-            {fa.waitlist.remainingCapacity(campaignStatus.displayedRemaining)}
+            {fa.waitlist.remainingCapacity(displayCounter)}
           </div>
         )}
 
