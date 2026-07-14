@@ -76,10 +76,18 @@ export function MessageList({ messages }: MessageListProps) {
   )
 }
 
+// حداکثر طول متن قابل‌نمایش از reasoning — این یک «پنجره‌ی لغزان» روی آخرین بخش متن است، نه کل
+// تاریخچه؛ وگرنه هرچه استریم جلوتر می‌رفت این باکس بی‌نهایت بلند می‌شد (متن استدلال می‌تواند
+// چند هزار کاراکتر باشد). فقط آخرین ~۲۲۰ کاراکتر (تقریباً یک پاراگراف کوتاه) نشان داده می‌شود.
+const REASONING_VISIBLE_CHARS = 220
+
 // متن زنده‌ی استدلال مدل (اگر Liara/مدل reasoning_content برگرداند) — کم‌رنگ و جدا از حباب
 // پاسخ اصلی، دقیقاً مثل الگوی «Thinking» در ChatGPT/Claude؛ فقط تا قبل از شروع متن واقعی نشان
 // داده می‌شود (بخش بالاتر در MessageList با isStreaming && !streamingContent گیت شده)
 function ReasoningBox({ text }: { text: string }) {
+  const visible =
+    text.length > REASONING_VISIBLE_CHARS ? `…${text.slice(-REASONING_VISIBLE_CHARS)}` : text
+
   return (
     <div className="flex gap-3">
       <div className="size-8 shrink-0" />
@@ -88,7 +96,7 @@ function ReasoningBox({ text }: { text: string }) {
           <span className="animate-pulse">🤔</span>
           در حال فکر کردن...
         </div>
-        <p className="whitespace-pre-wrap text-xs italic leading-relaxed text-slate-400">{text}</p>
+        <p className="whitespace-pre-wrap text-xs italic leading-relaxed text-slate-400">{visible}</p>
       </div>
     </div>
   )
