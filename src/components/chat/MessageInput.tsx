@@ -66,7 +66,8 @@ export function MessageInput({ onSend, disabled, sending }: MessageInputProps) {
   function toggleImageMode() {
     if (!hasImageGenModels) return
     setImageMode(v => !v)
-    setImages([]) // دو حالت با هم قاطی نمی‌شوند — یا آپلود عکس، یا تولید عکس
+    // عکس‌های پیوست‌شده نگه داشته می‌شوند — اگر کاربر قبلاً عکس آپلود کرده و بعد حالت تولید عکس
+    // را فعال کند، یعنی می‌خواهد همون عکس‌ها ویرایش/ترکیب شوند (images/edits)، نه یک تولید از صفر
   }
 
   const submit = () => {
@@ -74,7 +75,7 @@ export function MessageInput({ onSend, disabled, sending }: MessageInputProps) {
     if (disabled || sending) return
     if (imageMode) {
       if (!trimmed) return
-      onSend(trimmed, undefined, pinnedImageGenModel?.name, true)
+      onSend(trimmed, images.length ? images : undefined, pinnedImageGenModel?.name, true)
     } else {
       if (!trimmed && !images.length) return
       onSend(trimmed, images.length ? images : undefined)
@@ -140,14 +141,16 @@ export function MessageInput({ onSend, disabled, sending }: MessageInputProps) {
             />
           </svg>
           <span>
-            {pinnedImageGenModel
-              ? `با مدل «${pinnedImageGenModel.displayName}» ساخته می‌شود`
-              : 'کیفیت و ابعاد بر اساس توصیفت و اعتبار حسابت خودکار انتخاب می‌شود'}
+            {images.length > 0
+              ? `ویرایش/ترکیب همین ${images.length} عکس بر اساس توصیفت`
+              : pinnedImageGenModel
+                ? `با مدل «${pinnedImageGenModel.displayName}» ساخته می‌شود`
+                : 'کیفیت و ابعاد بر اساس توصیفت و اعتبار حسابت خودکار انتخاب می‌شود'}
           </span>
         </div>
       )}
 
-      {!imageMode && images.length > 0 && (
+      {images.length > 0 && (
         <div className="mb-2 flex flex-wrap gap-2">
           {images.map((src, idx) => (
             <div key={idx} className="relative group">
@@ -183,26 +186,26 @@ export function MessageInput({ onSend, disabled, sending }: MessageInputProps) {
           onChange={e => void handleFiles(e.target.files)}
         />
 
-        {!imageMode && (
-          <button
-            type="button"
-            disabled={disabled || images.length >= MAX_IMAGES}
-            onClick={() => fileRef.current?.click()}
-            className={clsx(
-              'shrink-0 size-7 rounded-lg flex items-center justify-center transition-colors',
-              images.length >= MAX_IMAGES || disabled
-                ? 'text-slate-600 cursor-not-allowed'
+        <button
+          type="button"
+          disabled={disabled || images.length >= MAX_IMAGES}
+          onClick={() => fileRef.current?.click()}
+          className={clsx(
+            'shrink-0 size-7 rounded-lg flex items-center justify-center transition-colors',
+            images.length >= MAX_IMAGES || disabled
+              ? 'text-slate-600 cursor-not-allowed'
+              : imageMode
+                ? 'text-fuchsia-300/70 hover:text-fuchsia-300 hover:bg-slate-700'
                 : 'text-slate-400 hover:text-emerald-400 hover:bg-slate-700',
-            )}
-            aria-label="پیوست تصویر"
-          >
-            <svg viewBox="0 0 24 24" fill="none" className="size-5">
-              <rect x="3" y="3" width="18" height="18" rx="3" stroke="currentColor" strokeWidth="1.5" />
-              <circle cx="8.5" cy="8.5" r="1.5" fill="currentColor" />
-              <path d="m3 15 5-5 4 4 3-3 6 6" stroke="currentColor" strokeWidth="1.5" strokeLinecap="round" strokeLinejoin="round" />
-            </svg>
-          </button>
-        )}
+          )}
+          aria-label={imageMode ? 'پیوست عکس برای ویرایش/ترکیب' : 'پیوست تصویر'}
+        >
+          <svg viewBox="0 0 24 24" fill="none" className="size-5">
+            <rect x="3" y="3" width="18" height="18" rx="3" stroke="currentColor" strokeWidth="1.5" />
+            <circle cx="8.5" cy="8.5" r="1.5" fill="currentColor" />
+            <path d="m3 15 5-5 4 4 3-3 6 6" stroke="currentColor" strokeWidth="1.5" strokeLinecap="round" strokeLinejoin="round" />
+          </svg>
+        </button>
 
         {hasImageGenModels && (
           <button
@@ -236,7 +239,11 @@ export function MessageInput({ onSend, disabled, sending }: MessageInputProps) {
           onInput={onInput}
           onFocus={onFocus}
           disabled={disabled}
-          placeholder={imageMode ? 'چی می‌خوای برات بسازم؟' : fa.chat.placeholder}
+          placeholder={
+            imageMode
+              ? images.length > 0 ? 'چی می‌خوای با این عکس(ها) درست کنم؟' : 'چی می‌خوای برات بسازم؟'
+              : fa.chat.placeholder
+          }
           rows={1}
           className={clsx(
             'flex-1 resize-none bg-transparent text-sm text-slate-100 placeholder:text-slate-500',
