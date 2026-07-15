@@ -12,16 +12,31 @@ import { FeedbackWidget } from '@/components/feedback/FeedbackWidget'
 import { ModelSelector } from '@/components/chat/ModelSelector'
 import { fa } from '@/locales/fa'
 
+interface PendingMessage {
+  content: string
+  images?: string[]
+  model?: string
+  generateImage?: boolean
+}
+
 export function ChatPage() {
   const { id } = useParams<{ id?: string }>()
   const { isStreaming } = useChatStore()
   const navigate = useNavigate()
   const createConv = useCreateConversation()
 
-  const handleFirstMessage = async (content: string, _images?: string[]) => {
+  const handleFirstMessage = async (
+    content: string,
+    images?: string[],
+    model?: string,
+    generateImage?: boolean,
+  ) => {
     try {
       const conv = await createConv.mutateAsync('optimal')
-      navigate(`/chat/${conv.id}`, { state: { initialMessage: content }, replace: true })
+      navigate(`/chat/${conv.id}`, {
+        state: { initialMessage: { content, images, model, generateImage } },
+        replace: true,
+      })
     } catch {
       // ignore — user can retype and retry
     }
@@ -39,8 +54,8 @@ function ActiveChat({ conversationId, isStreaming }: { conversationId: string; i
   const { sendMessage } = useChat(conversationId)
   const location = useLocation()
 
-  const pendingRef = useRef<string | null>(
-    (location.state as { initialMessage?: string } | null)?.initialMessage ?? null,
+  const pendingRef = useRef<PendingMessage | null>(
+    (location.state as { initialMessage?: PendingMessage } | null)?.initialMessage ?? null,
   )
 
   useEffect(() => {
@@ -48,7 +63,7 @@ function ActiveChat({ conversationId, isStreaming }: { conversationId: string; i
     if (msg && !isLoading && data) {
       pendingRef.current = null
       window.history.replaceState({}, '')
-      void sendMessage(msg)
+      void sendMessage(msg.content, msg.images, msg.model, msg.generateImage)
     }
   }, [isLoading, data, sendMessage])
 
