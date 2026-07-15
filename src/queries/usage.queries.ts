@@ -1,7 +1,7 @@
 import { useQuery } from '@tanstack/react-query'
 import { api } from '@/lib/api'
 import { keys } from '@/queries/keys'
-import type { UsageToday, BudgetStatus, MessageQuota } from '@/types/api'
+import type { UsageToday, BudgetStatus, MessageQuota, WalletTransaction } from '@/types/api'
 
 export function useUsageToday() {
   return useQuery({
@@ -24,5 +24,18 @@ export function useMessageQuota() {
     queryKey: keys.usage.messageQuota(),
     queryFn: () => api.get<MessageQuota>('/usage/message-quota').then(r => r.data),
     refetchInterval: 30_000,
+  })
+}
+
+export interface WalletDetail {
+  balanceToman: number
+  transactions: WalletTransaction[]
+}
+
+export function useWallet(enabled = true) {
+  return useQuery({
+    queryKey: keys.usage.wallet(),
+    queryFn: () => api.get<WalletDetail>('/usage/wallet').then(r => r.data),
+    enabled,
   })
 }

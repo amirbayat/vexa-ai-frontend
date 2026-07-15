@@ -6,6 +6,7 @@ import {
   useInitiatePayment,
   useEnabledGateways,
   useValidateDiscountCode,
+  useModelCatalog,
   type PaymentGatewayName,
 } from "@/queries/plans.queries";
 import { useMe } from "@/queries/auth.queries";
@@ -13,19 +14,29 @@ import { SalesChatbot } from "@/components/sales/SalesChatbot";
 import { env } from "@/env";
 import { ExitIntentModal } from "@/components/sales/ExitIntentModal";
 import { GatewayPickerModal } from "@/components/payment/GatewayPickerModal";
+import { WalletTopupModal } from "@/components/payment/WalletTopupModal";
 import { ModelShowcase } from "@/components/models/ModelShowcase";
+import { ProviderIcon } from "@/components/models/ProviderIcon";
 import { PlanLimitsTable } from "@/components/plans/PlanLimitsTable";
 import { fa } from "@/locales/fa";
 import { PLAN_TIER_MODEL_DESCRIPTIONS, dailyLimitText, supportText } from "@/lib/plan-copy";
 import type { Plan } from "@/types/api";
 
+const DEFAULT_PAYG_PRESETS = [1_000_000, 2_000_000, 5_000_000];
+
 export function PricingPage() {
   const { data: plans, isLoading } = usePlans();
   const { data: me } = useMe();
   const { data: gateways } = useEnabledGateways();
+  const { data: modelCatalog } = useModelCatalog();
   const initPayment = useInitiatePayment();
   const navigate = useNavigate();
   const [pendingPlanId, setPendingPlanId] = useState<string | null>(null);
+  const [paygTopupOpen, setPaygTopupOpen] = useState(false);
+
+  const regularPlans = plans?.filter((p) => !p.isPayAsYouGo);
+  const paygPlan = plans?.find((p) => p.isPayAsYouGo);
+  const isCurrentPayg = paygPlan && paygPlan.id === me?.subscription?.planId;
 
   const currentPlanId = me?.subscription?.planId;
   const [discountCode, setDiscountCode] = useState("");
@@ -123,7 +134,7 @@ export function PricingPage() {
           role="list"
           aria-label="پلن‌های اشتراک"
         >
-          {plans?.map((plan, index) => {
+          {regularPlans?.map((plan, index) => {
             const isCurrent = plan.id === currentPlanId;
             const isFree = plan.priceMonthly === 0;
             const isPopular = !isCurrent && plan.isPopular;
@@ -245,8 +256,67 @@ export function PricingPage() {
           })}
         </div>
 
-        {/* جدول جزییات کامل محدودیت‌ها — شفافیت کامل قبل از خرید */}
-        {plans && plans.length > 0 && (
+        {/* docs/PRD-pay-as-you-go-wallet.md — کارت بزرگ‌تر، ردیف جدا، مدل‌های بیشتر روی خودِ کارت (نه پشت مودال) */}
+        {paygPlan && (
+          <div className="mt-8">
+            <div className="relative flex flex-col gap-8 rounded-2xl border border-fuchsia-500/40 bg-gradient-to-b from-fuchsia-500/[0.06] to-transparent p-8 md:flex-row">
+              {isCurrentPayg && (
+                <span className="absolute -top-3 right-6 rounded-full bg-fuchsia-500 px-3 py-0.5 text-xs font-medium text-white">
+                  {fa.plans.current}
+                </span>
+              )}
+              <div className="flex-1">
+                <span className="mb-3 inline-block rounded-full bg-fuchsia-500/15 px-3 py-1 text-xs font-medium text-fuchsia-300">
+                  Pay-as-you-go
+                </span>
+                <h3 className="text-2xl font-bold text-slate-100">{paygPlan.name}</h3>
+                <p className="mt-2 max-w-md text-sm leading-relaxed text-slate-400">
+                  هر مدلی رو که بخوای انتخاب کن و همون رو استفاده کن — بدون سقف روزانه، بدون تعویض خودکار به مدل ارزان‌تر. فقط به‌اندازه‌ی مصرف واقعی از کیف‌پولت کم می‌شود.
+                </p>
+
+                <div className="mt-4 flex flex-wrap gap-2">
+                  {paygPlan.allowedModels.map((name) => {
+                    const entry = modelCatalog?.find((m) => m.name === name);
+                    return (
+                      <span
+                        key={name}
+                        className="flex items-center gap-1.5 rounded-full border border-slate-700 bg-slate-800/60 px-3 py-1.5 text-xs text-slate-300"
+                      >
+                        <ProviderIcon provider={entry?.provider ?? name.split("/")[0]} size={14} />
+                        {entry?.displayName ?? name}
+                      </span>
+                    );
+                  })}
+                </div>
+              </div>
+
+              <div className="flex shrink-0 flex-col justify-center gap-3 md:w-64">
+                <div className="rounded-xl border border-slate-700 bg-slate-800/40 p-4 text-center">
+                  <p className="text-xs text-slate-500">ضریب محاسبه‌ی مصرف</p>
+                  <p className="mt-1 text-lg font-bold text-fuchsia-300">× {paygPlan.payAsYouGoMarkup ?? 1.3}</p>
+                </div>
+                {isCurrentPayg ? (
+                  <button
+                    onClick={() => navigate("/settings/wallet")}
+                    className="rounded-xl border border-fuchsia-500/40 py-2.5 text-sm text-fuchsia-300 hover:bg-fuchsia-500/10 transition-colors"
+                  >
+                    مدیریت کیف‌پول
+                  </button>
+                ) : (
+                  <button
+                    onClick={() => setPaygTopupOpen(true)}
+                    className="rounded-xl bg-fuchsia-500 py-3 text-sm font-semibold text-white transition-all hover:bg-fuchsia-400 active:scale-95"
+                  >
+                    شارژ و شروع
+                  </button>
+                )}
+              </div>
+            </div>
+          </div>
+        )}
+
+        {/* جدول جزییات کامل محدودیت‌ها — شفافیت کامل قبل از خرید (PAYG سقف روزانه/ماهانه ندارد، پس در این جدول نمی‌آید) */}
+        {regularPlans && regularPlans.length > 0 && (
           <div className="mt-14">
             <div className="mb-6 text-center">
               <h2 className="text-xl font-bold text-slate-100">
@@ -256,7 +326,7 @@ export function PricingPage() {
                 همه‌ی محدودیت‌ها، شفاف و بدون سورپرایز
               </p>
             </div>
-            <PlanLimitsTable plans={plans as Plan[]} />
+            <PlanLimitsTable plans={regularPlans as Plan[]} />
           </div>
         )}
 
@@ -286,6 +356,15 @@ export function PricingPage() {
           loading={initPayment.isPending}
           onSelect={handleGatewaySelect}
           onClose={() => setPendingPlanId(null)}
+        />
+      )}
+
+      {paygTopupOpen && paygPlan && (
+        <WalletTopupModal
+          presets={paygPlan.payAsYouGoTopupPresets ?? DEFAULT_PAYG_PRESETS}
+          minActivation={paygPlan.payAsYouGoMinActivationToman ?? 1_000_000}
+          minTopup={paygPlan.payAsYouGoMinTopupToman ?? 500_000}
+          onClose={() => setPaygTopupOpen(false)}
         />
       )}
     </div>

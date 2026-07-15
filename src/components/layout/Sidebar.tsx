@@ -5,6 +5,7 @@ import {
   useArchiveConversation,
 } from "@/queries/conversation.queries";
 import { useMe } from "@/queries/auth.queries";
+import { useWallet } from "@/queries/usage.queries";
 import { useChatStore } from "@/store/chat.store";
 import { PlanUpgradeBadge } from "./PlanUpgradeBadge";
 import { fa } from "@/locales/fa";
@@ -23,6 +24,8 @@ export function Sidebar({ onNavigate }: { onNavigate?: () => void } = {}) {
   const navigate = useNavigate();
   const { selectedConvId, setSelectedConvId } = useChatStore();
   const { data: me } = useMe();
+  const isPayAsYouGo = Boolean(me?.subscription?.plan.isPayAsYouGo);
+  const { data: wallet } = useWallet(isPayAsYouGo);
   const { data, fetchNextPage, hasNextPage } = useConversations();
   const archiveMut = useArchiveConversation();
 
@@ -156,6 +159,44 @@ export function Sidebar({ onNavigate }: { onNavigate?: () => void } = {}) {
             />
           </svg>
         </button>
+
+        {isPayAsYouGo && (
+          <button
+            onClick={() => navigate("/settings/wallet")}
+            className="mt-1 flex w-full items-center gap-2.5 rounded-xl px-2.5 py-2 hover:bg-slate-700/50 transition-colors text-right"
+          >
+            <div className="size-8 rounded-full bg-emerald-500/10 flex items-center justify-center text-emerald-400 shrink-0">
+              <svg viewBox="0 0 20 20" fill="none" className="size-4">
+                <path
+                  d="M3 6.5A1.5 1.5 0 014.5 5h11A1.5 1.5 0 0117 6.5v7a1.5 1.5 0 01-1.5 1.5h-11A1.5 1.5 0 013 13.5v-7z"
+                  stroke="currentColor"
+                  strokeWidth="1.4"
+                />
+                <path d="M3 8.5h14" stroke="currentColor" strokeWidth="1.4" />
+                <circle cx="13.5" cy="11.5" r="1" fill="currentColor" />
+              </svg>
+            </div>
+            <div className="flex min-w-0 flex-1 flex-col">
+              <span className="truncate text-xs font-medium text-slate-200">
+                {fa.settings.wallet}
+              </span>
+              <span className="text-[10px] text-emerald-400/80" dir="ltr">
+                {(wallet?.balanceToman ?? 0).toLocaleString("fa-IR")} تومان
+              </span>
+            </div>
+            <svg
+              viewBox="0 0 20 20"
+              fill="currentColor"
+              className="size-4 shrink-0 text-slate-500"
+            >
+              <path
+                fillRule="evenodd"
+                d="M7.293 14.707a1 1 0 010-1.414L10.586 10 7.293 6.707a1 1 0 011.414-1.414l4 4a1 1 0 010 1.414l-4 4a1 1 0 01-1.414 0z"
+                clipRule="evenodd"
+              />
+            </svg>
+          </button>
+        )}
       </div>
     </aside>
   );

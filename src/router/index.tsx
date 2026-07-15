@@ -11,6 +11,7 @@ import { CallbackPage } from '@/pages/payment/CallbackPage'
 import { ProfilePage } from '@/pages/settings/ProfilePage'
 import { SubscriptionPage } from '@/pages/settings/SubscriptionPage'
 import { UsagePage } from '@/pages/settings/UsagePage'
+import { WalletPage } from '@/pages/settings/WalletPage'
 import { TicketsPage } from '@/pages/settings/TicketsPage'
 import { TicketDetailPage } from '@/pages/settings/TicketDetailPage'
 import { InvoicesPage } from '@/pages/settings/InvoicesPage'
@@ -69,6 +70,7 @@ export function AppRouter() {
         <Route path="profile" element={<ProfilePage />} />
         <Route path="subscription" element={<SubscriptionPage />} />
         <Route path="usage" element={<UsagePage />} />
+        <Route path="wallet" element={<WalletPage />} />
         <Route path="invoices" element={<InvoicesPage />} />
         <Route path="invoices/:id" element={<InvoiceDetailPage />} />
         <Route path="tickets" element={<TicketsPage />} />

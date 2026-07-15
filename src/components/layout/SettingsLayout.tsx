@@ -7,6 +7,7 @@ const navItems = [
   { to: '/settings/profile', label: fa.settings.profile },
   { to: '/settings/subscription', label: fa.settings.subscription },
   { to: '/settings/usage', label: fa.settings.usage },
+  { to: '/settings/wallet', label: fa.settings.wallet },
   { to: '/settings/invoices', label: fa.settings.invoices },
   { to: '/settings/tickets', label: fa.settings.tickets },
 ]

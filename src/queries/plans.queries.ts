@@ -56,6 +56,16 @@ export function useInitiatePayment() {
   })
 }
 
+export function useInitiateWalletTopup() {
+  return useMutation({
+    mutationFn: ({ amountToman, gateway }: { amountToman: number; gateway?: PaymentGatewayName }) =>
+      api.post<{ paymentUrl: string }>('/payments/initiate-wallet-topup', { amountToman, gateway }).then(r => r.data),
+    onSuccess: data => {
+      window.location.href = data.paymentUrl
+    },
+  })
+}
+
 export function useSubscription() {
   return useQuery({
     queryKey: keys.sub.current(),

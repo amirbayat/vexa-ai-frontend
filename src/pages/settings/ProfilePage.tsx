@@ -204,11 +204,15 @@ export function ProfilePage() {
             />
 
             {budget.walletBalanceToman > 0 && (
-              <InfoRow
-                label={fa.settings.walletBalance}
-                value={`${budget.walletBalanceToman.toLocaleString('fa-IR')} تومان`}
-                highlight
-              />
+              <Link
+                to="/settings/wallet"
+                className="flex items-center justify-between py-2.5 border-b border-slate-700/40 last:border-0 hover:bg-slate-700/20 -mx-2 px-2 rounded-lg transition-colors"
+              >
+                <span className="text-sm text-slate-400">{fa.settings.walletBalance}</span>
+                <span className="text-sm font-medium text-emerald-400">
+                  {budget.walletBalanceToman.toLocaleString('fa-IR')} تومان
+                </span>
+              </Link>
             )}
 
             <InfoRow

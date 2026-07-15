@@ -51,6 +51,19 @@ export interface Plan {
   throttledOutputTokens: number | null
   rollingWindowLimit: number | null
   rollingWindowHours: number
+  isPayAsYouGo: boolean
+  payAsYouGoMarkup: number | null
+  payAsYouGoMinActivationToman: number | null
+  payAsYouGoMinTopupToman: number | null
+  payAsYouGoTopupPresets: number[] | null
+}
+
+export interface WalletTransaction {
+  id: string
+  type: 'CREDIT' | 'DEBIT'
+  amountToman: number
+  description: string | null
+  createdAt: string
 }
 
 export interface Subscription {
