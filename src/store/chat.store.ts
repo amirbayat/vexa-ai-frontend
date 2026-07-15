@@ -15,6 +15,10 @@ interface ChatState {
   remainingNormal: number | null
   remainingThrottled: number | null
   selectedModel: string | null
+  // مستقل از selectedModel — چون مدل‌های تولید عکس modelType متفاوتی دارند (IMAGE_GEN) و
+  // هرگز نباید به‌جای مدل چت معمولی به سرور فرستاده شوند؛ null یعنی «خودکار» (پیش‌فرض،
+  // بر اساس پیچیدگی prompt و کیف‌پول انتخاب می‌شود)
+  selectedImageGenModel: string | null
   setSelectedConvId: (id: string | null) => void
   setStreamingContent: (text: string) => void
   appendStreamingContent: (chunk: string) => void
@@ -26,6 +30,7 @@ interface ChatState {
   setChatError: (msg: string | null, code?: string | null) => void
   setMessageStage: (stage: MessageStage, remainingNormal: number | null, remainingThrottled: number | null) => void
   setSelectedModel: (model: string) => void
+  setSelectedImageGenModel: (model: string | null) => void
 }
 
 export const useChatStore = create<ChatState>(set => ({
@@ -42,6 +47,7 @@ export const useChatStore = create<ChatState>(set => ({
   remainingThrottled: null,
   // «حالت بهینه» پیش‌فرض جدید — مسیریاب مدل بر اساس سختی پیام، مدل واقعی را انتخاب می‌کند
   selectedModel: typeof window !== 'undefined' ? (localStorage.getItem('nivo:selectedModel') ?? 'optimal') : 'optimal',
+  selectedImageGenModel: typeof window !== 'undefined' ? localStorage.getItem('nivo:selectedImageGenModel') : null,
 
   setSelectedConvId: id => set({ selectedConvId: id }),
   setStreamingContent: text => set({ streamingContent: text }),
@@ -55,4 +61,5 @@ export const useChatStore = create<ChatState>(set => ({
   setMessageStage: (stage, remainingNormal, remainingThrottled) =>
     set({ messageStage: stage, remainingNormal, remainingThrottled }),
   setSelectedModel: model => set({ selectedModel: model }),
+  setSelectedImageGenModel: model => set({ selectedImageGenModel: model }),
 }))

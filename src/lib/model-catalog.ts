@@ -24,3 +24,14 @@ const TIER_LABELS: Record<ModelTier, string> = {
 export function tierLabel(tier: ModelTier): string {
   return TIER_LABELS[tier] ?? tier
 }
+
+// همون enum کیفیت مسیریاب چت، برای مدل‌های تولید عکس به‌عنوان سطح کیفیت/قیمت دوباره استفاده می‌شود
+const IMAGE_QUALITY_LABELS: Record<ModelTier, string> = {
+  SIMPLE: 'ساده و اقتصادی',
+  MEDIUM: 'متوسط',
+  COMPLEX: 'کیفیت بالا',
+}
+
+export function imageQualityLabel(tier: ModelTier): string {
+  return IMAGE_QUALITY_LABELS[tier] ?? tier
+}

@@ -111,15 +111,19 @@ function ReasoningBox({ text }: { text: string }) {
 function GeneratingImageBox() {
   return (
     <div className="flex gap-3">
-      <div className="size-8 shrink-0 rounded-full bg-slate-700 flex items-center justify-center text-xs font-bold text-slate-300">
+      <div className="size-8 shrink-0 rounded-full bg-gradient-to-br from-fuchsia-500 to-purple-600 flex items-center justify-center text-xs font-bold text-white">
         AI
       </div>
       <div className="flex flex-col gap-2 rounded-2xl rounded-tr-sm bg-slate-800 px-4 py-3">
-        <div className="flex items-center gap-2 text-xs text-slate-400">
-          <span className="size-3.5 rounded-full border-2 border-emerald-500 border-t-transparent animate-spin" />
-          در حال ساخت عکس...
+        <div className="flex items-center gap-1.5 text-xs font-medium text-fuchsia-300">
+          <svg viewBox="0 0 24 24" fill="none" className="image-gen-sparkle size-3.5">
+            <path d="M12 3l1.8 4.6L18 9.5l-4.2 1.4L12 16l-1.8-5.1L6 9.5l4.2-1.9L12 3z" fill="currentColor" />
+          </svg>
+          <span>در حال ساخت عکس...</span>
         </div>
-        <div className="h-40 w-40 animate-pulse rounded-xl bg-slate-700/60" />
+        <div className="image-gen-canvas relative h-44 w-44 overflow-hidden rounded-xl">
+          <div className="image-gen-shimmer absolute inset-0" />
+        </div>
       </div>
     </div>
   )
@@ -211,10 +215,10 @@ function MessageBubble({
             {images && images.length > 0 && (
               <div className="flex flex-col gap-2 mb-2">
                 {images.map((src, i) => (
-                  <div key={i} className="relative group w-fit">
+                  <div key={i} className="image-gen-reveal relative group w-fit">
                     <img
                       src={src}
-                      className="max-h-72 max-w-[280px] rounded-lg object-cover cursor-pointer"
+                      className="max-h-72 max-w-[280px] rounded-lg object-cover cursor-pointer ring-1 ring-fuchsia-500/25 shadow-lg shadow-fuchsia-950/30"
                       onClick={() => window.open(src, '_blank')}
                       alt=""
                     />

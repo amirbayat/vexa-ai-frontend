@@ -26,6 +26,7 @@ function fallbackEntry(name: string): ModelCatalogEntry {
     name,
     displayName: name.includes("/") ? name.split("/")[1] : name,
     provider: name.split("/")[0] ?? "openai",
+    modelType: "CHAT",
     tier: "MEDIUM",
     supportsVision: false,
     supportsImageGen: false,

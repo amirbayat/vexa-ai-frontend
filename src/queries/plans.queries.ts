@@ -15,6 +15,7 @@ export interface ModelCatalogEntry {
   name: string
   displayName: string
   provider: string
+  modelType: 'CHAT' | 'IMAGE_GEN'
   tier: 'SIMPLE' | 'MEDIUM' | 'COMPLEX'
   supportsVision: boolean
   supportsImageGen: boolean

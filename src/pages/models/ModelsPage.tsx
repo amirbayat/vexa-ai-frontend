@@ -4,10 +4,13 @@ import { useMe } from '@/queries/auth.queries'
 import { useModelCatalog, type ModelCatalogEntry } from '@/queries/plans.queries'
 import { useChatStore } from '@/store/chat.store'
 import { env } from '@/env'
-import { OPTIMAL_MODE, OPTIMAL_DESCRIPTION, tierDescription, tierLabel, type ModelTier } from '@/lib/model-catalog'
+import {
+  OPTIMAL_MODE, OPTIMAL_DESCRIPTION, tierDescription, tierLabel, imageQualityLabel, type ModelTier,
+} from '@/lib/model-catalog'
 import { ProviderIcon } from '@/components/models/ProviderIcon'
 
 const STORAGE_KEY = 'nivo:selectedModel'
+const IMAGE_GEN_STORAGE_KEY = 'nivo:selectedImageGenModel'
 const TIER_ORDER: ModelTier[] = ['SIMPLE', 'MEDIUM', 'COMPLEX']
 
 function OptimalIcon() {
@@ -26,17 +29,43 @@ function Check() {
   )
 }
 
+function SparkleIcon({ className }: { className?: string }) {
+  return (
+    <svg viewBox="0 0 24 24" fill="none" className={className}>
+      <path d="M12 3l1.8 4.6L18 9.5l-4.2 1.4L12 16l-1.8-5.1L6 9.5l4.2-1.9L12 3z" fill="currentColor" />
+    </svg>
+  )
+}
+
+function ImageGenBadge() {
+  return (
+    <span className="inline-flex items-center gap-1 rounded-full bg-gradient-to-br from-fuchsia-500/20 to-purple-600/20 px-2 py-0.5 text-[11px] font-medium text-fuchsia-300 ring-1 ring-fuchsia-500/30">
+      <SparkleIcon className="size-2.5" />
+      تولید عکس
+    </span>
+  )
+}
+
 export function ModelsPage() {
   const navigate = useNavigate()
   const { data: me } = useMe()
   const { data: catalog, isLoading } = useModelCatalog()
-  const { selectedModel, setSelectedModel } = useChatStore()
+  const { selectedModel, setSelectedModel, selectedImageGenModel, setSelectedImageGenModel } = useChatStore()
 
   const allowedModels: string[] = me?.subscription?.plan?.allowedModels ?? [env.VITE_DEFAULT_MODEL]
+  const chatModels = (catalog ?? []).filter(m => m.modelType !== 'IMAGE_GEN')
+  const imageGenModels = (catalog ?? []).filter(m => m.modelType === 'IMAGE_GEN')
 
   function select(model: string) {
     setSelectedModel(model)
     localStorage.setItem(STORAGE_KEY, model)
+    navigate(-1)
+  }
+
+  function selectImageGenModel(model: string | null) {
+    setSelectedImageGenModel(model)
+    if (model) localStorage.setItem(IMAGE_GEN_STORAGE_KEY, model)
+    else localStorage.removeItem(IMAGE_GEN_STORAGE_KEY)
     navigate(-1)
   }
 
@@ -69,6 +98,46 @@ export function ModelsPage() {
         <div className="flex-1">
           <h3 className="font-bold text-slate-100">{model.displayName}</h3>
           <p className="mt-1.5 text-sm leading-relaxed text-slate-400">{tierDescription(model.tier)}</p>
+          {!isAllowed && (
+            <span className="mt-2.5 block text-xs font-medium text-emerald-400">
+              نیاز به ارتقا پلن ←
+            </span>
+          )}
+        </div>
+        {isActive && <Check />}
+      </div>
+    )
+  }
+
+  function ImageGenCard({ model }: { model: ModelCatalogEntry }) {
+    const isAllowed = allowedModels.includes(model.name)
+    const isActive = selectedImageGenModel === model.name
+
+    return (
+      <div
+        role="button"
+        tabIndex={0}
+        onClick={() => (isAllowed ? selectImageGenModel(model.name) : navigate('/pricing'))}
+        onKeyDown={e => {
+          if (e.key === 'Enter' || e.key === ' ') (isAllowed ? selectImageGenModel(model.name) : navigate('/pricing'))
+        }}
+        className={clsx(
+          'flex w-full cursor-pointer items-start gap-4 rounded-2xl border p-5 text-right transition-all',
+          !isAllowed && 'opacity-50',
+          isActive
+            ? 'border-fuchsia-500/60 bg-fuchsia-500/5'
+            : 'border-slate-700/60 bg-slate-800/40 hover:border-slate-600',
+        )}
+      >
+        <div className="mt-0.5 flex size-10 shrink-0 items-center justify-center rounded-xl bg-white/5">
+          <ProviderIcon provider={model.provider} size={20} />
+        </div>
+        <div className="flex-1">
+          <div className="flex items-center gap-2">
+            <h3 className="font-bold text-slate-100">{model.displayName}</h3>
+            <ImageGenBadge />
+          </div>
+          <p className="mt-1.5 text-sm leading-relaxed text-slate-400">{imageQualityLabel(model.tier)}</p>
           {!isAllowed && (
             <span className="mt-2.5 block text-xs font-medium text-emerald-400">
               نیاز به ارتقا پلن ←
@@ -130,7 +199,7 @@ export function ModelsPage() {
             </div>
           ) : (
             TIER_ORDER.map(tier => {
-              const models = (catalog ?? []).filter(m => m.tier === tier)
+              const models = chatModels.filter(m => m.tier === tier)
               if (!models.length) return null
               return (
                 <div key={tier} className="space-y-3 pt-2">
@@ -141,6 +210,50 @@ export function ModelsPage() {
             })
           )}
         </div>
+
+        {!isLoading && imageGenModels.length > 0 && (
+          <div className="mt-14">
+            <div className="mb-5 flex items-center gap-3">
+              <div className="flex size-9 items-center justify-center rounded-xl bg-gradient-to-br from-fuchsia-500 to-purple-600 shadow-[0_0_16px_rgba(217,70,239,0.35)]">
+                <SparkleIcon className="size-4.5 text-white" />
+              </div>
+              <div>
+                <h2 className="font-bold text-slate-100">مدل‌های تولید عکس</h2>
+                <p className="text-xs text-slate-500">برای حالت «تولید عکس» توی چت استفاده می‌شوند، نه چت متنی معمولی</p>
+              </div>
+            </div>
+
+            <div className="space-y-4">
+              <button
+                onClick={() => selectImageGenModel(null)}
+                className={clsx(
+                  'flex w-full items-start gap-4 rounded-2xl border p-5 text-right transition-all',
+                  selectedImageGenModel === null
+                    ? 'border-fuchsia-500/60 bg-fuchsia-500/5'
+                    : 'border-slate-700/60 bg-slate-800/40 hover:border-slate-600',
+                )}
+              >
+                <div className="mt-0.5 flex size-10 shrink-0 items-center justify-center rounded-xl bg-white/5">
+                  <SparkleIcon className="size-5 text-fuchsia-400" />
+                </div>
+                <div className="flex-1">
+                  <div className="flex items-center gap-2">
+                    <h3 className="font-bold text-slate-100">خودکار (پیش‌فرض)</h3>
+                    <span className="rounded-full bg-fuchsia-500/15 px-2 py-0.5 text-[11px] text-fuchsia-300">پیشنهادی</span>
+                  </div>
+                  <p className="mt-1.5 text-sm leading-relaxed text-slate-400">
+                    کیفیت و ابعاد بر اساس توصیف خودت و اعتبار حسابت خودکار انتخاب می‌شود
+                  </p>
+                </div>
+                {selectedImageGenModel === null && <Check />}
+              </button>
+
+              {imageGenModels.map(model => (
+                <ImageGenCard key={model.name} model={model} />
+              ))}
+            </div>
+          </div>
+        )}
       </div>
     </div>
   )

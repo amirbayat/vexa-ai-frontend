@@ -3,6 +3,7 @@ import { clsx } from 'clsx'
 import { useFeatureFlags } from '@/queries/config.queries'
 import { useModelCatalog } from '@/queries/plans.queries'
 import { useMe } from '@/queries/auth.queries'
+import { useChatStore } from '@/store/chat.store'
 import { fa } from '@/locales/fa'
 
 function resizeImage(file: File): Promise<string> {
@@ -43,24 +44,27 @@ export function MessageInput({ onSend, disabled, sending }: MessageInputProps) {
 
   const { data: catalog } = useModelCatalog()
   const { data: me } = useMe()
+  const { selectedImageGenModel } = useChatStore()
   // docs/PRD-chat-images.md بخش ۵.۵/۶.۲ — فقط مدل‌هایی که هم supportsImageGen دارند هم
-  // در allowedModels پلن کاربرند؛ اگر هیچ‌کدام نبود، دکمه‌ی حالت تولید عکس اصلاً نشان داده نمی‌شود
+  // در allowedModels پلن کاربرند؛ اگر هیچ‌کدام نبود، دکمه‌ی حالت تولید عکس اصلاً نشان داده نمی‌شود.
+  // پیش‌فرض: کیفیت/اندازه بر اساس متن پیام و (برای Pay-as-you-go) موجودی کیف‌پول خودکار
+  // انتخاب می‌شود — اما اگر کاربر از صفحه‌ی «انتخاب مدل» یک مدل تولید عکس مشخص pin کرده باشد
+  // (selectedImageGenModel) و هنوز هم مجاز باشد، همان صریح فرستاده می‌شود
   const imageGenModels = useMemo(() => {
     const allowed = me?.subscription?.plan.allowedModels ?? []
     return (catalog ?? []).filter(m => m.supportsImageGen && allowed.includes(m.name))
   }, [catalog, me])
+  const hasImageGenModels = imageGenModels.length > 0
+  const pinnedImageGenModel = imageGenModels.find(m => m.name === selectedImageGenModel)
 
   const [value, setValue] = useState('')
   const [images, setImages] = useState<string[]>([])
   const [imageMode, setImageMode] = useState(false)
-  const [imageGenModel, setImageGenModel] = useState<string | null>(null)
   const textareaRef = useRef<HTMLTextAreaElement>(null)
   const fileRef = useRef<HTMLInputElement>(null)
 
-  const activeImageGenModel = imageGenModel ?? imageGenModels[0]?.name ?? null
-
   function toggleImageMode() {
-    if (!imageGenModels.length) return
+    if (!hasImageGenModels) return
     setImageMode(v => !v)
     setImages([]) // دو حالت با هم قاطی نمی‌شوند — یا آپلود عکس، یا تولید عکس
   }
@@ -69,8 +73,8 @@ export function MessageInput({ onSend, disabled, sending }: MessageInputProps) {
     const trimmed = value.trim()
     if (disabled || sending) return
     if (imageMode) {
-      if (!trimmed || !activeImageGenModel) return
-      onSend(trimmed, undefined, activeImageGenModel, true)
+      if (!trimmed) return
+      onSend(trimmed, undefined, pinnedImageGenModel?.name, true)
     } else {
       if (!trimmed && !images.length) return
       onSend(trimmed, images.length ? images : undefined)
@@ -122,23 +126,24 @@ export function MessageInput({ onSend, disabled, sending }: MessageInputProps) {
   }
 
   const canSend = imageMode
-    ? Boolean(value.trim() && activeImageGenModel) && !disabled && !sending
+    ? Boolean(value.trim()) && !disabled && !sending
     : (value.trim() || images.length > 0) && !disabled && !sending
 
   return (
     <div className="border-t border-slate-700/50 p-4">
-      {imageMode && imageGenModels.length > 1 && (
-        <div className="mb-2 flex items-center gap-2 text-xs text-slate-400">
-          <span>مدل تولید عکس:</span>
-          <select
-            value={activeImageGenModel ?? ''}
-            onChange={e => setImageGenModel(e.target.value)}
-            className="rounded-lg border border-slate-700 bg-slate-800 px-2 py-1 text-xs text-slate-200 focus:outline-none"
-          >
-            {imageGenModels.map(m => (
-              <option key={m.name} value={m.name}>{m.displayName}</option>
-            ))}
-          </select>
+      {imageMode && (
+        <div className="mb-2 flex items-center gap-1.5 px-1 text-xs text-fuchsia-300/80">
+          <svg viewBox="0 0 24 24" fill="none" className="size-3.5 shrink-0">
+            <path
+              d="M12 3l1.8 4.6L18 9.5l-4.2 1.4L12 16l-1.8-5.1L6 9.5l4.2-1.9L12 3z"
+              fill="currentColor"
+            />
+          </svg>
+          <span>
+            {pinnedImageGenModel
+              ? `با مدل «${pinnedImageGenModel.displayName}» ساخته می‌شود`
+              : 'کیفیت و ابعاد بر اساس توصیفت و اعتبار حسابت خودکار انتخاب می‌شود'}
+          </span>
         </div>
       )}
 
@@ -199,15 +204,15 @@ export function MessageInput({ onSend, disabled, sending }: MessageInputProps) {
           </button>
         )}
 
-        {imageGenModels.length > 0 && (
+        {hasImageGenModels && (
           <button
             type="button"
             disabled={disabled}
             onClick={toggleImageMode}
             className={clsx(
-              'shrink-0 size-7 rounded-lg flex items-center justify-center transition-colors',
+              'shrink-0 size-7 rounded-lg flex items-center justify-center transition-all duration-200',
               imageMode
-                ? 'text-fuchsia-400 bg-fuchsia-500/15'
+                ? 'bg-gradient-to-br from-fuchsia-500 to-purple-600 text-white shadow-[0_0_12px_rgba(217,70,239,0.5)]'
                 : 'text-slate-400 hover:text-fuchsia-400 hover:bg-slate-700',
               disabled && 'cursor-not-allowed opacity-50',
             )}
@@ -245,9 +250,11 @@ export function MessageInput({ onSend, disabled, sending }: MessageInputProps) {
           disabled={!canSend}
           className={clsx(
             'shrink-0 size-9 rounded-xl flex items-center justify-center transition-all',
-            canSend
-              ? 'bg-emerald-500 text-white hover:bg-emerald-600 active:scale-95'
-              : 'bg-slate-700 text-slate-500 cursor-not-allowed',
+            canSend && imageMode
+              ? 'bg-gradient-to-br from-fuchsia-500 to-purple-600 text-white hover:brightness-110 active:scale-95'
+              : canSend
+                ? 'bg-emerald-500 text-white hover:bg-emerald-600 active:scale-95'
+                : 'bg-slate-700 text-slate-500 cursor-not-allowed',
           )}
         >
           <svg viewBox="0 0 24 24" fill="none" className="size-4 rotate-180">
