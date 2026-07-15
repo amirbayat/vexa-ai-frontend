@@ -125,6 +125,11 @@ export function useChat(conversationId: string) {
                   parsed.remainingThrottled ?? null,
                 )
               }
+              // اگر تولید عکس با toggle صریح فرانت شروع نشده باشد (تشخیص ضمنی سمت سرور)، فرانت
+              // تا همین لحظه خبر نداشت این پیام قراره عکس تولید کند — این اولین علامتیه که می‌رسه
+              if (parsed.info === 'image-generation-started') {
+                setIsGeneratingImage(true)
+              }
               // مدل‌های reasoning (خانواده‌ی gpt-5) قبل از متن نهایی یک فاز فکرکردن نامرئی دارند —
               // این نشانگر همون فاز رو نشون می‌ده تا کاربر روی صفحه‌ی خالی گیج نماند
               if (parsed.info === 'reasoning' && typeof parsed.reasoning === 'boolean') {

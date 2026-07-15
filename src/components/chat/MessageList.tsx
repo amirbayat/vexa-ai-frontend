@@ -16,6 +16,68 @@ function LinkNewTab({ href, children }: { href?: string; children?: React.ReactN
   )
 }
 
+// دانلود واقعی فایل (نه فقط باز شدن URL خام) — attribute «download» ساده روی لینک برای URLهای
+// cross-origin (مثل presigned URL مینیو) توسط خیلی مرورگرها نادیده گرفته می‌شود؛ گرفتن blob
+// و دانلود از همون blob قابل‌اعتمادتر است، صرف‌نظر از origin تصویر
+async function downloadImage(src: string, filename: string) {
+  try {
+    const blob = await (await fetch(src)).blob()
+    const url = URL.createObjectURL(blob)
+    const a = document.createElement('a')
+    a.href = url
+    a.download = filename
+    document.body.appendChild(a)
+    a.click()
+    a.remove()
+    URL.revokeObjectURL(url)
+  } catch {
+    // fallback: حداقل توی تب جدید باز شود تا کاربر دستی ذخیره کند
+    window.open(src, '_blank')
+  }
+}
+
+function ImageLightbox({ src, onClose }: { src: string; onClose: () => void }) {
+  useEffect(() => {
+    const onKey = (e: KeyboardEvent) => { if (e.key === 'Escape') onClose() }
+    document.addEventListener('keydown', onKey)
+    return () => document.removeEventListener('keydown', onKey)
+  }, [onClose])
+
+  return (
+    <div
+      className="fixed inset-0 z-50 flex items-center justify-center bg-black/80 p-4 backdrop-blur-sm"
+      onClick={onClose}
+    >
+      <div className="absolute top-4 left-4 flex gap-2">
+        <button
+          onClick={e => { e.stopPropagation(); void downloadImage(src, 'nivo-image.png') }}
+          className="flex size-10 items-center justify-center rounded-full bg-slate-800/90 text-slate-200 hover:bg-slate-700 transition-colors"
+          aria-label="دانلود عکس"
+        >
+          <svg viewBox="0 0 16 16" fill="none" className="size-4">
+            <path d="M8 1v9m0 0l-3-3m3 3l3-3M2 12v2a1 1 0 001 1h10a1 1 0 001-1v-2" stroke="currentColor" strokeWidth="1.5" strokeLinecap="round" strokeLinejoin="round" />
+          </svg>
+        </button>
+        <button
+          onClick={onClose}
+          className="flex size-10 items-center justify-center rounded-full bg-slate-800/90 text-slate-200 hover:bg-slate-700 transition-colors"
+          aria-label="بستن"
+        >
+          <svg viewBox="0 0 24 24" fill="none" className="size-5">
+            <path d="M6 6l12 12M18 6L6 18" stroke="currentColor" strokeWidth="1.8" strokeLinecap="round" />
+          </svg>
+        </button>
+      </div>
+      <img
+        src={src}
+        alt=""
+        onClick={e => e.stopPropagation()}
+        className="max-h-[90vh] max-w-[90vw] rounded-lg object-contain shadow-2xl"
+      />
+    </div>
+  )
+}
+
 interface MessageListProps {
   messages: Message[]
 }
@@ -25,6 +87,7 @@ export function MessageList({ messages }: MessageListProps) {
     streamingContent, isStreaming, isReasoning, reasoningText, chatError, chatErrorCode, isGeneratingImage,
   } = useChatStore()
   const containerRef = useRef<HTMLDivElement>(null)
+  const [lightboxSrc, setLightboxSrc] = useState<string | null>(null)
 
   useEffect(() => {
     const el = containerRef.current; if (el) el.scrollTop = el.scrollHeight
@@ -32,6 +95,7 @@ export function MessageList({ messages }: MessageListProps) {
 
   return (
     <div ref={containerRef} className="flex-1 overflow-y-auto px-4 py-6 space-y-4">
+      {lightboxSrc && <ImageLightbox src={lightboxSrc} onClose={() => setLightboxSrc(null)} />}
       {messages.map(msg => (
         <MessageBubble
           key={msg.id}
@@ -40,6 +104,7 @@ export function MessageList({ messages }: MessageListProps) {
           content={msg.content}
           images={msg.images}
           feedback={msg.feedback}
+          onImageClick={setLightboxSrc}
         />
       ))}
 
@@ -158,6 +223,7 @@ function MessageBubble({
   images,
   feedback,
   streaming,
+  onImageClick,
 }: {
   id?: string
   role: Message['role']
@@ -165,6 +231,7 @@ function MessageBubble({
   images?: string[] | null
   feedback?: Message['feedback']
   streaming?: boolean
+  onImageClick?: (src: string) => void
 }) {
   const isUser = role === 'USER'
 
@@ -195,7 +262,7 @@ function MessageBubble({
                     key={i}
                     src={src}
                     className="max-h-48 max-w-[200px] rounded-lg object-cover cursor-pointer"
-                    onClick={() => window.open(src, '_blank')}
+                    onClick={() => onImageClick?.(src)}
                     alt=""
                   />
                 ))}
@@ -219,20 +286,18 @@ function MessageBubble({
                     <img
                       src={src}
                       className="max-h-72 max-w-[280px] rounded-lg object-cover cursor-pointer ring-1 ring-fuchsia-500/25 shadow-lg shadow-fuchsia-950/30"
-                      onClick={() => window.open(src, '_blank')}
+                      onClick={() => onImageClick?.(src)}
                       alt=""
                     />
-                    <a
-                      href={src}
-                      download="nivo-image.png"
-                      onClick={e => e.stopPropagation()}
-                      className="absolute bottom-2 left-2 flex size-7 items-center justify-center rounded-lg bg-slate-900/80 text-slate-200 opacity-0 group-hover:opacity-100 transition-opacity hover:bg-slate-900"
+                    <button
+                      onClick={e => { e.stopPropagation(); void downloadImage(src, 'nivo-image.png') }}
+                      className="absolute bottom-2 left-2 flex size-7 items-center justify-center rounded-lg bg-slate-900/80 text-slate-200 opacity-90 group-hover:opacity-100 transition-opacity hover:bg-slate-900"
                       aria-label="دانلود عکس"
                     >
                       <svg viewBox="0 0 16 16" fill="none" className="size-3.5">
                         <path d="M8 1v9m0 0l-3-3m3 3l3-3M2 12v2a1 1 0 001 1h10a1 1 0 001-1v-2" stroke="currentColor" strokeWidth="1.5" strokeLinecap="round" strokeLinejoin="round" />
                       </svg>
-                    </a>
+                    </button>
                   </div>
                 ))}
               </div>
