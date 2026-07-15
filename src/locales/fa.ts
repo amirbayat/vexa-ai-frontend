@@ -23,6 +23,9 @@ export const fa = {
     queuePosition: (n: number) => `شما نفر ${n} در صف هستید`,
     gotIt: 'متوجه شدم',
   },
+  networkOutage: {
+    message: 'اعتبار شما تا زمان برگشت اینترنت به شرایط پایدار محفوظ خواهد ماند.',
+  },
   chat: {
     newChat: 'مکالمه جدید',
     placeholder: 'پیام خود را بنویسید...',

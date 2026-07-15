@@ -7,6 +7,7 @@ import { MessageList } from '@/components/chat/MessageList'
 import { MessageInput } from '@/components/chat/MessageInput'
 import { MessageLimitBanner } from '@/components/chat/MessageLimitBanner'
 import { GiftBanner } from '@/components/chat/GiftBanner'
+import { OutageBanner } from '@/components/chat/OutageBanner'
 import { FeedbackWidget } from '@/components/feedback/FeedbackWidget'
 import { ModelSelector } from '@/components/chat/ModelSelector'
 import { fa } from '@/locales/fa'
@@ -80,6 +81,7 @@ function ActiveChat({ conversationId, isStreaming }: { conversationId: string; i
       </div>
 
       <MessageList messages={data.messages} />
+      <OutageBanner />
       <GiftBanner />
       <MessageLimitBanner />
       <MessageInput onSend={sendMessage} sending={isStreaming} />
@@ -115,6 +117,7 @@ function EmptyState({ onSend, isCreating }: { onSend: (content: string, images?:
           <p className="mt-1 text-sm text-slate-600">{fa.chat.emptySubtitle}</p>
         </div>
       </div>
+      <OutageBanner />
       <GiftBanner />
       <MessageLimitBanner />
       <MessageInput onSend={onSend} disabled={isCreating} />

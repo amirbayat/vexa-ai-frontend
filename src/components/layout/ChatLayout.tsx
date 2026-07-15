@@ -1,19 +1,22 @@
-import { useState, type ReactNode } from 'react'
-import { clsx } from 'clsx'
-import { Sidebar } from './Sidebar'
-import { PlanUpgradeBadge } from './PlanUpgradeBadge'
-import { useVisualViewportHeight } from '@/hooks/useVisualViewportHeight'
+import { useState, type ReactNode } from "react";
+import { clsx } from "clsx";
+import { Sidebar } from "./Sidebar";
+import { PlanUpgradeBadge } from "./PlanUpgradeBadge";
+import { useVisualViewportHeight } from "@/hooks/useVisualViewportHeight";
 
 interface ChatLayoutProps {
-  children: ReactNode
+  children: ReactNode;
 }
 
 export function ChatLayout({ children }: ChatLayoutProps) {
-  const [sidebarOpen, setSidebarOpen] = useState(false)
-  const viewportHeight = useVisualViewportHeight()
+  const [sidebarOpen, setSidebarOpen] = useState(false);
+  const viewportHeight = useVisualViewportHeight();
 
   return (
-    <div className="flex overflow-hidden bg-slate-900" style={{ height: viewportHeight }}>
+    <div
+      className="flex overflow-hidden bg-slate-900"
+      style={{ height: viewportHeight }}
+    >
       {sidebarOpen && (
         <div
           onClick={() => setSidebarOpen(false)}
@@ -24,8 +27,8 @@ export function ChatLayout({ children }: ChatLayoutProps) {
 
       <div
         className={clsx(
-          'fixed inset-y-0 right-0 z-40 transition-transform duration-300 sm:static sm:z-auto sm:translate-x-0',
-          sidebarOpen ? 'translate-x-0' : 'translate-x-full',
+          "fixed inset-y-0 right-0 z-40 transition-transform duration-300 sm:static sm:z-auto sm:translate-x-0",
+          sidebarOpen ? "translate-x-0" : "translate-x-full",
         )}
       >
         <Sidebar onNavigate={() => setSidebarOpen(false)} />
@@ -39,11 +42,19 @@ export function ChatLayout({ children }: ChatLayoutProps) {
             aria-label="باز کردن منو"
           >
             <svg viewBox="0 0 24 24" fill="none" className="size-5">
-              <path d="M4 6h16M4 12h16M4 18h16" stroke="currentColor" strokeWidth="1.8" strokeLinecap="round" />
+              <path
+                d="M4 6h16M4 12h16M4 18h16"
+                stroke="currentColor"
+                strokeWidth="1.8"
+                strokeLinecap="round"
+              />
             </svg>
           </button>
-          <img src="/brand/nivo-icon.svg" alt="نیوو" className="size-6 rounded-md" />
-          <span className="text-sm font-semibold text-emerald-400">نیوو</span>
+          <img
+            src="/brand/nivo-icon.svg"
+            alt="نیوو"
+            className="w-20 h-auto rounded-md"
+          />
           <div className="ms-auto">
             <PlanUpgradeBadge />
           </div>
@@ -51,5 +62,5 @@ export function ChatLayout({ children }: ChatLayoutProps) {
         {children}
       </main>
     </div>
-  )
+  );
 }
