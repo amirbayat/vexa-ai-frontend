@@ -5,6 +5,9 @@ import { keys } from '@/queries/keys'
 interface FeatureFlags {
   showDailyBudget: boolean
   showMonthlyTokenUsage: boolean
+  // docs/PRD-chat-images.md بخش ۵.۶ — از ChatConfig ادمین می‌آیند، نه ثابت در کد فرانت
+  maxImagesPerMessage: number
+  maxImageSizeMb: number
 }
 
 export function useFeatureFlags() {
@@ -13,6 +16,6 @@ export function useFeatureFlags() {
     queryFn: () => api.get<FeatureFlags>('/config/features').then(r => r.data),
     staleTime: 10 * 60_000,
     // اگر بک‌اند لحظه‌ای در دسترس نبود، پیش‌فرض «نمایش بده» تا چیزی به‌غلط قایم نشه
-    placeholderData: { showDailyBudget: true, showMonthlyTokenUsage: true },
+    placeholderData: { showDailyBudget: true, showMonthlyTokenUsage: true, maxImagesPerMessage: 4, maxImageSizeMb: 8 },
   })
 }

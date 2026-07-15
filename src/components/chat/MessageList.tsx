@@ -21,7 +21,9 @@ interface MessageListProps {
 }
 
 export function MessageList({ messages }: MessageListProps) {
-  const { streamingContent, isStreaming, isReasoning, reasoningText, chatError, chatErrorCode } = useChatStore()
+  const {
+    streamingContent, isStreaming, isReasoning, reasoningText, chatError, chatErrorCode, isGeneratingImage,
+  } = useChatStore()
   const containerRef = useRef<HTMLDivElement>(null)
 
   useEffect(() => {
@@ -41,22 +43,24 @@ export function MessageList({ messages }: MessageListProps) {
         />
       ))}
 
-      {isStreaming && !streamingContent && reasoningText && (
+      {isGeneratingImage && <GeneratingImageBox />}
+
+      {!isGeneratingImage && isStreaming && !streamingContent && reasoningText && (
         <ReasoningBox text={reasoningText} />
       )}
 
-      {isStreaming && streamingContent && (
+      {!isGeneratingImage && isStreaming && streamingContent && (
         <MessageBubble role="ASSISTANT" content={streamingContent} streaming />
       )}
 
-      {isStreaming && !streamingContent && !reasoningText && isReasoning && (
+      {!isGeneratingImage && isStreaming && !streamingContent && !reasoningText && isReasoning && (
         <div className="flex items-center gap-2 px-2 text-sm text-slate-400">
           <span className="animate-pulse">🤔</span>
           در حال فکر کردن...
         </div>
       )}
 
-      {isStreaming && !streamingContent && !reasoningText && !isReasoning && (
+      {!isGeneratingImage && isStreaming && !streamingContent && !reasoningText && !isReasoning && (
         <div className="flex gap-1 items-center px-2">
           {[0, 1, 2].map(i => (
             <span
@@ -97,6 +101,25 @@ function ReasoningBox({ text }: { text: string }) {
           در حال فکر کردن...
         </div>
         <p className="whitespace-pre-wrap text-xs italic leading-relaxed text-slate-400">{visible}</p>
+      </div>
+    </div>
+  )
+}
+
+// docs/PRD-chat-images.md بخش ۶.۱ — تولید عکس برخلاف استریم متن فوری شروع نمی‌شود (چند ثانیه
+// طول می‌کشد)؛ یک جعبه‌ی اسکلتی/blur تا رسیدن رویداد image-generated نشان داده می‌شود
+function GeneratingImageBox() {
+  return (
+    <div className="flex gap-3">
+      <div className="size-8 shrink-0 rounded-full bg-slate-700 flex items-center justify-center text-xs font-bold text-slate-300">
+        AI
+      </div>
+      <div className="flex flex-col gap-2 rounded-2xl rounded-tr-sm bg-slate-800 px-4 py-3">
+        <div className="flex items-center gap-2 text-xs text-slate-400">
+          <span className="size-3.5 rounded-full border-2 border-emerald-500 border-t-transparent animate-spin" />
+          در حال ساخت عکس...
+        </div>
+        <div className="h-40 w-40 animate-pulse rounded-xl bg-slate-700/60" />
       </div>
     </div>
   )
@@ -185,12 +208,39 @@ function MessageBubble({
               streaming && 'border border-emerald-500/30',
             )}
           >
-            <ReactMarkdown
-              remarkPlugins={[remarkGfm]}
-              components={{ code: CodeBlock, pre: PrePassthrough, a: LinkNewTab }}
-            >
-              {content}
-            </ReactMarkdown>
+            {images && images.length > 0 && (
+              <div className="flex flex-col gap-2 mb-2">
+                {images.map((src, i) => (
+                  <div key={i} className="relative group w-fit">
+                    <img
+                      src={src}
+                      className="max-h-72 max-w-[280px] rounded-lg object-cover cursor-pointer"
+                      onClick={() => window.open(src, '_blank')}
+                      alt=""
+                    />
+                    <a
+                      href={src}
+                      download="nivo-image.png"
+                      onClick={e => e.stopPropagation()}
+                      className="absolute bottom-2 left-2 flex size-7 items-center justify-center rounded-lg bg-slate-900/80 text-slate-200 opacity-0 group-hover:opacity-100 transition-opacity hover:bg-slate-900"
+                      aria-label="دانلود عکس"
+                    >
+                      <svg viewBox="0 0 16 16" fill="none" className="size-3.5">
+                        <path d="M8 1v9m0 0l-3-3m3 3l3-3M2 12v2a1 1 0 001 1h10a1 1 0 001-1v-2" stroke="currentColor" strokeWidth="1.5" strokeLinecap="round" strokeLinejoin="round" />
+                      </svg>
+                    </a>
+                  </div>
+                ))}
+              </div>
+            )}
+            {content && (
+              <ReactMarkdown
+                remarkPlugins={[remarkGfm]}
+                components={{ code: CodeBlock, pre: PrePassthrough, a: LinkNewTab }}
+              >
+                {content}
+              </ReactMarkdown>
+            )}
           </div>
         )}
       </div>

@@ -89,7 +89,10 @@ function ActiveChat({ conversationId, isStreaming }: { conversationId: string; i
   )
 }
 
-function EmptyState({ onSend, isCreating }: { onSend: (content: string, images?: string[]) => void; isCreating: boolean }) {
+function EmptyState({ onSend, isCreating }: {
+  onSend: (content: string, images?: string[], model?: string, generateImage?: boolean) => void
+  isCreating: boolean
+}) {
   return (
     <div className="flex flex-1 flex-col overflow-hidden">
       <div className="flex items-center gap-3 border-b border-slate-700/50 px-4 py-3 sm:px-6 sm:py-4">

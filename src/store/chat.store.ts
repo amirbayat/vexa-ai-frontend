@@ -8,6 +8,7 @@ interface ChatState {
   isStreaming: boolean
   isReasoning: boolean
   reasoningText: string
+  isGeneratingImage: boolean
   chatError: string | null
   chatErrorCode: string | null
   messageStage: MessageStage
@@ -20,6 +21,7 @@ interface ChatState {
   setIsStreaming: (v: boolean) => void
   setIsReasoning: (v: boolean) => void
   appendReasoningText: (chunk: string) => void
+  setIsGeneratingImage: (v: boolean) => void
   resetStreaming: () => void
   setChatError: (msg: string | null, code?: string | null) => void
   setMessageStage: (stage: MessageStage, remainingNormal: number | null, remainingThrottled: number | null) => void
@@ -32,6 +34,7 @@ export const useChatStore = create<ChatState>(set => ({
   isStreaming: false,
   isReasoning: false,
   reasoningText: '',
+  isGeneratingImage: false,
   chatError: null,
   chatErrorCode: null,
   messageStage: 'normal',
@@ -46,7 +49,8 @@ export const useChatStore = create<ChatState>(set => ({
   setIsStreaming: v => set({ isStreaming: v }),
   setIsReasoning: v => set({ isReasoning: v }),
   appendReasoningText: chunk => set(s => ({ reasoningText: s.reasoningText + chunk })),
-  resetStreaming: () => set({ streamingContent: '', isStreaming: false, isReasoning: false, reasoningText: '' }),
+  setIsGeneratingImage: v => set({ isGeneratingImage: v }),
+  resetStreaming: () => set({ streamingContent: '', isStreaming: false, isReasoning: false, reasoningText: '', isGeneratingImage: false }),
   setChatError: (msg, code = null) => set({ chatError: msg, chatErrorCode: code }),
   setMessageStage: (stage, remainingNormal, remainingThrottled) =>
     set({ messageStage: stage, remainingNormal, remainingThrottled }),

@@ -10,11 +10,11 @@ export function useChat(conversationId: string) {
   const abortRef = useRef<AbortController | null>(null)
   const {
     appendStreamingContent, setIsStreaming, setIsReasoning, appendReasoningText,
-    resetStreaming, setChatError, setMessageStage, selectedModel,
+    resetStreaming, setChatError, setMessageStage, selectedModel, setIsGeneratingImage,
   } = useChatStore()
 
   const sendMessage = useCallback(
-    async (content: string, images?: string[], model?: string) => {
+    async (content: string, images?: string[], model?: string, generateImage?: boolean) => {
       const effectiveModel = model ?? selectedModel ?? undefined
       abortRef.current?.abort()
       const ctrl = new AbortController()
@@ -23,6 +23,7 @@ export function useChat(conversationId: string) {
       resetStreaming()
       setChatError(null)
       setIsStreaming(true)
+      if (generateImage) setIsGeneratingImage(true)
 
       // Optimistic: add user message to cache immediately so it shows before the stream starts
       qc.setQueryData<ConversationDetail>(keys.conv.detail(conversationId), old => {
@@ -55,6 +56,7 @@ export function useChat(conversationId: string) {
               content,
               ...(effectiveModel ? { model: effectiveModel } : {}),
               ...(images?.length ? { images } : {}),
+              ...(generateImage ? { generateImage: true } : {}),
             }),
           },
         )
@@ -111,6 +113,8 @@ export function useChat(conversationId: string) {
                 title?: string
                 reasoning?: boolean
                 reasoningChunk?: string
+                image?: string
+                messageId?: string
               }
               if (parsed.chunk) appendStreamingContent(parsed.chunk)
               if (parsed.error) setChatError(parsed.error, parsed.code ?? null)
@@ -129,6 +133,27 @@ export function useChat(conversationId: string) {
               // متن واقعی استدلال (اگر مدل/Liara آن را برگرداند) — کم‌رنگ بالای پاسخ نشان داده می‌شود
               if (parsed.info === 'reasoning-chunk' && parsed.reasoningChunk) {
                 appendReasoningText(parsed.reasoningChunk)
+              }
+              // docs/PRD-chat-images.md بخش ۵.۵ — تولید عکس یک‌جا می‌آید (نه چانک‌به‌چانک)؛
+              // بلافاصله در کش نشانده می‌شود تا کاربر منتظر invalidate/refetch نماند
+              if (parsed.info === 'image-generated' && parsed.image) {
+                const image = parsed.image
+                const messageId = parsed.messageId ?? `img-${Date.now()}`
+                qc.setQueryData<ConversationDetail>(keys.conv.detail(conversationId), old => {
+                  if (!old) return old
+                  const generatedMessage: Message = {
+                    id: messageId,
+                    conversationId,
+                    role: 'ASSISTANT',
+                    content: '',
+                    images: [image],
+                    tokensInput: 0,
+                    tokensOutput: 0,
+                    createdAt: new Date().toISOString(),
+                  }
+                  return { ...old, messages: [...old.messages, generatedMessage] }
+                })
+                setIsGeneratingImage(false)
               }
               // عنوان تازه‌ی مکالمه (فقط اولین پیام) — مستقیم توی کش می‌نشونیم تا همون لحظه توی
               // سایدبار و هدر دیده شود، بدون نیاز به refetch/reload
@@ -165,6 +190,7 @@ export function useChat(conversationId: string) {
         }
       } finally {
         setIsStreaming(false)
+        setIsGeneratingImage(false)
         void qc.invalidateQueries({ queryKey: keys.conv.detail(conversationId) })
         void qc.invalidateQueries({ queryKey: keys.conv.list() })
         void qc.invalidateQueries({ queryKey: keys.usage.today() })

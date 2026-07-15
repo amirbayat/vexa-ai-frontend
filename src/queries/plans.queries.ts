@@ -17,6 +17,7 @@ export interface ModelCatalogEntry {
   provider: string
   tier: 'SIMPLE' | 'MEDIUM' | 'COMPLEX'
   supportsVision: boolean
+  supportsImageGen: boolean
   sortOrder: number
 }
 

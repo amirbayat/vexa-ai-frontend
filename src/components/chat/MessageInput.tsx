@@ -1,9 +1,9 @@
-import { useState, useRef, type KeyboardEvent } from 'react'
+import { useState, useRef, useMemo, type KeyboardEvent } from 'react'
 import { clsx } from 'clsx'
+import { useFeatureFlags } from '@/queries/config.queries'
+import { useModelCatalog } from '@/queries/plans.queries'
+import { useMe } from '@/queries/auth.queries'
 import { fa } from '@/locales/fa'
-
-const MAX_IMAGES = 4
-const MAX_SIZE_BYTES = 5 * 1024 * 1024 // 5 MB per file
 
 function resizeImage(file: File): Promise<string> {
   return new Promise((resolve, reject) => {
@@ -29,7 +29,7 @@ function resizeImage(file: File): Promise<string> {
 }
 
 interface MessageInputProps {
-  onSend: (content: string, images?: string[]) => void
+  onSend: (content: string, images?: string[], model?: string, generateImage?: boolean) => void
   disabled?: boolean
   // برخلاف disabled، فقط دکمه‌ی ارسال (و Enter) را غیرفعال می‌کند — کاربر همچنان می‌تواند
   // در حین تولید پاسخ هوش مصنوعی تایپ کند و پیام بعدی‌اش را آماده کند
@@ -37,15 +37,44 @@ interface MessageInputProps {
 }
 
 export function MessageInput({ onSend, disabled, sending }: MessageInputProps) {
+  const { data: flags } = useFeatureFlags()
+  const MAX_IMAGES = flags?.maxImagesPerMessage ?? 4
+  const MAX_SIZE_BYTES = (flags?.maxImageSizeMb ?? 8) * 1024 * 1024
+
+  const { data: catalog } = useModelCatalog()
+  const { data: me } = useMe()
+  // docs/PRD-chat-images.md بخش ۵.۵/۶.۲ — فقط مدل‌هایی که هم supportsImageGen دارند هم
+  // در allowedModels پلن کاربرند؛ اگر هیچ‌کدام نبود، دکمه‌ی حالت تولید عکس اصلاً نشان داده نمی‌شود
+  const imageGenModels = useMemo(() => {
+    const allowed = me?.subscription?.plan.allowedModels ?? []
+    return (catalog ?? []).filter(m => m.supportsImageGen && allowed.includes(m.name))
+  }, [catalog, me])
+
   const [value, setValue] = useState('')
   const [images, setImages] = useState<string[]>([])
+  const [imageMode, setImageMode] = useState(false)
+  const [imageGenModel, setImageGenModel] = useState<string | null>(null)
   const textareaRef = useRef<HTMLTextAreaElement>(null)
   const fileRef = useRef<HTMLInputElement>(null)
 
+  const activeImageGenModel = imageGenModel ?? imageGenModels[0]?.name ?? null
+
+  function toggleImageMode() {
+    if (!imageGenModels.length) return
+    setImageMode(v => !v)
+    setImages([]) // دو حالت با هم قاطی نمی‌شوند — یا آپلود عکس، یا تولید عکس
+  }
+
   const submit = () => {
     const trimmed = value.trim()
-    if ((!trimmed && !images.length) || disabled || sending) return
-    onSend(trimmed, images.length ? images : undefined)
+    if (disabled || sending) return
+    if (imageMode) {
+      if (!trimmed || !activeImageGenModel) return
+      onSend(trimmed, undefined, activeImageGenModel, true)
+    } else {
+      if (!trimmed && !images.length) return
+      onSend(trimmed, images.length ? images : undefined)
+    }
     setValue('')
     setImages([])
     if (textareaRef.current) {
@@ -92,11 +121,28 @@ export function MessageInput({ onSend, disabled, sending }: MessageInputProps) {
     setImages(prev => prev.filter((_, i) => i !== idx))
   }
 
-  const canSend = (value.trim() || images.length > 0) && !disabled && !sending
+  const canSend = imageMode
+    ? Boolean(value.trim() && activeImageGenModel) && !disabled && !sending
+    : (value.trim() || images.length > 0) && !disabled && !sending
 
   return (
     <div className="border-t border-slate-700/50 p-4">
-      {images.length > 0 && (
+      {imageMode && imageGenModels.length > 1 && (
+        <div className="mb-2 flex items-center gap-2 text-xs text-slate-400">
+          <span>مدل تولید عکس:</span>
+          <select
+            value={activeImageGenModel ?? ''}
+            onChange={e => setImageGenModel(e.target.value)}
+            className="rounded-lg border border-slate-700 bg-slate-800 px-2 py-1 text-xs text-slate-200 focus:outline-none"
+          >
+            {imageGenModels.map(m => (
+              <option key={m.name} value={m.name}>{m.displayName}</option>
+            ))}
+          </select>
+        </div>
+      )}
+
+      {!imageMode && images.length > 0 && (
         <div className="mb-2 flex flex-wrap gap-2">
           {images.map((src, idx) => (
             <div key={idx} className="relative group">
@@ -132,24 +178,50 @@ export function MessageInput({ onSend, disabled, sending }: MessageInputProps) {
           onChange={e => void handleFiles(e.target.files)}
         />
 
-        <button
-          type="button"
-          disabled={disabled || images.length >= MAX_IMAGES}
-          onClick={() => fileRef.current?.click()}
-          className={clsx(
-            'shrink-0 size-7 rounded-lg flex items-center justify-center transition-colors',
-            images.length >= MAX_IMAGES || disabled
-              ? 'text-slate-600 cursor-not-allowed'
-              : 'text-slate-400 hover:text-emerald-400 hover:bg-slate-700',
-          )}
-          aria-label="پیوست تصویر"
-        >
-          <svg viewBox="0 0 24 24" fill="none" className="size-5">
-            <rect x="3" y="3" width="18" height="18" rx="3" stroke="currentColor" strokeWidth="1.5" />
-            <circle cx="8.5" cy="8.5" r="1.5" fill="currentColor" />
-            <path d="m3 15 5-5 4 4 3-3 6 6" stroke="currentColor" strokeWidth="1.5" strokeLinecap="round" strokeLinejoin="round" />
-          </svg>
-        </button>
+        {!imageMode && (
+          <button
+            type="button"
+            disabled={disabled || images.length >= MAX_IMAGES}
+            onClick={() => fileRef.current?.click()}
+            className={clsx(
+              'shrink-0 size-7 rounded-lg flex items-center justify-center transition-colors',
+              images.length >= MAX_IMAGES || disabled
+                ? 'text-slate-600 cursor-not-allowed'
+                : 'text-slate-400 hover:text-emerald-400 hover:bg-slate-700',
+            )}
+            aria-label="پیوست تصویر"
+          >
+            <svg viewBox="0 0 24 24" fill="none" className="size-5">
+              <rect x="3" y="3" width="18" height="18" rx="3" stroke="currentColor" strokeWidth="1.5" />
+              <circle cx="8.5" cy="8.5" r="1.5" fill="currentColor" />
+              <path d="m3 15 5-5 4 4 3-3 6 6" stroke="currentColor" strokeWidth="1.5" strokeLinecap="round" strokeLinejoin="round" />
+            </svg>
+          </button>
+        )}
+
+        {imageGenModels.length > 0 && (
+          <button
+            type="button"
+            disabled={disabled}
+            onClick={toggleImageMode}
+            className={clsx(
+              'shrink-0 size-7 rounded-lg flex items-center justify-center transition-colors',
+              imageMode
+                ? 'text-fuchsia-400 bg-fuchsia-500/15'
+                : 'text-slate-400 hover:text-fuchsia-400 hover:bg-slate-700',
+              disabled && 'cursor-not-allowed opacity-50',
+            )}
+            aria-label="حالت تولید عکس"
+            aria-pressed={imageMode}
+          >
+            <svg viewBox="0 0 24 24" fill="none" className="size-5">
+              <path
+                d="M12 3l1.8 4.6L18 9.5l-4.2 1.4L12 16l-1.8-5.1L6 9.5l4.2-1.9L12 3z"
+                fill="currentColor"
+              />
+            </svg>
+          </button>
+        )}
 
         <textarea
           ref={textareaRef}
@@ -159,7 +231,7 @@ export function MessageInput({ onSend, disabled, sending }: MessageInputProps) {
           onInput={onInput}
           onFocus={onFocus}
           disabled={disabled}
-          placeholder={fa.chat.placeholder}
+          placeholder={imageMode ? 'چی می‌خوای برات بسازم؟' : fa.chat.placeholder}
           rows={1}
           className={clsx(
             'flex-1 resize-none bg-transparent text-sm text-slate-100 placeholder:text-slate-500',

@@ -28,6 +28,7 @@ function fallbackEntry(name: string): ModelCatalogEntry {
     provider: name.split("/")[0] ?? "openai",
     tier: "MEDIUM",
     supportsVision: false,
+    supportsImageGen: false,
     sortOrder: 0,
   };
 }
