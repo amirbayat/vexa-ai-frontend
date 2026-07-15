@@ -70,7 +70,7 @@ function ImageLightbox({ src, onClose }: { src: string; onClose: () => void }) {
       </div>
       <img
         src={src}
-        alt=""
+        alt="نمایش بزرگ‌شده‌ی تصویر"
         onClick={e => e.stopPropagation()}
         className="max-h-[90vh] max-w-[90vw] rounded-lg object-contain shadow-2xl"
       />
@@ -85,6 +85,7 @@ interface MessageListProps {
 export function MessageList({ messages }: MessageListProps) {
   const {
     streamingContent, isStreaming, isReasoning, reasoningText, chatError, chatErrorCode, isGeneratingImage,
+    generatingImagePreview,
   } = useChatStore()
   const containerRef = useRef<HTMLDivElement>(null)
   const [lightboxSrc, setLightboxSrc] = useState<string | null>(null)
@@ -108,7 +109,7 @@ export function MessageList({ messages }: MessageListProps) {
         />
       ))}
 
-      {isGeneratingImage && <GeneratingImageBox />}
+      {isGeneratingImage && <GeneratingImageBox preview={generatingImagePreview} />}
 
       {!isGeneratingImage && isStreaming && !streamingContent && reasoningText && (
         <ReasoningBox text={reasoningText} />
@@ -173,7 +174,9 @@ function ReasoningBox({ text }: { text: string }) {
 
 // docs/PRD-chat-images.md بخش ۶.۱ — تولید عکس برخلاف استریم متن فوری شروع نمی‌شود (چند ثانیه
 // طول می‌کشد)؛ یک جعبه‌ی اسکلتی/blur تا رسیدن رویداد image-generated نشان داده می‌شود
-function GeneratingImageBox() {
+// وقتی provider هنوز هیچ پیش‌نمایشی نفرستاده، shimmer تزئینی نشون می‌دیم؛ به محض رسیدن اولین
+// partial_image، همون عکس واقعی (هرچند محو/ناقص) رو نشون می‌دیم — دقیقاً افکت progressive-reveal
+function GeneratingImageBox({ preview }: { preview: string | null }) {
   return (
     <div className="flex gap-3">
       <div className="size-8 shrink-0 rounded-full bg-gradient-to-br from-fuchsia-500 to-purple-600 flex items-center justify-center text-xs font-bold text-white">
@@ -184,10 +187,12 @@ function GeneratingImageBox() {
           <svg viewBox="0 0 24 24" fill="none" className="image-gen-sparkle size-3.5">
             <path d="M12 3l1.8 4.6L18 9.5l-4.2 1.4L12 16l-1.8-5.1L6 9.5l4.2-1.9L12 3z" fill="currentColor" />
           </svg>
-          <span>در حال ساخت عکس...</span>
+          <span>{preview ? 'در حال تکمیل عکس...' : 'در حال ساخت عکس...'}</span>
         </div>
         <div className="image-gen-canvas relative h-44 w-44 overflow-hidden rounded-xl">
-          <div className="image-gen-shimmer absolute inset-0" />
+          {preview
+            ? <img src={preview} alt="پیش‌نمایش در حال تکمیل عکس تولیدشده" className="size-full object-cover" />
+            : <div className="image-gen-shimmer absolute inset-0" />}
         </div>
       </div>
     </div>
@@ -263,7 +268,7 @@ function MessageBubble({
                     src={src}
                     className="max-h-48 max-w-[200px] rounded-lg object-cover cursor-pointer"
                     onClick={() => onImageClick?.(src)}
-                    alt=""
+                    alt={`عکس پیوست‌شده‌ی شما، شماره ${i + 1}`}
                   />
                 ))}
               </div>
@@ -287,7 +292,7 @@ function MessageBubble({
                       src={src}
                       className="max-h-72 max-w-[280px] rounded-lg object-cover cursor-pointer ring-1 ring-fuchsia-500/25 shadow-lg shadow-fuchsia-950/30"
                       onClick={() => onImageClick?.(src)}
-                      alt=""
+                      alt="تصویر ساخته‌شده توسط هوش مصنوعی"
                     />
                     <button
                       onClick={e => { e.stopPropagation(); void downloadImage(src, 'nivo-image.png') }}

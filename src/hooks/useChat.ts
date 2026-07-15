@@ -11,6 +11,7 @@ export function useChat(conversationId: string) {
   const {
     appendStreamingContent, setIsStreaming, setIsReasoning, appendReasoningText,
     resetStreaming, setChatError, setMessageStage, selectedModel, setIsGeneratingImage,
+    setGeneratingImagePreview,
   } = useChatStore()
 
   const sendMessage = useCallback(
@@ -130,6 +131,11 @@ export function useChat(conversationId: string) {
               if (parsed.info === 'image-generation-started') {
                 setIsGeneratingImage(true)
               }
+              // پیش‌نمایش تدریجی واقعی (partial_images) — provider تا ۲ نسخه‌ی جزئی و
+              // واضح‌ترشونده قبل از تصویر نهایی می‌فرستد، دقیقاً مثل افکت progressive-reveal چت‌جی‌پی‌تی
+              if (parsed.info === 'image-partial' && parsed.image) {
+                setGeneratingImagePreview(parsed.image)
+              }
               // مدل‌های reasoning (خانواده‌ی gpt-5) قبل از متن نهایی یک فاز فکرکردن نامرئی دارند —
               // این نشانگر همون فاز رو نشون می‌ده تا کاربر روی صفحه‌ی خالی گیج نماند
               if (parsed.info === 'reasoning' && typeof parsed.reasoning === 'boolean') {
@@ -159,6 +165,7 @@ export function useChat(conversationId: string) {
                   return { ...old, messages: [...old.messages, generatedMessage] }
                 })
                 setIsGeneratingImage(false)
+                setGeneratingImagePreview(null)
               }
               // عنوان تازه‌ی مکالمه (فقط اولین پیام) — مستقیم توی کش می‌نشونیم تا همون لحظه توی
               // سایدبار و هدر دیده شود، بدون نیاز به refetch/reload
@@ -196,6 +203,7 @@ export function useChat(conversationId: string) {
       } finally {
         setIsStreaming(false)
         setIsGeneratingImage(false)
+        setGeneratingImagePreview(null)
         void qc.invalidateQueries({ queryKey: keys.conv.detail(conversationId) })
         void qc.invalidateQueries({ queryKey: keys.conv.list() })
         void qc.invalidateQueries({ queryKey: keys.usage.today() })

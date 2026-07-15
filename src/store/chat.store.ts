@@ -9,6 +9,9 @@ interface ChatState {
   isReasoning: boolean
   reasoningText: string
   isGeneratingImage: boolean
+  // پیش‌نمایش تدریجی واقعی (نه انیمیشن تزئینی) — provider تا ۲ نسخه‌ی جزئی و واضح‌ترشونده
+  // قبل از تصویر نهایی می‌فرستد؛ null یعنی هنوز هیچ پیش‌نمایشی نرسیده (فقط shimmer نشون بده)
+  generatingImagePreview: string | null
   chatError: string | null
   chatErrorCode: string | null
   messageStage: MessageStage
@@ -26,6 +29,7 @@ interface ChatState {
   setIsReasoning: (v: boolean) => void
   appendReasoningText: (chunk: string) => void
   setIsGeneratingImage: (v: boolean) => void
+  setGeneratingImagePreview: (image: string | null) => void
   resetStreaming: () => void
   setChatError: (msg: string | null, code?: string | null) => void
   setMessageStage: (stage: MessageStage, remainingNormal: number | null, remainingThrottled: number | null) => void
@@ -40,6 +44,7 @@ export const useChatStore = create<ChatState>(set => ({
   isReasoning: false,
   reasoningText: '',
   isGeneratingImage: false,
+  generatingImagePreview: null,
   chatError: null,
   chatErrorCode: null,
   messageStage: 'normal',
@@ -56,7 +61,11 @@ export const useChatStore = create<ChatState>(set => ({
   setIsReasoning: v => set({ isReasoning: v }),
   appendReasoningText: chunk => set(s => ({ reasoningText: s.reasoningText + chunk })),
   setIsGeneratingImage: v => set({ isGeneratingImage: v }),
-  resetStreaming: () => set({ streamingContent: '', isStreaming: false, isReasoning: false, reasoningText: '', isGeneratingImage: false }),
+  setGeneratingImagePreview: image => set({ generatingImagePreview: image }),
+  resetStreaming: () => set({
+    streamingContent: '', isStreaming: false, isReasoning: false, reasoningText: '',
+    isGeneratingImage: false, generatingImagePreview: null,
+  }),
   setChatError: (msg, code = null) => set({ chatError: msg, chatErrorCode: code }),
   setMessageStage: (stage, remainingNormal, remainingThrottled) =>
     set({ messageStage: stage, remainingNormal, remainingThrottled }),

@@ -157,7 +157,7 @@ export function MessageInput({ onSend, disabled, sending }: MessageInputProps) {
               <img
                 src={src}
                 className="h-20 w-20 rounded-xl object-cover border border-slate-600"
-                alt=""
+                alt={`پیش‌نمایش عکس پیوست‌شده، شماره ${idx + 1}`}
               />
               <button
                 onClick={() => removeImage(idx)}
