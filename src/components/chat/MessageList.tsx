@@ -176,6 +176,25 @@ function ReasoningBox({ text }: { text: string }) {
 // طول می‌کشد)؛ یک جعبه‌ی اسکلتی/blur تا رسیدن رویداد image-generated نشان داده می‌شود
 // وقتی provider هنوز هیچ پیش‌نمایشی نفرستاده، shimmer تزئینی نشون می‌دیم؛ به محض رسیدن اولین
 // partial_image، همون عکس واقعی (هرچند محو/ناقص) رو نشون می‌دیم — دقیقاً افکت progressive-reveal
+// شبکه‌ی ۶×۶ که موج‌دار (قطری) روشن/خاموش می‌شود — الگوی ثابت (نه Math.random در هر رندر)
+// تا با هر re-render جابه‌جا نشود؛ delay هر خونه بر اساس فاصله‌ی قطری‌اش از گوشه محاسبه می‌شود
+const TILE_GRID_SIZE = 6
+const TILE_CELLS = Array.from({ length: TILE_GRID_SIZE * TILE_GRID_SIZE }, (_, i) => {
+  const row = Math.floor(i / TILE_GRID_SIZE)
+  const col = i % TILE_GRID_SIZE
+  return { key: i, delay: (row + col) * 0.1 }
+})
+
+// چند «ستاره»‌ی ریز با موقعیت ثابت برای حس فضایی پس‌زمینه
+const STARS = [
+  { top: '12%', left: '18%', delay: '0s' },
+  { top: '22%', left: '78%', delay: '0.6s' },
+  { top: '68%', left: '85%', delay: '1.2s' },
+  { top: '80%', left: '12%', delay: '0.3s' },
+  { top: '45%', left: '92%', delay: '1.6s' },
+  { top: '8%', left: '55%', delay: '0.9s' },
+]
+
 function GeneratingImageBox({ preview }: { preview: string | null }) {
   return (
     <div className="flex gap-3">
@@ -189,10 +208,33 @@ function GeneratingImageBox({ preview }: { preview: string | null }) {
           </svg>
           <span>{preview ? 'در حال تکمیل عکس...' : 'در حال ساخت عکس...'}</span>
         </div>
-        <div className="image-gen-canvas relative h-44 w-44 overflow-hidden rounded-xl">
-          {preview
-            ? <img src={preview} alt="پیش‌نمایش در حال تکمیل عکس تولیدشده" className="size-full object-cover" />
-            : <div className="image-gen-shimmer absolute inset-0" />}
+        <div className="image-gen-canvas relative h-48 w-48 overflow-hidden rounded-xl">
+          <div className="image-gen-nebula-blob image-gen-nebula-blob-1" />
+          <div className="image-gen-nebula-blob image-gen-nebula-blob-2" />
+          {STARS.map((s, i) => (
+            <span
+              key={i}
+              className="image-gen-star"
+              style={{ top: s.top, left: s.left, animationDelay: s.delay }}
+            />
+          ))}
+          {preview ? (
+            <img
+              src={preview}
+              alt="پیش‌نمایش در حال تکمیل عکس تولیدشده"
+              className="image-gen-reveal absolute inset-0 size-full object-cover"
+            />
+          ) : (
+            <div className="absolute inset-0 grid grid-cols-6 gap-1.5 p-4">
+              {TILE_CELLS.map(cell => (
+                <div
+                  key={cell.key}
+                  className="image-gen-tile"
+                  style={{ animationDelay: `${cell.delay}s` }}
+                />
+              ))}
+            </div>
+          )}
         </div>
       </div>
     </div>

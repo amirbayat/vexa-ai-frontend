@@ -33,46 +33,62 @@ body {
 ::-webkit-scrollbar-track { background: transparent; }
 ::-webkit-scrollbar-thumb { background: #334155; border-radius: 9px; }
 
-/* تولید عکس — جایگزین جعبه‌ی خاکستری ساده‌ی قبلی، شبیه انیمیشن تولید تصویر ChatGPT */
-@keyframes nivo-shimmer-sweep {
-  0%   { background-position: -140% 0; }
-  100% { background-position: 140% 0; }
-}
-@keyframes nivo-gradient-breathe {
-  0%, 100% { opacity: 0.5; transform: scale(1); }
-  50%      { opacity: 0.9; transform: scale(1.05); }
-}
+/* تولید عکس — پس‌زمینه‌ی «فضایی» (نبولا) + شبکه‌ی مربعی از نقاط که موج‌دار روشن/خاموش
+   می‌شوند، شبیه افکت loading تولید عکس ChatGPT — به‌جای shimmer ساده‌ی قبلی */
 @keyframes nivo-sparkle-spin {
   0%   { transform: rotate(0deg) scale(0.9); opacity: 0.7; }
   50%  { transform: rotate(180deg) scale(1.2); opacity: 1; }
   100% { transform: rotate(360deg) scale(0.9); opacity: 0.7; }
 }
+@keyframes nivo-nebula-drift {
+  0%, 100% { transform: translate(0, 0) scale(1); }
+  50%      { transform: translate(4%, -5%) scale(1.12); }
+}
+@keyframes nivo-star-twinkle {
+  0%, 100% { opacity: 0.15; transform: scale(0.7); }
+  50%      { opacity: 1; transform: scale(1); }
+}
+@keyframes nivo-tile-pulse {
+  0%, 100% { opacity: 0.12; transform: scale(0.8); }
+  45%      { opacity: 1; transform: scale(1); }
+  55%      { opacity: 1; transform: scale(1); }
+}
 
 .image-gen-canvas {
-  background:
-    radial-gradient(circle at 30% 30%, rgba(217,70,239,0.35), transparent 55%),
-    radial-gradient(circle at 70% 70%, rgba(99,102,241,0.35), transparent 55%),
-    linear-gradient(135deg, #1e293b, #0f172a);
-  background-size: 200% 200%, 200% 200%, 100% 100%;
-  animation: nivo-gradient-breathe 3s ease-in-out infinite;
+  background: linear-gradient(135deg, #1e1b3a, #0b1024);
 }
-.image-gen-shimmer {
-  background: linear-gradient(
-    100deg,
-    transparent 30%,
-    rgba(255,255,255,0.16) 46%,
-    rgba(255,255,255,0.28) 50%,
-    rgba(255,255,255,0.16) 54%,
-    transparent 70%
-  );
-  background-size: 200% 100%;
-  animation: nivo-shimmer-sweep 1.8s ease-in-out infinite;
+.image-gen-nebula-blob {
+  position: absolute;
+  border-radius: 50%;
+  filter: blur(14px);
+  animation: nivo-nebula-drift 6s ease-in-out infinite;
+}
+.image-gen-nebula-blob-1 {
+  width: 65%; height: 65%; top: -10%; right: -10%;
+  background: radial-gradient(circle, rgba(217,70,239,0.55), transparent 70%);
+}
+.image-gen-nebula-blob-2 {
+  width: 70%; height: 70%; bottom: -15%; left: -15%;
+  background: radial-gradient(circle, rgba(99,102,241,0.5), transparent 70%);
+  animation-delay: -3s;
+}
+.image-gen-star {
+  position: absolute;
+  width: 3px; height: 3px;
+  border-radius: 50%;
+  background: #fff;
+  animation: nivo-star-twinkle 2.4s ease-in-out infinite;
+}
+.image-gen-tile {
+  border-radius: 3px;
+  background: linear-gradient(135deg, #e879f9, #a78bfa);
+  animation: nivo-tile-pulse 2.2s ease-in-out infinite;
 }
 .image-gen-sparkle {
   animation: nivo-sparkle-spin 2.4s ease-in-out infinite;
 }
 @media (prefers-reduced-motion: reduce) {
-  .image-gen-canvas, .image-gen-shimmer, .image-gen-sparkle { animation: none; }
+  .image-gen-nebula-blob, .image-gen-star, .image-gen-tile, .image-gen-sparkle { animation: none; }
 }
 
 @keyframes nivo-image-reveal {
