@@ -356,13 +356,7 @@ function MessageBubble({
             {streaming && <span className="inline-block w-0.5 h-4 bg-emerald-400 animate-pulse mr-0.5" />}
           </div>
         ) : (
-          <div
-            className={clsx(
-              'max-w-[75%] rounded-2xl px-4 py-3 text-sm leading-relaxed',
-              'bg-slate-800 text-slate-100 rounded-tr-sm ai-content',
-              streaming && 'border border-emerald-500/30',
-            )}
-          >
+          <div className="min-w-0 flex-1 text-sm leading-relaxed text-slate-100 ai-content">
             {images && images.length > 0 && (
               <div className="flex flex-col gap-2 mb-2">
                 {images.map((src, i) => (

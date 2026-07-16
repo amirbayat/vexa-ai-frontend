@@ -112,13 +112,22 @@ body {
 .ai-content h1 { font-size: 1.25em; }
 .ai-content h2 { font-size: 1.1em; }
 .ai-content h3 { font-size: 1em; }
+/* شبیه چت‌جی‌پی‌تی: هر هدینگ بعد از محتوای قبلی، یک خط جداکننده‌ی بخش می‌گیرد
+   (نه فقط اولین هدینگ متن، که نیازی به جداکننده‌ی بالادستی نداره) */
+.ai-content > * + h1,
+.ai-content > * + h2,
+.ai-content > * + h3 {
+  margin-top: 1.75em;
+  padding-top: 1.25em;
+  border-top: 1px solid rgba(255,255,255,0.12);
+}
 .ai-content ul  { list-style: disc;    padding-right: 1.4em; margin-bottom: 0.75em; }
 .ai-content ol  { list-style: decimal; padding-right: 1.4em; margin-bottom: 0.75em; }
 .ai-content li  { margin-bottom: 0.25em; }
 .ai-content strong { font-weight: 600; }
 .ai-content em     { font-style: italic; }
 .ai-content a      { color: #34d399; text-decoration: underline; }
-.ai-content hr     { border-color: rgba(255,255,255,0.1); margin: 1em 0; }
+.ai-content hr     { border: none; border-top: 1px solid rgba(255,255,255,0.12); margin: 1.5em 0; }
 .ai-content table  { width: 100%; border-collapse: collapse; margin-bottom: 0.75em; font-size: 0.9em; }
 .ai-content th, .ai-content td {
   border: 1px solid rgba(255,255,255,0.15);
