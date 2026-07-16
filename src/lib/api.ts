@@ -1,5 +1,9 @@
 import axios from 'axios'
 import { env } from '@/env'
+import { useToastStore } from '@/store/toast.store'
+import { fa } from '@/locales/fa'
+
+export const DEFAULT_RATE_LIMIT_RETRY_SECONDS = 60
 
 export const api = axios.create({
   baseURL: env.VITE_API_URL,
@@ -16,6 +20,11 @@ api.interceptors.response.use(
   res => res,
   async err => {
     const original = err.config
+    if (err.response?.status === 429) {
+      const retryAfter = Number(err.response.headers?.['retry-after']) || DEFAULT_RATE_LIMIT_RETRY_SECONDS
+      useToastStore.getState().addToast(fa.common.tooManyRequests(retryAfter))
+      return Promise.reject(err)
+    }
     if (err.response?.status === 401 && !original._retry) {
       original._retry = true
       try {

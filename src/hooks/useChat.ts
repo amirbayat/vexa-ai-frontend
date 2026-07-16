@@ -2,7 +2,10 @@ import { useCallback, useRef } from 'react'
 import { useQueryClient } from '@tanstack/react-query'
 import { env } from '@/env'
 import { useChatStore } from '@/store/chat.store'
+import { useToastStore } from '@/store/toast.store'
 import { keys } from '@/queries/keys'
+import { fa } from '@/locales/fa'
+import { DEFAULT_RATE_LIMIT_RETRY_SECONDS } from '@/lib/api'
 import type { ConversationDetail, ConversationsPage, Message } from '@/types/api'
 
 export function useChat(conversationId: string) {
@@ -61,6 +64,13 @@ export function useChat(conversationId: string) {
             }),
           },
         )
+
+        if (res.status === 429) {
+          const retryAfter = Number(res.headers.get('Retry-After')) || DEFAULT_RATE_LIMIT_RETRY_SECONDS
+          useToastStore.getState().addToast(fa.common.tooManyRequests(retryAfter))
+          setIsStreaming(false)
+          return
+        }
 
         if (!res.ok) {
           let msg = `خطا (${res.status})`

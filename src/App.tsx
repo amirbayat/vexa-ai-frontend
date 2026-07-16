@@ -1,6 +1,7 @@
 import { BrowserRouter } from 'react-router-dom'
 import { QueryClient, QueryClientProvider } from '@tanstack/react-query'
 import { AppRouter } from '@/router'
+import { ToastContainer } from '@/components/ui/ToastContainer'
 
 const queryClient = new QueryClient({
   defaultOptions: {
@@ -22,6 +23,7 @@ export default function App() {
     <QueryClientProvider client={queryClient}>
       <BrowserRouter>
         <AppRouter />
+        <ToastContainer />
       </BrowserRouter>
     </QueryClientProvider>
   )

@@ -11,7 +11,7 @@ import { ProviderIcon } from '@/components/models/ProviderIcon'
 
 const STORAGE_KEY = 'nivo:selectedModel'
 const IMAGE_GEN_STORAGE_KEY = 'nivo:selectedImageGenModel'
-const TIER_ORDER: ModelTier[] = ['SIMPLE', 'MEDIUM', 'COMPLEX']
+const TIER_ORDER: ModelTier[] = ['COMPLEX', 'MEDIUM', 'SIMPLE']
 
 function OptimalIcon() {
   return (
