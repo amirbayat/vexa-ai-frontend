@@ -51,7 +51,7 @@ export function MessageInput({ onSend, disabled, sending }: MessageInputProps) {
   // انتخاب می‌شود — اما اگر کاربر از صفحه‌ی «انتخاب مدل» یک مدل تولید عکس مشخص pin کرده باشد
   // (selectedImageGenModel) و هنوز هم مجاز باشد، همان صریح فرستاده می‌شود
   const imageGenModels = useMemo(() => {
-    const allowed = me?.subscription?.plan.allowedModels ?? []
+    const allowed = me?.plan?.allowedModels ?? []
     return (catalog ?? []).filter(m => m.supportsImageGen && allowed.includes(m.name))
   }, [catalog, me])
   const hasImageGenModels = imageGenModels.length > 0

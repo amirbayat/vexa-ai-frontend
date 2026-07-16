@@ -52,7 +52,7 @@ export function ModelsPage() {
   const { data: catalog, isLoading } = useModelCatalog()
   const { selectedModel, setSelectedModel, selectedImageGenModel, setSelectedImageGenModel } = useChatStore()
 
-  const allowedModels: string[] = me?.subscription?.plan?.allowedModels ?? [env.VITE_DEFAULT_MODEL]
+  const allowedModels: string[] = me?.plan?.allowedModels ?? [env.VITE_DEFAULT_MODEL]
   const chatModels = (catalog ?? []).filter(m => m.modelType !== 'IMAGE_GEN')
   const imageGenModels = (catalog ?? []).filter(m => m.modelType === 'IMAGE_GEN')
 

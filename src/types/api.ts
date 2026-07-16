@@ -5,6 +5,10 @@ export interface User {
   role: 'USER' | 'ADMIN'
   isActive: boolean
   subscription: Subscription | null
+  // پلن مؤثر کاربر — همیشه پر است (چه کاربر Subscription واقعی داشته باشد چه رایگان و
+  // بدون Subscription)؛ برای اطلاعات پلن (مدل‌های مجاز/ویژه و ...) از این استفاده کن، نه از
+  // subscription?.plan — چون کاربر رایگان subscription ندارد و آن مسیر همیشه undefined می‌ماند.
+  plan: Plan | null
   referralCode: string
 }
 

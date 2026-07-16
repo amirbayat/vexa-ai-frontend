@@ -36,8 +36,8 @@ export function ModelSelector({ currentModel }: { currentModel?: string }) {
   // مدل‌های IMAGE_GEN اصلاً قابلیت چت ندارند — این دراپ‌داون فقط برای انتخاب مدل چت است،
   // پس هرگز نباید اینجا (نه در لیست، نه در «مدل‌های بیشتر») ظاهر شوند
   const isChatModel = (name: string) => catalog?.find(m => m.name === name)?.modelType !== 'IMAGE_GEN'
-  const allowedModels: string[] = (me?.subscription?.plan?.allowedModels ?? [env.VITE_DEFAULT_MODEL]).filter(isChatModel)
-  const featuredModels = me?.subscription?.plan?.featuredModels?.filter(isChatModel)
+  const allowedModels: string[] = (me?.plan?.allowedModels ?? [env.VITE_DEFAULT_MODEL]).filter(isChatModel)
+  const featuredModels = me?.plan?.featuredModels?.filter(isChatModel)
   // اگر پلن مدل‌های ویژه تنظیم نکرده باشد، fallback به ۴ تای اول allowedModels (رفتار قبلی)
   const topModels = featuredModels?.length ? featuredModels : allowedModels.slice(0, TOP_N)
   const moreCount = allowedModels.length - topModels.length

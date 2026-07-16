@@ -24,7 +24,7 @@ export function Sidebar({ onNavigate }: { onNavigate?: () => void } = {}) {
   const navigate = useNavigate();
   const { selectedConvId, setSelectedConvId } = useChatStore();
   const { data: me } = useMe();
-  const isPayAsYouGo = Boolean(me?.subscription?.plan.isPayAsYouGo);
+  const isPayAsYouGo = Boolean(me?.plan?.isPayAsYouGo);
   const { data: wallet } = useWallet(isPayAsYouGo);
   const { data, fetchNextPage, hasNextPage } = useConversations();
   const archiveMut = useArchiveConversation();
