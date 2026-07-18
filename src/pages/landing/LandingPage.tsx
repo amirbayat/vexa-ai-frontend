@@ -1,5 +1,5 @@
 import { useEffect, useId, useRef, useState } from 'react'
-import { Link } from 'react-router-dom'
+import { Link, useNavigate } from 'react-router-dom'
 import { clsx } from 'clsx'
 import { useMe } from '@/queries/auth.queries'
 import { usePlans } from '@/queries/plans.queries'
@@ -1084,12 +1084,25 @@ function Footer() {
 // ── Root ─────────────────────────────────────────────────────────────────────
 export function LandingPage() {
   useInViewObserver()
-  const { data: me } = useMe()
+  const { data: me, isLoading: isMeLoading } = useMe()
   const isLoggedIn = !!me
+  const navigate = useNavigate()
 
   useEffect(() => {
     window.scrollTo({ top: 0, behavior: 'instant' as ScrollBehavior })
   }, [])
+
+  // کاربری که لاگین است نباید لندینگ (نه دسکتاپ نه اپ موبایل) را ببیند — مستقیم به چت می‌رود
+  useEffect(() => {
+    if (isLoggedIn) navigate('/chat', { replace: true })
+  }, [isLoggedIn, navigate])
+
+  // تا مشخص شدن نتیجه‌ی /auth/me (اگر توکنی در localStorage هست) از فلش کوتاه لندینگ قبل از
+  // ریدایرکت جلوگیری می‌کند
+  const hasToken = !!localStorage.getItem('access_token')
+  if (hasToken && (isMeLoading || isLoggedIn)) {
+    return <div className="min-h-screen bg-[#020C18]" />
+  }
 
   // docs/PRD-user-push-notifications-and-mobile-app-flows.md بخش ۵.۴ — فقط داخل WebView اپ
   // اندروید (نه هر مرورگر موبایل)؛ لندینگ سنگین دسکتاپ زیر برای همه‌ی بقیه دست‌نخورده می‌ماند
