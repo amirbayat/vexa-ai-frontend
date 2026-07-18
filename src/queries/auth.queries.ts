@@ -1,6 +1,7 @@
 import { useMutation, useQuery, useQueryClient } from '@tanstack/react-query'
 import { api } from '@/lib/api'
 import { keys } from '@/queries/keys'
+import { getAndroidDeviceUuid } from '@/lib/android-bridge'
 import type { User } from '@/types/api'
 
 export interface WaitlistedInfo {
@@ -36,7 +37,7 @@ export function useVerifyOtp() {
   const qc = useQueryClient()
   return useMutation({
     mutationFn: ({ phone, code, referralCode }: { phone: string; code: string; referralCode?: string }) =>
-      api.post<AuthTokens>('/auth/verify-otp', { phone, code, referralCode }).then(r => r.data),
+      api.post<AuthTokens>('/auth/verify-otp', { phone, code, referralCode, deviceUuid: getAndroidDeviceUuid() }).then(r => r.data),
     onSuccess: data => {
       localStorage.setItem('access_token', data.accessToken)
       localStorage.setItem('refresh_token', data.refreshToken)

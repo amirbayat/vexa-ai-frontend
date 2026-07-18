@@ -9,6 +9,8 @@ import { ModelShowcase } from '@/components/models/ModelShowcase'
 import { PromoBanner } from '@/components/articles/PromoBanner'
 import { env } from '@/env'
 import { PLAN_TIER_MODEL_DESCRIPTIONS, dailyLimitText, supportText } from '@/lib/plan-copy'
+import { isInAndroidApp } from '@/lib/android-bridge'
+import { MobileAppLandingPage } from './MobileAppLandingPage'
 
 // ── InView observer (MutationObserver برای عناصر async مثل plan cards) ───────
 function useInViewObserver() {
@@ -1088,6 +1090,12 @@ export function LandingPage() {
   useEffect(() => {
     window.scrollTo({ top: 0, behavior: 'instant' as ScrollBehavior })
   }, [])
+
+  // docs/PRD-user-push-notifications-and-mobile-app-flows.md بخش ۵.۴ — فقط داخل WebView اپ
+  // اندروید (نه هر مرورگر موبایل)؛ لندینگ سنگین دسکتاپ زیر برای همه‌ی بقیه دست‌نخورده می‌ماند
+  if (isInAndroidApp()) {
+    return <MobileAppLandingPage isLoggedIn={isLoggedIn} />
+  }
 
   return (
     <div className="relative min-h-screen bg-[#020C18] text-slate-100" dir="rtl">

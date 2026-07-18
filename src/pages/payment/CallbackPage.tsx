@@ -11,6 +11,10 @@ export function CallbackPage() {
   const [status, setStatus] = useState<'success' | 'failed' | null>(null)
   const refId = params.get('refId')
   const invoiceId = params.get('invoiceId')
+  // docs/PRD-user-push-notifications-and-mobile-app-flows.md بخش ۵.۵ — این پرداخت از داخل اپ
+  // اندروید شروع شده بود (initiate با source=app)؛ چون اینجا احتمالاً در مرورگر خارجی هستیم
+  // (نه WebView)، یک لینک عادی به nivoai.ir کافی‌ست — اگر App Link verified باشد، همین کلیک اپ را باز می‌کند
+  const isFromApp = params.get('source') === 'app'
 
   useEffect(() => {
     const s = params.get('status')
@@ -51,6 +55,14 @@ export function CallbackPage() {
                 {fa.invoice.view}
               </button>
             )}
+            {isFromApp && (
+              <a
+                href="https://nivoai.ir/chat"
+                className="block w-full rounded-xl border border-emerald-600 py-3 text-sm text-emerald-400 hover:border-emerald-500 transition-colors"
+              >
+                {fa.payment.returnToApp}
+              </a>
+            )}
           </>
         ) : status === 'failed' ? (
           <>
@@ -66,6 +78,14 @@ export function CallbackPage() {
             >
               {fa.payment.tryAgain}
             </button>
+            {isFromApp && (
+              <a
+                href="https://nivoai.ir/chat"
+                className="block w-full rounded-xl border border-emerald-600 py-3 text-sm text-emerald-400 hover:border-emerald-500 transition-colors"
+              >
+                {fa.payment.returnToApp}
+              </a>
+            )}
           </>
         ) : (
           <div className="size-8 mx-auto rounded-full border-2 border-emerald-500 border-t-transparent animate-spin" />
