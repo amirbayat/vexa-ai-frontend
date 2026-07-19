@@ -4,14 +4,16 @@ import { useChatStore } from '@/store/chat.store'
 import { useMessageQuota } from '@/queries/usage.queries'
 import { useCountdown } from '@/hooks/useCountdown'
 import { fa } from '@/locales/fa'
+import { track } from '@/lib/events'
 
 // باکس «به محدودیت رسیدید» — همیشه نمایش داده می‌شود تا زمانی که واقعاً ریست شود
 // (بدون دکمه‌ی بستن؛ چون نباید بعد از یک بار بستن دیگر برنگردد)
-function HardLimitBox({ heading, message, resetAt, planTier }: {
+function HardLimitBox({ heading, message, resetAt, planTier, limitType }: {
   heading: string
   message: string
   resetAt: string | null
   planTier: string
+  limitType: string
 }) {
   const navigate = useNavigate()
   const countdown = useCountdown(resetAt)
@@ -33,7 +35,10 @@ function HardLimitBox({ heading, message, resetAt, planTier }: {
         </div>
         {planTier !== 'premium' && (
           <button
-            onClick={() => navigate('/pricing')}
+            onClick={() => {
+              track('usage_limit_upgrade_clicked', { limitType })
+              navigate('/pricing')
+            }}
             className="shrink-0 rounded-lg bg-emerald-500 px-3 py-1.5 text-xs font-medium text-white hover:bg-emerald-400 transition-colors"
           >
             {fa.chat.limitUpgrade}
@@ -61,6 +66,7 @@ export function MessageLimitBanner() {
         message={fa.chat.limitRollingWindowBlocked}
         resetAt={quota.rollingWindow.resetAt}
         planTier={planTier}
+        limitType="rolling_window_blocked"
       />
     )
   }
@@ -72,6 +78,7 @@ export function MessageLimitBanner() {
         message={fa.chat.limitBudgetBlocked}
         resetAt={quota.budget.resetAt}
         planTier={planTier}
+        limitType="budget_blocked"
       />
     )
   }
@@ -83,6 +90,7 @@ export function MessageLimitBanner() {
         message={fa.chat.limitQuotaExceeded}
         resetAt={quota.tokenQuota.resetAt}
         planTier={planTier}
+        limitType="quota_exceeded"
       />
     )
   }
@@ -99,6 +107,7 @@ export function MessageLimitBanner() {
         message={fa.chat.limitBlocked}
         resetAt={quota.resetAt}
         planTier={planTier}
+        limitType="blocked"
       />
     )
   }
@@ -142,7 +151,10 @@ export function MessageLimitBanner() {
 
         {planTier !== 'premium' && (
           <button
-            onClick={() => navigate('/pricing')}
+            onClick={() => {
+              track('usage_limit_upgrade_clicked', { limitType: stage })
+              navigate('/pricing')
+            }}
             className="shrink-0 rounded-lg bg-emerald-500 px-3 py-1.5 text-xs font-medium text-white hover:bg-emerald-400 transition-colors"
           >
             {fa.chat.limitUpgrade}

@@ -6,6 +6,7 @@ import { useToastStore } from '@/store/toast.store'
 import { keys } from '@/queries/keys'
 import { fa } from '@/locales/fa'
 import { DEFAULT_RATE_LIMIT_RETRY_SECONDS } from '@/lib/api'
+import { track } from '@/lib/events'
 import type { ConversationDetail, ConversationsPage, Message } from '@/types/api'
 
 export function useChat(conversationId: string) {
@@ -28,6 +29,15 @@ export function useChat(conversationId: string) {
       setChatError(null)
       setIsStreaming(true)
       if (generateImage) setIsGeneratingImage(true)
+
+      // فقط متادیتا — متن واقعی پیام هرگز به events-backend فرستاده نمی‌شود
+      track('message_sent', {
+        conversationId,
+        model: effectiveModel,
+        contentLength: content.length,
+        imageCount: images?.length ?? 0,
+        generateImage: !!generateImage,
+      })
 
       // Optimistic: add user message to cache immediately so it shows before the stream starts
       qc.setQueryData<ConversationDetail>(keys.conv.detail(conversationId), old => {
@@ -160,6 +170,7 @@ export function useChat(conversationId: string) {
               // docs/PRD-chat-images.md بخش ۵.۵ — تولید عکس یک‌جا می‌آید (نه چانک‌به‌چانک)؛
               // بلافاصله در کش نشانده می‌شود تا کاربر منتظر invalidate/refetch نماند
               if (parsed.info === 'image-generated' && parsed.image) {
+                track('image_generated', { conversationId, model: effectiveModel })
                 const image = parsed.image
                 const messageId = parsed.messageId ?? `img-${Date.now()}`
                 qc.setQueryData<ConversationDetail>(keys.conv.detail(conversationId), old => {

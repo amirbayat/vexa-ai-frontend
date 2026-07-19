@@ -11,6 +11,8 @@ export function PromoBanner() {
   return (
     <a
       href={`/blog/${pinned.slug}`}
+      data-track="promo_banner_click"
+      data-track-slug={pinned.slug}
       className="flex items-center justify-center gap-2 bg-emerald-500/10 border-b border-emerald-500/20
         px-4 py-2.5 text-sm text-emerald-300 hover:bg-emerald-500/15 transition-colors"
     >

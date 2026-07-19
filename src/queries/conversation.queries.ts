@@ -1,6 +1,7 @@
 import { useInfiniteQuery, useMutation, useQuery, useQueryClient } from '@tanstack/react-query'
 import { api } from '@/lib/api'
 import { keys } from '@/queries/keys'
+import { track } from '@/lib/events'
 import type { Conversation, ConversationDetail, ConversationsPage } from '@/types/api'
 
 export function useConversations() {
@@ -28,7 +29,8 @@ export function useCreateConversation() {
   return useMutation({
     mutationFn: (model: string) =>
       api.post<Conversation>('/conversations', { model }).then(r => r.data),
-    onSuccess: () => {
+    onSuccess: (_data, model) => {
+      track('conversation_created', { model })
       void qc.invalidateQueries({ queryKey: keys.conv.list() })
     },
   })

@@ -1,5 +1,6 @@
 import { useNavigate } from 'react-router-dom'
 import { useInvoices } from '@/queries/invoices.queries'
+import { track } from '@/lib/events'
 import { fa } from '@/locales/fa'
 
 export function InvoicesPage() {
@@ -24,7 +25,10 @@ export function InvoicesPage() {
             {invoices.map(inv => (
               <button
                 key={inv.id}
-                onClick={() => navigate(`/settings/invoices/${inv.id}`)}
+                onClick={() => {
+                  track('invoice_viewed', { invoiceId: inv.id })
+                  navigate(`/settings/invoices/${inv.id}`)
+                }}
                 className="w-full flex items-center justify-between px-5 py-4 text-right hover:bg-slate-700/20 transition-colors"
               >
                 <div className="flex flex-col gap-1 min-w-0">

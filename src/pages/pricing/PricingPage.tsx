@@ -10,6 +10,7 @@ import {
   type PaymentGatewayName,
 } from "@/queries/plans.queries";
 import { useMe } from "@/queries/auth.queries";
+import { track } from "@/lib/events";
 import { SalesChatbot } from "@/components/sales/SalesChatbot";
 import { env } from "@/env";
 import { ExitIntentModal } from "@/components/sales/ExitIntentModal";
@@ -73,11 +74,22 @@ export function PricingPage() {
     const code = discountCode.trim();
     if (!code) return;
     validateDiscount.mutate(code, {
-      onSuccess: ({ discountPercent }) => setAppliedDiscount({ code, percent: discountPercent }),
+      onSuccess: ({ discountPercent }) => {
+        setAppliedDiscount({ code, percent: discountPercent });
+        track("discount_code_applied", { discountPercent });
+      },
+      onError: () => track("discount_code_invalid", {}),
     });
   }
 
   const activeDiscountPercent = appliedDiscount?.code === discountCode.trim() ? appliedDiscount.percent : 0;
+
+  function isUpgradeForPlan(planId: string): boolean {
+    const plan = plans?.find((p) => p.id === planId);
+    return Boolean(
+      plan && hasActiveRegularPlan && currentSub && plan.priceMonthly > currentSub.plan.priceMonthly,
+    );
+  }
 
   function handleBuy(planId: string) {
     const code = activeDiscountPercent > 0 ? discountCode.trim() : undefined;
@@ -85,13 +97,14 @@ export function PricingPage() {
       setPendingPlanId(planId);
       return;
     }
-    initPayment.mutate({ planId, gateway: gateways?.[0], discountCode: code });
+    initPayment.mutate({ planId, gateway: gateways?.[0], discountCode: code, isUpgrade: isUpgradeForPlan(planId) });
   }
 
   function handleGatewaySelect(gateway: PaymentGatewayName) {
     if (!pendingPlanId) return;
+    track("gateway_selected", { gateway, planId: pendingPlanId });
     const code = activeDiscountPercent > 0 ? discountCode.trim() : undefined;
-    initPayment.mutate({ planId: pendingPlanId, gateway, discountCode: code });
+    initPayment.mutate({ planId: pendingPlanId, gateway, discountCode: code, isUpgrade: isUpgradeForPlan(pendingPlanId) });
   }
 
   if (isLoading) {
@@ -357,7 +370,10 @@ export function PricingPage() {
                   </button>
                 ) : (
                   <button
-                    onClick={() => setPaygTopupOpen(true)}
+                    onClick={() => {
+                      track("wallet_topup_modal_opened", { entryPoint: "pricing_page" });
+                      setPaygTopupOpen(true);
+                    }}
                     className="rounded-xl bg-fuchsia-500 py-3 text-sm font-semibold text-white transition-all hover:bg-fuchsia-400 active:scale-95"
                   >
                     شارژ و شروع

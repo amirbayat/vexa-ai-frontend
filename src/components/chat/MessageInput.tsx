@@ -5,6 +5,7 @@ import { useModelCatalog } from '@/queries/plans.queries'
 import { useMe } from '@/queries/auth.queries'
 import { useChatStore } from '@/store/chat.store'
 import { fa } from '@/locales/fa'
+import { track } from '@/lib/events'
 
 function resizeImage(file: File): Promise<string> {
   return new Promise((resolve, reject) => {
@@ -65,7 +66,11 @@ export function MessageInput({ onSend, disabled, sending }: MessageInputProps) {
 
   function toggleImageMode() {
     if (!hasImageGenModels) return
-    setImageMode(v => !v)
+    setImageMode(v => {
+      const next = !v
+      track('image_gen_mode_toggled', { enabled: next })
+      return next
+    })
     // عکس‌های پیوست‌شده نگه داشته می‌شوند — اگر کاربر قبلاً عکس آپلود کرده و بعد حالت تولید عکس
     // را فعال کند، یعنی می‌خواهد همون عکس‌ها ویرایش/ترکیب شوند (images/edits)، نه یک تولید از صفر
   }
@@ -75,6 +80,7 @@ export function MessageInput({ onSend, disabled, sending }: MessageInputProps) {
     if (disabled || sending) return
     if (imageMode) {
       if (!trimmed) return
+      track('image_gen_requested', { model: pinnedImageGenModel?.name, hasSourceImages: images.length > 0 })
       onSend(trimmed, images.length ? images : undefined, pinnedImageGenModel?.name, true)
     } else {
       if (!trimmed && !images.length) return

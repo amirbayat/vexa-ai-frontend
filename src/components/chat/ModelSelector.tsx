@@ -6,6 +6,7 @@ import { useModelCatalog } from '@/queries/plans.queries'
 import { env } from '@/env'
 import { OPTIMAL_MODE, OPTIMAL_DESCRIPTION } from '@/lib/model-catalog'
 import { ProviderIcon } from '@/components/models/ProviderIcon'
+import { track } from '@/lib/events'
 
 const STORAGE_KEY = 'nivo:selectedModel'
 const TOP_N = 4
@@ -73,12 +74,14 @@ export function ModelSelector({ currentModel }: { currentModel?: string }) {
   }, [])
 
   function select(model: string) {
+    track('model_selected', { model, previousModel: selectedModel, source: 'header_dropdown' })
     setSelectedModel(model)
     localStorage.setItem(STORAGE_KEY, model)
     setOpen(false)
   }
 
   function goToModelsPage() {
+    track('models_page_opened')
     setOpen(false)
     navigate('/models')
   }

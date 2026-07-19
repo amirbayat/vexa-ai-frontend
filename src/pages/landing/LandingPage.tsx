@@ -527,10 +527,12 @@ function Navbar({ isLoggedIn }: { isLoggedIn: boolean }) {
           ) : (
             <>
               <Link to="/login"
+                data-track="landing_nav_cta_click"
                 className="rounded-xl px-5 py-2 text-sm font-medium text-slate-300 hover:text-white transition-colors">
                 ورود
               </Link>
               <Link to="/login"
+                data-track="landing_nav_cta_click"
                 className="rounded-xl bg-emerald-500 px-5 py-2 text-sm font-semibold text-white hover:bg-emerald-400 transition-colors">
                 ثبت‌نام رایگان
               </Link>
@@ -577,6 +579,7 @@ function Hero({ isLoggedIn }: { isLoggedIn: boolean }) {
           </p>
           <div className="mt-8 flex flex-wrap gap-3">
             <Link to={isLoggedIn ? '/chat' : '/login'}
+              data-track="landing_hero_cta_click"
               className="btn-cta-glow inline-flex items-center gap-2 rounded-2xl bg-emerald-500 px-7 py-3.5 text-base font-semibold text-white hover:bg-emerald-400 active:scale-95 transition-all">
               شروع رایگان
               <svg viewBox="0 0 16 16" fill="none" className="size-4">
@@ -936,6 +939,8 @@ function PricingSection() {
                     />
                   </div>
                   <Link to="/login"
+                    data-track="landing_pricing_cta_click"
+                    data-track-plan={plan.name}
                     className={clsx(
                       'block rounded-xl py-3 text-center text-sm font-semibold transition-all active:scale-95',
                       isPopular
@@ -1014,6 +1019,7 @@ function CtaSection({ isLoggedIn }: { isLoggedIn: boolean }) {
           </p>
           <div className="relative mt-8">
             <Link to={isLoggedIn ? '/chat' : '/login'}
+              data-track="landing_final_cta_click"
               className="btn-cta-glow inline-flex items-center gap-2 rounded-2xl bg-emerald-500 px-9 py-4 text-lg font-semibold text-white hover:bg-emerald-400 active:scale-95 transition-all">
               {isLoggedIn ? 'رفتن به چت' : 'شروع رایگان'}
               <svg viewBox="0 0 16 16" fill="none" className="size-4">
@@ -1070,6 +1076,7 @@ function Footer() {
           <Link to="/login" className="hover:text-slate-400 transition-colors">ورود</Link>
           <Link
             to="/contact"
+            data-track="landing_contact_click"
             className="rounded-full border border-white/10 px-4 py-1.5 text-slate-400 hover:border-emerald-500/50 hover:text-emerald-400 transition-colors"
           >
             تماس با ما

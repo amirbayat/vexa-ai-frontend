@@ -3,6 +3,7 @@ import { useNavigate } from 'react-router-dom'
 import { clsx } from 'clsx'
 import { useGiftStatus, useClaimGift } from '@/queries/growth.queries'
 import { useCountdown } from '@/hooks/useCountdown'
+import { track } from '@/lib/events'
 import type { OnboardingGiftStatus } from '@/types/api'
 
 // docs/PRD-growth-traction-features.md بخش ۳.۵ — دو فاز: «trial» (کاربر هنوز زیر آستانه‌ی
@@ -19,7 +20,10 @@ export function GiftBanner() {
   return (
     <>
       <button
-        onClick={() => setOpen(true)}
+        onClick={() => {
+          track('gift_banner_opened', { phase: status.phase })
+          setOpen(true)
+        }}
         className={clsx(
           'mx-4 mb-2 flex w-[calc(100%-2rem)] items-center justify-between rounded-xl border px-4 py-3 text-right transition-colors',
           isGrace
@@ -84,6 +88,7 @@ function GiftModal({
     if (!claimGift.data) return
     void navigator.clipboard.writeText(claimGift.data.code)
     setCopied(true)
+    track('gift_code_copied')
     setTimeout(() => setCopied(false), 2000)
   }
 

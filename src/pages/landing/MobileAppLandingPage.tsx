@@ -157,12 +157,19 @@ export function MobileAppLandingPage({ isLoggedIn }: { isLoggedIn: boolean }) {
 
         <Link
           to={isLoggedIn ? '/chat' : '/login'}
+          data-track="mobile_landing_cta_click"
+          data-track-variant="primary"
           className="btn-cta-glow mt-8 inline-flex w-full max-w-xs items-center justify-center gap-2 rounded-2xl bg-emerald-500 px-7 py-4 text-base font-semibold text-white active:scale-95 transition-all"
         >
           {isLoggedIn ? 'رفتن به چت' : 'شروع رایگان'}
         </Link>
         {!isLoggedIn && (
-          <Link to="/login" className="mt-4 text-sm text-slate-400 underline underline-offset-4">
+          <Link
+            to="/login"
+            data-track="mobile_landing_cta_click"
+            data-track-variant="existing_account"
+            className="mt-4 text-sm text-slate-400 underline underline-offset-4"
+          >
             حساب دارم، وارد می‌شوم
           </Link>
         )}

@@ -1,6 +1,7 @@
 import { useState, useRef, useEffect } from 'react'
 import { clsx } from 'clsx'
 import { useSubmitFeedback } from '@/queries/feedback.queries'
+import { track } from '@/lib/events'
 import { fa } from '@/locales/fa'
 
 type Category = 'FEATURE_REQUEST' | 'BUG' | 'UX' | 'PRICING' | 'GENERAL'
@@ -33,6 +34,7 @@ export function FeedbackWidget() {
       { content: content.trim(), category },
       {
         onSuccess: () => {
+          track('feedback_submitted', { category })
           setSent(true)
           setContent('')
           setTimeout(() => {
@@ -55,7 +57,10 @@ export function FeedbackWidget() {
     <div ref={containerRef} className="relative">
       {/* trigger button */}
       <button
-        onClick={() => setOpen(v => !v)}
+        onClick={() => {
+          if (!open) track('feedback_widget_opened')
+          setOpen(v => !v)
+        }}
         title={fa.feedback.title}
         className={clsx(
           'flex items-center gap-1.5 rounded-lg px-2.5 py-1.5 text-xs transition-colors',

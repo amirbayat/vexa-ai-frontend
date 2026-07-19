@@ -8,6 +8,7 @@ import {
   OPTIMAL_MODE, OPTIMAL_DESCRIPTION, tierDescription, tierLabel, imageQualityLabel, type ModelTier,
 } from '@/lib/model-catalog'
 import { ProviderIcon } from '@/components/models/ProviderIcon'
+import { track } from '@/lib/events'
 
 const STORAGE_KEY = 'nivo:selectedModel'
 const IMAGE_GEN_STORAGE_KEY = 'nivo:selectedImageGenModel'
@@ -57,16 +58,23 @@ export function ModelsPage() {
   const imageGenModels = (catalog ?? []).filter(m => m.modelType === 'IMAGE_GEN')
 
   function select(model: string) {
+    track('model_selected', { model, previousModel: selectedModel, source: 'models_page' })
     setSelectedModel(model)
     localStorage.setItem(STORAGE_KEY, model)
     navigate(-1)
   }
 
   function selectImageGenModel(model: string | null) {
+    track('image_gen_model_selected', { model: model ?? 'auto' })
     setSelectedImageGenModel(model)
     if (model) localStorage.setItem(IMAGE_GEN_STORAGE_KEY, model)
     else localStorage.removeItem(IMAGE_GEN_STORAGE_KEY)
     navigate(-1)
+  }
+
+  function goToPricingFromLockedModel(model: string) {
+    track('locked_model_upgrade_prompt_clicked', { model })
+    navigate('/pricing')
   }
 
   function ModelCard({ model }: { model: ModelCatalogEntry }) {
@@ -80,9 +88,9 @@ export function ModelsPage() {
       <div
         role="button"
         tabIndex={0}
-        onClick={() => (isAllowed ? select(model.name) : navigate('/pricing'))}
+        onClick={() => (isAllowed ? select(model.name) : goToPricingFromLockedModel(model.name))}
         onKeyDown={e => {
-          if (e.key === 'Enter' || e.key === ' ') (isAllowed ? select(model.name) : navigate('/pricing'))
+          if (e.key === 'Enter' || e.key === ' ') (isAllowed ? select(model.name) : goToPricingFromLockedModel(model.name))
         }}
         className={clsx(
           'flex w-full cursor-pointer items-start gap-4 rounded-2xl border p-5 text-right transition-all',
@@ -117,9 +125,9 @@ export function ModelsPage() {
       <div
         role="button"
         tabIndex={0}
-        onClick={() => (isAllowed ? selectImageGenModel(model.name) : navigate('/pricing'))}
+        onClick={() => (isAllowed ? selectImageGenModel(model.name) : goToPricingFromLockedModel(model.name))}
         onKeyDown={e => {
-          if (e.key === 'Enter' || e.key === ' ') (isAllowed ? selectImageGenModel(model.name) : navigate('/pricing'))
+          if (e.key === 'Enter' || e.key === ' ') (isAllowed ? selectImageGenModel(model.name) : goToPricingFromLockedModel(model.name))
         }}
         className={clsx(
           'flex w-full cursor-pointer items-start gap-4 rounded-2xl border p-5 text-right transition-all',

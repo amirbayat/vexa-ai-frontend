@@ -1,6 +1,7 @@
 import { useNavigate } from 'react-router-dom'
 import { useMe } from '@/queries/auth.queries'
 import { fa } from '@/locales/fa'
+import { track } from '@/lib/events'
 
 export function PlanUpgradeBadge() {
   const navigate = useNavigate()
@@ -9,10 +10,15 @@ export function PlanUpgradeBadge() {
   const planName = me?.subscription?.plan?.name ?? fa.plans.free
   const isFree = !me?.subscription || me.subscription.plan.priceMonthly === 0
 
+  function goToPricing() {
+    track('plan_upgrade_badge_clicked', { isFree })
+    navigate('/pricing')
+  }
+
   if (isFree) {
     return (
       <>
-        <button onClick={() => navigate('/pricing')} className="nivo-shiny-upgrade">
+        <button onClick={goToPricing} className="nivo-shiny-upgrade">
           <span className="nivo-shiny-upgrade__inner">
             <span className="text-slate-300">{fa.plans.currentPlanLabel(planName)}</span>
             <span className="font-semibold text-emerald-300">{fa.plans.upgradeCta}</span>
@@ -48,7 +54,7 @@ export function PlanUpgradeBadge() {
 
   return (
     <button
-      onClick={() => navigate('/pricing')}
+      onClick={goToPricing}
       className="rounded-full border border-slate-700 px-3 py-1.5 text-[11px] text-slate-500 hover:border-slate-600 hover:text-slate-300 transition-colors whitespace-nowrap"
     >
       {fa.plans.currentPlanLabel(planName)}

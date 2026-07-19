@@ -2,6 +2,8 @@ import { useMutation, useQuery, useQueryClient } from '@tanstack/react-query'
 import { api } from '@/lib/api'
 import { keys } from '@/queries/keys'
 import { getAndroidDeviceUuid } from '@/lib/android-bridge'
+import { identify, resetIdentity, track } from '@/lib/events'
+import { identifyClarity } from '@/lib/clarity'
 import type { User } from '@/types/api'
 
 export interface WaitlistedInfo {
@@ -30,6 +32,7 @@ export function useSendOtp() {
   return useMutation({
     mutationFn: (phone: string) =>
       api.post('/auth/send-otp', { phone }).then(r => r.data),
+    onSuccess: () => track('otp_requested'),
   })
 }
 
@@ -41,6 +44,8 @@ export function useVerifyOtp() {
     onSuccess: data => {
       localStorage.setItem('access_token', data.accessToken)
       localStorage.setItem('refresh_token', data.refreshToken)
+      identify(data.user.id)
+      identifyClarity(data.user.id)
       void qc.invalidateQueries({ queryKey: keys.auth.me() })
     },
   })
@@ -51,8 +56,10 @@ export function useLogout() {
   return useMutation({
     mutationFn: () => api.post('/auth/logout').then(r => r.data),
     onSettled: () => {
+      track('logout')
       localStorage.removeItem('access_token')
       localStorage.removeItem('refresh_token')
+      resetIdentity()
       qc.clear()
       window.location.href = '/login'
     },

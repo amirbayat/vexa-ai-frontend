@@ -1,5 +1,6 @@
 import { useState, useEffect } from 'react'
 import { api } from '@/lib/api'
+import { track } from '@/lib/events'
 
 const STORAGE_KEY = 'nivo:exit-intent-shown'
 
@@ -15,6 +16,7 @@ export function ExitIntentModal() {
 
     function onMouseLeave(e: MouseEvent) {
       if (e.clientY <= 0) {
+        track('exit_intent_shown')
         setVisible(true)
         localStorage.setItem(STORAGE_KEY, '1')
         document.removeEventListener('mouseleave', onMouseLeave)
@@ -41,6 +43,7 @@ export function ExitIntentModal() {
         source: 'exit_intent',
         sessionId: localStorage.getItem('nivo:sales-session') ?? undefined,
       })
+      track('exit_intent_lead_submitted')
       setDone(true)
     } catch {
       // best-effort
@@ -69,7 +72,10 @@ export function ExitIntentModal() {
         style={{ animation: 'exitSlideIn 0.3s cubic-bezier(0.16,1,0.3,1)' }}
       >
         <button
-          onClick={() => setVisible(false)}
+          onClick={() => {
+            track('exit_intent_dismissed', { hadSubmitted: done })
+            setVisible(false)
+          }}
           className="absolute top-4 left-4 text-slate-600 hover:text-slate-400 transition-colors"
           aria-label="بستن"
         >
@@ -127,7 +133,10 @@ export function ExitIntentModal() {
             <p className="text-sm font-semibold text-slate-200">ثبت شد!</p>
             <p className="mt-1 text-xs text-slate-500">به محض تخفیف بهت خبر می‌دیم.</p>
             <button
-              onClick={() => setVisible(false)}
+              onClick={() => {
+                track('exit_intent_dismissed', { hadSubmitted: done })
+                setVisible(false)
+              }}
               className="mt-4 text-xs text-slate-600 hover:text-slate-400 transition-colors"
             >
               بستن

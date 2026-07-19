@@ -3,6 +3,7 @@ import { clsx } from 'clsx'
 import { useWallet } from '@/queries/usage.queries'
 import { usePlans } from '@/queries/plans.queries'
 import { WalletTopupModal } from '@/components/payment/WalletTopupModal'
+import { track } from '@/lib/events'
 import { fa } from '@/locales/fa'
 
 const DEFAULT_PRESETS = [1_000_000, 2_000_000, 5_000_000]
@@ -32,7 +33,10 @@ export function WalletPage() {
             )}
           </div>
           <button
-            onClick={() => setTopupOpen(true)}
+            onClick={() => {
+              track('wallet_topup_modal_opened', { entryPoint: 'wallet_page' })
+              setTopupOpen(true)
+            }}
             className="rounded-xl bg-emerald-500 px-4 py-2.5 text-sm font-semibold text-white hover:bg-emerald-400 active:scale-[0.98] transition-all"
           >
             شارژ کیف‌پول

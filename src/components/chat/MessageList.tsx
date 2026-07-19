@@ -9,6 +9,7 @@ import { useSubmitMessageFeedback } from '@/queries/message-feedback.queries'
 import { useAuthedImageUrl } from '@/hooks/useAuthedImageUrl'
 import { api } from '@/lib/api'
 import { fa } from '@/locales/fa'
+import { track } from '@/lib/events'
 import type { Message } from '@/types/api'
 
 function LinkNewTab({ href, children }: { href?: string; children?: React.ReactNode }) {
@@ -71,7 +72,11 @@ function ImageLightbox({ src, onClose }: { src: string; onClose: () => void }) {
     >
       <div className="absolute top-4 left-4 flex gap-2">
         <button
-          onClick={e => { e.stopPropagation(); void downloadImage(src, 'nivo-image.png') }}
+          onClick={e => {
+            e.stopPropagation()
+            track('generated_image_downloaded', { source: 'lightbox' })
+            void downloadImage(src, 'nivo-image.png')
+          }}
           className="flex size-10 items-center justify-center rounded-full bg-slate-800/90 text-slate-200 hover:bg-slate-700 transition-colors"
           aria-label="دانلود عکس"
         >
@@ -270,6 +275,12 @@ function GeneratingImageBox({ preview }: { preview: string | null }) {
 function ChatErrorBox({ message, code }: { message: string; code: string | null }) {
   const navigate = useNavigate()
   const isImageGenNotSupported = code === 'IMAGE_GEN_NOT_SUPPORTED'
+
+  useEffect(() => {
+    if (isImageGenNotSupported) track('image_gen_blocked_not_supported', { code })
+    // eslint-disable-next-line react-hooks/exhaustive-deps
+  }, [isImageGenNotSupported, code])
+
   const heading = isImageGenNotSupported
     ? 'پلن شما این قابلیت را ندارد'
     : code === 'model_unavailable'
@@ -368,7 +379,11 @@ function MessageBubble({
                       alt="تصویر ساخته‌شده توسط هوش مصنوعی"
                     />
                     <button
-                      onClick={e => { e.stopPropagation(); void downloadImage(src, 'nivo-image.png') }}
+                      onClick={e => {
+                        e.stopPropagation()
+                        track('generated_image_downloaded', { source: 'inline' })
+                        void downloadImage(src, 'nivo-image.png')
+                      }}
                       className="absolute bottom-2 left-2 flex size-7 items-center justify-center rounded-lg bg-slate-900/80 text-slate-200 opacity-90 group-hover:opacity-100 transition-opacity hover:bg-slate-900"
                       aria-label="دانلود عکس"
                     >
@@ -407,14 +422,23 @@ function MessageFeedbackRow({ messageId, initial }: { messageId: string; initial
   function vote_(v: 'UP' | 'DOWN') {
     setVote(v)
     setShowCommentBox(true)
-    submitFeedback.mutate({ messageId, vote: v })
+    submitFeedback.mutate(
+      { messageId, vote: v },
+      { onSuccess: () => track('message_feedback_submitted', { messageId, vote: v }) },
+    )
   }
 
   function submitComment() {
     if (!vote || !comment.trim()) return
+    const commentLength = comment.trim().length
     submitFeedback.mutate(
       { messageId, vote, comment: comment.trim() },
-      { onSuccess: () => setCommentSent(true) },
+      {
+        onSuccess: () => {
+          setCommentSent(true)
+          track('message_feedback_comment_submitted', { messageId, vote, commentLength })
+        },
+      },
     )
   }
 

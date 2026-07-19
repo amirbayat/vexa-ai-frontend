@@ -6,10 +6,17 @@ const VITE_ENAMAD_CODE = import.meta.env.VITE_ENAMAD_CODE as string | undefined
 const VITE_SALES_BOT_ENABLED = (import.meta.env.VITE_SALES_BOT_ENABLED as string | undefined) !== 'false'
 // فیچرفلگ موقت — آمار «کاربر فعال»/«درصد رضایت» توی لندینگ هنوز عدد واقعی و تاییدشده نیست، تا وقتی عدد واقعی آماده بشه خاموشه
 const VITE_LANDING_STATS_ENABLED = (import.meta.env.VITE_LANDING_STATS_ENABLED as string | undefined) === 'true'
+// سرویس events-backend مجزا — عمداً اختیاری، بدون آن فقط ایونت‌تراکینگ غیرفعال می‌ماند
+const VITE_EVENTS_API_URL = import.meta.env.VITE_EVENTS_API_URL as string | undefined
+const VITE_EVENTS_WRITE_KEY = import.meta.env.VITE_EVENTS_WRITE_KEY as string | undefined
+// Microsoft Clarity — عمداً اختیاری، بدون این env فقط heatmap/session-recording غیرفعال می‌ماند
+const VITE_CLARITY_PROJECT_ID = import.meta.env.VITE_CLARITY_PROJECT_ID as string | undefined
 
 if (!VITE_API_URL) throw new Error('Missing env: VITE_API_URL')
 
 export const env = {
   VITE_API_URL, VITE_DEFAULT_MODEL, VITE_ENAMAD_ID, VITE_ENAMAD_CODE,
   VITE_SALES_BOT_ENABLED, VITE_LANDING_STATS_ENABLED,
+  VITE_EVENTS_API_URL, VITE_EVENTS_WRITE_KEY,
+  VITE_CLARITY_PROJECT_ID,
 }

@@ -5,6 +5,7 @@ import { api } from '@/lib/api'
 import { useNavigate } from 'react-router-dom'
 import { useMe } from '@/queries/auth.queries'
 import { CodeBlock, PrePassthrough } from '@/components/chat/CodeBlock'
+import { track } from '@/lib/events'
 
 function LinkNewTab({ href, children }: { href?: string; children?: React.ReactNode }) {
   return (
@@ -77,6 +78,8 @@ export function SalesChatbot({ source = 'pricing_page' }: Props) {
     const userMsg: Message = { role: 'user', content }
     const nextMessages = [...messages, userMsg]
 
+    track('sales_chatbot_message_sent', { source })
+
     setMessages(nextMessages)
     setInput('')
     setLoading(true)
@@ -96,7 +99,10 @@ export function SalesChatbot({ source = 'pricing_page' }: Props) {
       const { reply, isDone: done, recommendedPlan: plan, offerDiscount: discount } = res.data
 
       setMessages(prev => [...prev, { role: 'assistant', content: reply }])
-      if (done) setIsDone(true)
+      if (done) {
+        track('sales_chatbot_completed', { source, recommendedPlan: plan ?? recommendedPlan })
+        setIsDone(true)
+      }
       if (plan) setRecommendedPlan(plan)
       if (discount && !discountDone) setOfferDiscount(true)
     } catch {
@@ -119,11 +125,13 @@ export function SalesChatbot({ source = 'pricing_page' }: Props) {
 
   function handleCTA() {
     void api.post('/sales/cta-click', { type: 'free_start' }).catch(() => { /* best-effort */ })
+    track('sales_chatbot_cta_clicked', { type: 'free_start', source, recommendedPlan })
     navigate(me ? '/chat' : '/login')
   }
 
   function handlePricingCTA() {
     void api.post('/sales/cta-click', { type: 'pricing' }).catch(() => { /* best-effort */ })
+    track('sales_chatbot_cta_clicked', { type: 'pricing', source, recommendedPlan })
     navigate('/pricing')
   }
 
@@ -146,6 +154,7 @@ export function SalesChatbot({ source = 'pricing_page' }: Props) {
         discountRequested: true,
         source,
       })
+      track('sales_chatbot_discount_requested', { source })
       setDiscountDone(true)
       setOfferDiscount(false)
       setMessages(prev => [...prev, {

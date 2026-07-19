@@ -70,6 +70,7 @@ export function ContactPage() {
             <a
               href={`tel:${PHONE}`}
               dir="ltr"
+              data-track="contact_phone_clicked"
               className="mt-1 block text-left text-lg font-bold text-slate-100 hover:text-emerald-400 transition-colors"
             >
               {PHONE}

@@ -1,6 +1,7 @@
 import { useState } from 'react'
 import { useNavigate, useParams } from 'react-router-dom'
 import { useInvoice, downloadInvoicePdf } from '@/queries/invoices.queries'
+import { track } from '@/lib/events'
 import { fa } from '@/locales/fa'
 
 function InfoRow({ label, value }: { label: string; value: string }) {
@@ -23,6 +24,7 @@ export function InvoiceDetailPage() {
     setDownloading(true)
     try {
       await downloadInvoicePdf(invoice.id, `invoice-${invoice.number}.pdf`)
+      track('invoice_pdf_downloaded', { invoiceId: invoice.id })
     } finally {
       setDownloading(false)
     }

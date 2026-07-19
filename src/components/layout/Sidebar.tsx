@@ -9,6 +9,7 @@ import { useWallet } from "@/queries/usage.queries";
 import { useChatStore } from "@/store/chat.store";
 import { PlanUpgradeBadge } from "./PlanUpgradeBadge";
 import { fa } from "@/locales/fa";
+import { track } from "@/lib/events";
 import logoUrl from "@/assets/brand/horizontal-dark.svg";
 
 // اسم کاربر فقط یک فیلد ترکیبی است (نه firstName/lastName جدا) — با split روی فاصله
@@ -33,12 +34,14 @@ export function Sidebar({ onNavigate }: { onNavigate?: () => void } = {}) {
   const conversations = data?.pages.flatMap((p) => p.items) ?? [];
 
   const handleSelect = (id: string) => {
+    track("conversation_opened", { conversationId: id });
     setSelectedConvId(id);
     navigate(`/chat/${id}`);
     onNavigate?.();
   };
 
   const handleNew = () => {
+    track("new_chat_started");
     setSelectedConvId(null);
     navigate("/chat");
     onNavigate?.();
@@ -102,7 +105,10 @@ export function Sidebar({ onNavigate }: { onNavigate?: () => void } = {}) {
             <button
               onClick={(e) => {
                 e.stopPropagation();
-                archiveMut.mutate(conv.id);
+                archiveMut.mutate(conv.id, {
+                  onSuccess: () =>
+                    track("conversation_archived", { conversationId: conv.id }),
+                });
                 if (selectedConvId === conv.id) {
                   setSelectedConvId(null);
                   navigate("/chat");
@@ -123,7 +129,10 @@ export function Sidebar({ onNavigate }: { onNavigate?: () => void } = {}) {
         ))}
         {hasNextPage && (
           <button
-            onClick={() => void fetchNextPage()}
+            onClick={() => {
+              track("conversation_list_paginated");
+              void fetchNextPage();
+            }}
             className="w-full py-2 text-xs text-slate-600 hover:text-slate-400 transition-colors"
           >
             بیشتر

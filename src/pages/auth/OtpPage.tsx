@@ -5,6 +5,7 @@ import { useActivateWaitlist } from '@/queries/campaign.queries'
 import { Button } from '@/components/ui/Button'
 import { Input } from '@/components/ui/Input'
 import { toEnglishDigits } from '@/lib/digits'
+import { track } from '@/lib/events'
 import { fa } from '@/locales/fa'
 
 const RESEND_SECONDS = 120
@@ -44,6 +45,7 @@ export function OtpPage() {
       const result = await verifyOtp.mutateAsync({ phone, code, referralCode })
       // فقط روی اولین ثبت‌نام اثر واقعی دارد؛ در هر صورت بعد از یک تلاش موفق پاک می‌شود
       localStorage.removeItem('nivo:referralCode')
+      if (referralCode) track('referral_code_redeemed', { redeemed: true })
 
       // اگر از لینک پیامک «دسترسی باز شد» آمده، فعال‌سازی را ثبت کن (نیاز به JWT دارد
       // که همین الان توسط verifyOtp ذخیره شد) — مستقل از وضعیت waitlisted پاسخ فعلی
@@ -53,10 +55,12 @@ export function OtpPage() {
 
       if (result.waitlisted) {
         setWaitlisted(result.waitlisted)
+        track('waitlisted', { queuePosition: result.waitlisted.queuePosition })
         return // منتظر تأیید کاربر می‌مانیم، بخش ۱۸.۱۱
       }
       navigate('/chat', { replace: true })
     } catch {
+      track('otp_verify_failed', { reason: 'invalid_code' })
       setError(fa.common.error)
     }
   }

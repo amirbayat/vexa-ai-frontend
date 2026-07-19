@@ -2,6 +2,7 @@ import { useState } from 'react'
 import { useNavigate } from 'react-router-dom'
 import { clsx } from 'clsx'
 import { useTickets, useCreateTicket } from '@/queries/ticket.queries'
+import { track } from '@/lib/events'
 import { fa } from '@/locales/fa'
 import type { Ticket } from '@/types/api'
 
@@ -65,7 +66,10 @@ export function TicketsPage() {
       <div className="flex items-center justify-between">
         <h2 className="text-base font-semibold text-slate-100">{fa.settings.tickets}</h2>
         <button
-          onClick={() => setShowForm(v => !v)}
+          onClick={() => {
+            if (!showForm) track('ticket_form_opened')
+            setShowForm(v => !v)
+          }}
           className="rounded-xl bg-emerald-500/15 px-3 py-1.5 text-xs font-medium text-emerald-400 hover:bg-emerald-500/25 transition-colors"
         >
           {fa.settings.newTicket}
@@ -142,7 +146,14 @@ export function TicketsPage() {
             {tickets.map(ticket => (
               <button
                 key={ticket.id}
-                onClick={() => navigate(`/settings/tickets/${ticket.id}`)}
+                onClick={() => {
+                  track('ticket_list_item_opened', {
+                    ticketId: ticket.id,
+                    status: ticket.status,
+                    priority: ticket.priority,
+                  })
+                  navigate(`/settings/tickets/${ticket.id}`)
+                }}
                 className="w-full flex items-center justify-between px-5 py-4 text-right hover:bg-slate-700/20 transition-colors"
               >
                 <div className="flex flex-col gap-1 min-w-0">

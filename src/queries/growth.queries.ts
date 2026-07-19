@@ -1,6 +1,7 @@
 import { useMutation, useQuery, useQueryClient } from '@tanstack/react-query'
 import { api } from '@/lib/api'
 import { keys } from '@/queries/keys'
+import { track } from '@/lib/events'
 import type { ClaimGiftResult, MyDiscountCode, OnboardingGiftStatus } from '@/types/api'
 
 export function useGiftStatus() {
@@ -16,7 +17,10 @@ export function useClaimGift() {
   const qc = useQueryClient()
   return useMutation({
     mutationFn: () => api.post<ClaimGiftResult>('/growth/onboarding-gift/claim').then(r => r.data),
-    onSuccess: () => void qc.invalidateQueries({ queryKey: keys.growth.giftStatus() }),
+    onSuccess: data => {
+      track('gift_claimed', { discountPercent: data.discountPercent })
+      void qc.invalidateQueries({ queryKey: keys.growth.giftStatus() })
+    },
   })
 }
 

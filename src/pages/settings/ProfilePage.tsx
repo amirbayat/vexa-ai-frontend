@@ -8,6 +8,7 @@ import { useFeatureFlags } from '@/queries/config.queries'
 import { useMyDiscountCodes } from '@/queries/growth.queries'
 import { Input } from '@/components/ui/Input'
 import { Button } from '@/components/ui/Button'
+import { track } from '@/lib/events'
 import { fa } from '@/locales/fa'
 import type { MyDiscountCode } from '@/types/api'
 
@@ -55,12 +56,14 @@ export function ProfilePage() {
     if (!referralUrl) return
     void navigator.clipboard.writeText(referralUrl)
     setReferralCopied(true)
+    track('referral_link_copied')
     setTimeout(() => setReferralCopied(false), 2000)
   }
 
-  function copyDiscountCode(id: string, code: string) {
+  function copyDiscountCode(id: string, code: string, source?: MyDiscountCode['source']) {
     void navigator.clipboard.writeText(code)
     setCopiedCodeId(id)
+    track('discount_code_copied', source ? { source } : undefined)
     setTimeout(() => setCopiedCodeId(null), 2000)
   }
 
@@ -162,7 +165,7 @@ export function ProfilePage() {
               {myCodes.map(c => (
                 <button
                   key={c.id}
-                  onClick={() => copyDiscountCode(c.id, c.code)}
+                  onClick={() => copyDiscountCode(c.id, c.code, c.source)}
                   className="flex w-full items-center justify-between rounded-xl border border-slate-700 bg-slate-800/60 px-3 py-2.5 text-start hover:border-emerald-500/50 transition-colors"
                 >
                   <span className="flex flex-col items-start">

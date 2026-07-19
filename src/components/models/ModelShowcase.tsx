@@ -6,6 +6,7 @@ import {
 } from "@/queries/plans.queries";
 import { tierDescription } from "@/lib/model-catalog";
 import { ProviderIcon } from "@/components/models/ProviderIcon";
+import { track } from "@/lib/events";
 
 function InfoIcon() {
   return (
@@ -59,7 +60,10 @@ export function ModelShowcase({
       {/* لیست واقعی مدل‌ها فقط با کلیک روی این دکمه (داخل مودال) نشان داده می‌شود */}
       {!isFree && allowedModels.length > 0 && (
         <button
-          onClick={() => setOpen(true)}
+          onClick={() => {
+            track("model_catalog_viewed", { modelCount: allowedModels.length });
+            setOpen(true);
+          }}
           className="mt-3 flex w-full items-center justify-center gap-1.5 rounded-xl border border-slate-700 py-2.5 text-xs font-medium text-slate-300 hover:border-slate-600 hover:text-white transition-colors"
         >
           مشاهده {allowedModels.length} مدل

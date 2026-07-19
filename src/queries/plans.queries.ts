@@ -2,6 +2,7 @@ import { useMutation, useQuery } from '@tanstack/react-query'
 import { api } from '@/lib/api'
 import { keys } from '@/queries/keys'
 import { isInAndroidApp } from '@/lib/android-bridge'
+import { track } from '@/lib/events'
 import type { Plan } from '@/types/api'
 
 export function usePlans() {
@@ -51,14 +52,19 @@ export function useValidateDiscountCode() {
 
 export function useInitiatePayment() {
   return useMutation({
-    mutationFn: ({ planId, gateway, discountCode }: { planId: string; gateway?: PaymentGatewayName; discountCode?: string }) =>
+    mutationFn: ({ planId, gateway, discountCode }: { planId: string; gateway?: PaymentGatewayName; discountCode?: string; isUpgrade?: boolean }) =>
       api.post<{ paymentUrl: string }>('/payments/initiate', {
         planId,
         gateway,
         discountCode,
         source: isInAndroidApp() ? 'app' : undefined,
       }).then(r => r.data),
-    onSuccess: data => {
+    onSuccess: (data, variables) => {
+      track('checkout_initiated', {
+        planId: variables.planId,
+        gateway: variables.gateway,
+        isUpgrade: variables.isUpgrade ?? false,
+      })
       window.location.href = data.paymentUrl
     },
   })
@@ -72,7 +78,8 @@ export function useInitiateWalletTopup() {
         gateway,
         source: isInAndroidApp() ? 'app' : undefined,
       }).then(r => r.data),
-    onSuccess: data => {
+    onSuccess: (data, variables) => {
+      track('wallet_topup_initiated', { amountToman: variables.amountToman, gateway: variables.gateway })
       window.location.href = data.paymentUrl
     },
   })

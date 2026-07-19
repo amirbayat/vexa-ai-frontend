@@ -2,6 +2,7 @@ import { useEffect, useState } from 'react'
 import { useNavigate, useSearchParams } from 'react-router-dom'
 import { useQueryClient } from '@tanstack/react-query'
 import { keys } from '@/queries/keys'
+import { track } from '@/lib/events'
 import { fa } from '@/locales/fa'
 
 export function CallbackPage() {
@@ -20,12 +21,14 @@ export function CallbackPage() {
     const s = params.get('status')
     if (s === 'success') {
       setStatus('success')
+      track('payment_succeeded', { refId: refId ?? undefined, invoiceId: invoiceId ?? undefined })
       void qc.invalidateQueries({ queryKey: keys.auth.me() })
       void qc.invalidateQueries({ queryKey: keys.sub.current() })
     } else {
       setStatus('failed')
+      track('payment_failed', { refId: refId ?? undefined, invoiceId: invoiceId ?? undefined })
     }
-  }, [params, qc])
+  }, [params, qc, refId, invoiceId])
 
   return (
     <div className="flex min-h-screen items-center justify-center bg-slate-950 p-4">

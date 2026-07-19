@@ -12,6 +12,7 @@ import sql from 'react-syntax-highlighter/dist/esm/languages/prism/sql'
 import yaml from 'react-syntax-highlighter/dist/esm/languages/prism/yaml'
 import markup from 'react-syntax-highlighter/dist/esm/languages/prism/markup'
 import oneDark from 'react-syntax-highlighter/dist/esm/styles/prism/one-dark'
+import { track } from '@/lib/events'
 
 SyntaxHighlighter.registerLanguage('jsx', jsx)
 SyntaxHighlighter.registerLanguage('tsx', tsx)
@@ -44,11 +45,12 @@ const LANGUAGE_LABELS: Record<string, string> = {
 
 const REGISTERED_LANGUAGES = new Set(Object.keys(LANGUAGE_LABELS))
 
-function CopyButton({ text }: { text: string }) {
+function CopyButton({ text, language }: { text: string; language?: string }) {
   const [copied, setCopied] = useState(false)
 
   function handleCopy() {
     void navigator.clipboard.writeText(text)
+    track('code_block_copied', language ? { language } : undefined)
     setCopied(true)
     setTimeout(() => setCopied(false), 1500)
   }
@@ -98,7 +100,7 @@ export function CodeBlock({ className, children }: { className?: string; childre
     <div className="my-2 overflow-hidden rounded-xl border border-white/10" dir="ltr">
       <div className="flex items-center justify-between bg-white/5 px-3 py-1.5">
         <span className="text-[11px] text-slate-400">{(known && LANGUAGE_LABELS[lang]) || lang || 'text'}</span>
-        <CopyButton text={code} />
+        <CopyButton text={code} language={lang} />
       </div>
       {known ? (
         <SyntaxHighlighter

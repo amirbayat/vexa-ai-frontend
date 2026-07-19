@@ -1,6 +1,7 @@
 import { useMutation, useQuery, useQueryClient } from '@tanstack/react-query'
 import { api } from '@/lib/api'
 import { keys } from '@/queries/keys'
+import { track } from '@/lib/events'
 import type { Subscription, UsageHistory, PaymentRecord } from '@/types/api'
 
 export function useUpdateProfile() {
@@ -9,6 +10,7 @@ export function useUpdateProfile() {
     mutationFn: (name: string) =>
       api.patch<{ name: string }>('/users/me', { name }).then(r => r.data),
     onSuccess: () => {
+      track('profile_updated')
       void qc.invalidateQueries({ queryKey: keys.auth.me() })
     },
   })
