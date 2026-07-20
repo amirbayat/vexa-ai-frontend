@@ -180,8 +180,8 @@ export function track(eventName: string, properties?: Record<string, unknown>) {
   }
 }
 
-export function pageView() {
-  track('page_view')
+export function pageView(pageName: string) {
+  track('page_view', { pageName })
 }
 
 // شناسه‌ی anonymous را به userId واقعی وصل می‌کند (بعد از لاگین) تا فعالیت قبل/بعد از لاگین
