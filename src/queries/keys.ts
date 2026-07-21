@@ -48,4 +48,8 @@ export const keys = {
     giftStatus: () => ['growth', 'gift-status'] as const,
     myDiscountCodes: () => ['growth', 'my-discount-codes'] as const,
   },
+  anon: {
+    status: () => ['anon-chat', 'status'] as const,
+    conversation: (id: string) => ['anon-chat', 'conversation', id] as const,
+  },
 } as const

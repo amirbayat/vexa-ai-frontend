@@ -18,6 +18,8 @@ import { InvoicesPage } from '@/pages/settings/InvoicesPage'
 import { InvoiceDetailPage } from '@/pages/settings/InvoiceDetailPage'
 import { LandingPage } from '@/pages/landing/LandingPage'
 import { ContactPage } from '@/pages/contact/ContactPage'
+import { AnonChatLayout } from '@/components/layout/AnonChatLayout'
+import { AnonChatPage } from '@/pages/anon-chat/AnonChatPage'
 import type { ReactNode } from 'react'
 
 function ProtectedRoute({ children }: { children: ReactNode }) {
@@ -32,11 +34,24 @@ function GuestRoute({ children }: { children: ReactNode }) {
   return <>{children}</>
 }
 
+// کاربر لاگین‌کرده که سر می‌زند به "/" باید همچنان به تجربه‌ی /chat فعلی (دست‌نخورده) برود؛
+// کاربر مهمان همان‌جا در "/" با تجربه‌ی چت بدون ثبت‌نام (تبلیغات/لندینگ جدید) روبه‌رو می‌شود
+function HomeRoute() {
+  const hasToken = !!localStorage.getItem('access_token')
+  if (hasToken) return <Navigate to="/chat" replace />
+  return (
+    <AnonChatLayout>
+      <AnonChatPage />
+    </AnonChatLayout>
+  )
+}
+
 export function AppRouter() {
   return (
     <Routes>
       {/* public */}
-      <Route path="/" element={<LandingPage />} />
+      <Route path="/" element={<HomeRoute />} />
+      <Route path="/landing" element={<LandingPage />} />
       <Route path="/contact" element={<ContactPage />} />
 
       {/* guest */}

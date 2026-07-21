@@ -188,6 +188,44 @@ export interface TicketDetail extends Ticket {
   replies: TicketReply[]
 }
 
+// ── چت مهمان (بدون ثبت‌نام) ──────────────────────────────────────────────
+export interface AnonChatStatus {
+  enabled: boolean
+  stage: 'normal' | 'limited' | 'blocked'
+  message: string
+  hintTitle: string
+  hintSubtitle: string
+  remainingFree: number
+  remainingToday: number | null
+  resetAt: string | null
+}
+
+export interface AnonConversation {
+  id: string
+  sessionId: string
+  model: string
+  title: string | null
+  totalTokens: number
+  lastMessageAt: string
+  createdAt: string
+  migratedConversationId: string | null
+}
+
+export interface AnonMessage {
+  id: string
+  conversationId: string
+  role: 'USER' | 'ASSISTANT' | 'SYSTEM'
+  content: string
+  tokensInput: number
+  tokensOutput: number
+  model: string | null
+  createdAt: string
+}
+
+export interface AnonConversationDetail extends AnonConversation {
+  messages: AnonMessage[]
+}
+
 export interface MessageQuota {
   todayCount: number
   N: number | null
