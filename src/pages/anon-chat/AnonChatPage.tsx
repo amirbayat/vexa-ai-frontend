@@ -48,6 +48,7 @@ export function AnonChatPage() {
 
   const messages: AnonMessage[] = conversation?.messages ?? []
   const hasThread = messages.length > 0 || isStreaming
+  const userMessageCount = messages.filter(m => m.role === 'USER').length
 
   return (
     <div className="flex flex-1 flex-col overflow-hidden">
@@ -98,12 +99,46 @@ export function AnonChatPage() {
             <p className="text-lg font-medium text-slate-300">{status?.hintTitle ?? fa.chat.emptyTitle}</p>
             <p className="mt-1 text-sm text-slate-600">{status?.hintSubtitle ?? fa.chat.emptySubtitle}</p>
           </div>
+          <AnonSamplePrompts prompts={status?.samplePrompts} onPick={handleSend} />
         </div>
       )}
 
-      <AnonSignupBanner status={status} />
+      <AnonSignupBanner status={status} userMessageCount={userMessageCount} />
       <AnonMessageInput onSend={handleSend} disabled={disabled || createConv.isPending} sending={isStreaming} />
     </div>
+  )
+}
+
+const DEFAULT_SAMPLE_PROMPTS = [
+  'این ایمیل رو رسمی‌تر و مودبانه‌تر بنویس',
+  'خلاصه‌ی این متن رو در ۳ خط بگو',
+  'یک برنامه‌ی غذایی هفتگی سالم پیشنهاد بده',
+  'این کد رو دیباگ کن و توضیح بده مشکلش چیه',
+  'برام یک کپشن جذاب برای اینستاگرام بنویس',
+]
+
+const SAMPLE_PROMPT_ROTATE_MS = 3500
+
+// پرامپت نمونه‌ی رونده — هر چند ثانیه یکی از prompts (از ادمین، یا لیست پیش‌فرض) با
+// انیمیشن fade عوض می‌شود؛ کلیک روی آن مستقیماً همان متن را می‌فرستد
+function AnonSamplePrompts({ prompts, onPick }: { prompts?: string[]; onPick: (content: string) => void }) {
+  const list = prompts?.length ? prompts : DEFAULT_SAMPLE_PROMPTS
+  const [index, setIndex] = useState(0)
+
+  useEffect(() => {
+    if (list.length <= 1) return
+    const id = setInterval(() => setIndex(i => (i + 1) % list.length), SAMPLE_PROMPT_ROTATE_MS)
+    return () => clearInterval(id)
+  }, [list.length])
+
+  return (
+    <button
+      key={index}
+      onClick={() => onPick(list[index % list.length])}
+      className="anon-sample-prompt max-w-xs truncate rounded-full border border-emerald-500/30 bg-emerald-500/10 px-4 py-2 text-sm text-emerald-300 transition-colors hover:bg-emerald-500/20"
+    >
+      {list[index % list.length]}
+    </button>
   )
 }
 

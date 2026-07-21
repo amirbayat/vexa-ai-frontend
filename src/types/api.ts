@@ -198,6 +198,8 @@ export interface AnonChatStatus {
   remainingFree: number
   remainingToday: number | null
   resetAt: string | null
+  signupBannerAfterMessages: number
+  samplePrompts: string[]
 }
 
 export interface AnonConversation {

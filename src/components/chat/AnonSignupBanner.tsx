@@ -4,11 +4,15 @@ import { fireAnonCtaClick } from '@/queries/anonChat.queries'
 import { fa } from '@/locales/fa'
 import type { AnonChatStatus } from '@/types/api'
 
-// بنر همیشه-نمایان بالای اینپوت چت مهمان — سه حالت رنگی بر اساس status.stage
-// (نرمال/emerald ملایم، limited/amber پررنگ‌تر، blocked/red شدیدترین حالت)
-export function AnonSignupBanner({ status }: { status?: AnonChatStatus }) {
+// بنر بالای اینپوت چت مهمان — سه حالت رنگی بر اساس status.stage (نرمال/emerald ملایم،
+// limited/amber پررنگ‌تر، blocked/red شدیدترین حالت). بنر حالت «نرمال» (تشویق ملایم به
+// ثبت‌نام) عمداً تا رسیدن به signupBannerAfterMessages پیام کاربر نمایش داده نمی‌شود —
+// کاربری که تازه رسیده، قبل از تجربه‌ی محصول نباید فشار ثبت‌نام ببیند. حالت‌های
+// limited/blocked واقعی هستند (کاربر واقعاً به سقف رسیده) و همیشه نمایش داده می‌شوند.
+export function AnonSignupBanner({ status, userMessageCount = 0 }: { status?: AnonChatStatus; userMessageCount?: number }) {
   const navigate = useNavigate()
   if (!status) return null
+  if (status.stage === 'normal' && userMessageCount < status.signupBannerAfterMessages) return null
 
   const stage = status.stage
 

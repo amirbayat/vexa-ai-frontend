@@ -102,6 +102,18 @@ body {
   .image-gen-reveal { animation: none; }
 }
 
+/* پرامپت‌های نمونه‌ی رونده در صفحه‌ی خالی چت مهمان — هر بار عوض شدن متن، از پایین fade-in */
+@keyframes nivo-sample-prompt-in {
+  from { opacity: 0; transform: translateY(6px); }
+  to   { opacity: 1; transform: translateY(0); }
+}
+.anon-sample-prompt {
+  animation: nivo-sample-prompt-in 0.4s ease-out;
+}
+@media (prefers-reduced-motion: reduce) {
+  .anon-sample-prompt { animation: none; }
+}
+
 /* AI message HTML rendering */
 .ai-content p        { margin-bottom: 0.75em; }
 .ai-content p:last-child { margin-bottom: 0; }

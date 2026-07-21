@@ -3,6 +3,7 @@ import { useQueryClient } from '@tanstack/react-query'
 import { env } from '@/env'
 import { keys } from '@/queries/keys'
 import { getAnonSessionId } from '@/lib/anonSession'
+import { track } from '@/lib/events'
 import { fa } from '@/locales/fa'
 import type { AnonConversationDetail, AnonMessage } from '@/types/api'
 
@@ -26,6 +27,9 @@ export function useAnonChat(conversationId: string | null) {
       setError(null)
       setStreamingContent('')
       setIsStreaming(true)
+
+      // فقط متادیتا — متن واقعی پیام هرگز به events-backend فرستاده نمی‌شود
+      track('anon_message_sent', { conversationId, contentLength: content.length })
 
       // خوش‌بینانه: پیام کاربر را فوراً در کش نشان بده تا قبل از شروع استریم دیده شود
       qc.setQueryData<AnonConversationDetail>(keys.anon.conversation(conversationId), old => {
