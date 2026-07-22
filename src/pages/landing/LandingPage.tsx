@@ -8,6 +8,7 @@ import { ExitIntentModal } from '@/components/sales/ExitIntentModal'
 import { ModelShowcase } from '@/components/models/ModelShowcase'
 import { PlanLimitsTable } from '@/components/plans/PlanLimitsTable'
 import { PromoBanner } from '@/components/articles/PromoBanner'
+import { SiteFooter } from '@/components/layout/SiteFooter'
 import { env } from '@/env'
 import {
   PLAN_TIER_MODEL_DESCRIPTIONS,
@@ -527,6 +528,10 @@ function Navbar({ isLoggedIn }: { isLoggedIn: boolean }) {
           <span className="text-emerald-400">ni</span>vo
         </Link>
         <nav className="flex items-center gap-2">
+          <a href="/blog"
+            className="rounded-xl px-5 py-2 text-sm font-medium text-slate-300 hover:text-white transition-colors">
+            وبلاگ
+          </a>
           {isLoggedIn ? (
             <Link to="/chat"
               className="rounded-xl bg-emerald-500 px-5 py-2 text-sm font-semibold text-white hover:bg-emerald-400 transition-colors">
@@ -1054,61 +1059,6 @@ function CtaSection({ isLoggedIn }: { isLoggedIn: boolean }) {
   )
 }
 
-function EnamadBadge() {
-  const { VITE_ENAMAD_ID: id, VITE_ENAMAD_CODE: code } = env
-  if (!id || !code) return null
-
-  const href = `https://trustseal.enamad.ir/?id=${id}&Code=${code}`
-  const src = `https://trustseal.enamad.ir/logo.aspx?id=${id}&Code=${code}`
-
-  return (
-    <a
-      href={href}
-      target="_blank"
-      rel="noopener"
-      referrerPolicy="origin"
-      className="flex shrink-0 items-center justify-center rounded-lg bg-white p-1 shadow-sm"
-    >
-      <img
-        referrerPolicy="origin"
-        src={src}
-        alt="نماد اعتماد الکترونیکی"
-        data-code={code}
-        width={56}
-        height={56}
-        className="h-14 w-14 cursor-pointer object-contain"
-      />
-    </a>
-  )
-}
-
-function Footer() {
-  return (
-    <footer className="border-t border-white/5 px-6 py-8">
-      <div className="mx-auto flex max-w-6xl flex-wrap items-center justify-between gap-4 text-sm text-slate-600">
-        <span>
-          <span className="text-emerald-400/70 font-bold">ni</span>
-          <span className="font-bold">vo</span>
-          {' '}· دستیار هوش مصنوعی
-        </span>
-        <div className="flex items-center gap-6">
-          <a href="#pricing" className="hover:text-slate-400 transition-colors">قیمت‌ها</a>
-          <a href="/blog" className="hover:text-slate-400 transition-colors">وبلاگ</a>
-          <Link to="/login" className="hover:text-slate-400 transition-colors">ورود</Link>
-          <Link
-            to="/contact"
-            data-track="landing_contact_click"
-            className="rounded-full border border-white/10 px-4 py-1.5 text-slate-400 hover:border-emerald-500/50 hover:text-emerald-400 transition-colors"
-          >
-            تماس با ما
-          </Link>
-        </div>
-        <EnamadBadge />
-      </div>
-    </footer>
-  )
-}
-
 // ── Root ─────────────────────────────────────────────────────────────────────
 export function LandingPage() {
   useInViewObserver()
@@ -1226,7 +1176,7 @@ export function LandingPage() {
       <WaveDivider flip />
       <FaqSection />
       <CtaSection isLoggedIn={isLoggedIn} />
-      <Footer />
+      <SiteFooter />
       <ExitIntentModal />
     </div>
   )
