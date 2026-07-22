@@ -4,6 +4,7 @@ import { useFeatureFlags } from '@/queries/config.queries'
 import { useModelCatalog } from '@/queries/plans.queries'
 import { useMe } from '@/queries/auth.queries'
 import { useChatStore } from '@/store/chat.store'
+import { useIsTouchDevice } from '@/hooks/useIsTouchDevice'
 import { fa } from '@/locales/fa'
 import { track } from '@/lib/events'
 import { ThinkingModeToggle } from './ThinkingModeToggle'
@@ -64,6 +65,7 @@ export function MessageInput({ onSend, disabled, sending }: MessageInputProps) {
   const [imageMode, setImageMode] = useState(false)
   const textareaRef = useRef<HTMLTextAreaElement>(null)
   const fileRef = useRef<HTMLInputElement>(null)
+  const isTouchDevice = useIsTouchDevice()
 
   function toggleImageMode() {
     if (!hasImageGenModels) return
@@ -95,7 +97,7 @@ export function MessageInput({ onSend, disabled, sending }: MessageInputProps) {
   }
 
   const onKeyDown = (e: KeyboardEvent<HTMLTextAreaElement>) => {
-    if (e.key === 'Enter' && !e.shiftKey) {
+    if (e.key === 'Enter' && !e.shiftKey && !isTouchDevice) {
       e.preventDefault()
       submit()
     }
@@ -281,7 +283,7 @@ export function MessageInput({ onSend, disabled, sending }: MessageInputProps) {
       </div>
 
       <p className="mt-1.5 text-center text-[11px] text-slate-600">
-        Enter برای ارسال · Shift+Enter برای خط جدید
+        {isTouchDevice ? 'برای ارسال، دکمه‌ی ارسال را بزنید' : 'Enter برای ارسال · Shift+Enter برای خط جدید'}
       </p>
     </div>
   )

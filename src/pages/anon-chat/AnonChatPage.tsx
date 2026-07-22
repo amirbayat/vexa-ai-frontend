@@ -4,6 +4,7 @@ import { useAnonStatus, useAnonConversation, useCreateAnonConversation } from '@
 import { useAnonChat } from '@/hooks/useAnonChat'
 import { getAnonConversationId, setAnonConversationId } from '@/lib/anonSession'
 import { AnonSignupBanner } from '@/components/chat/AnonSignupBanner'
+import { useIsTouchDevice } from '@/hooks/useIsTouchDevice'
 import { fa } from '@/locales/fa'
 import type { AnonMessage } from '@/types/api'
 
@@ -183,6 +184,7 @@ function AnonMessageInput({ onSend, disabled, sending }: {
 }) {
   const [value, setValue] = useState('')
   const textareaRef = useRef<HTMLTextAreaElement>(null)
+  const isTouchDevice = useIsTouchDevice()
 
   const submit = () => {
     const trimmed = value.trim()
@@ -193,7 +195,7 @@ function AnonMessageInput({ onSend, disabled, sending }: {
   }
 
   const onKeyDown = (e: KeyboardEvent<HTMLTextAreaElement>) => {
-    if (e.key === 'Enter' && !e.shiftKey) {
+    if (e.key === 'Enter' && !e.shiftKey && !isTouchDevice) {
       e.preventDefault()
       submit()
     }
@@ -246,7 +248,7 @@ function AnonMessageInput({ onSend, disabled, sending }: {
       </div>
 
       <p className="mt-1.5 text-center text-[11px] text-slate-600">
-        Enter برای ارسال · Shift+Enter برای خط جدید
+        {isTouchDevice ? 'برای ارسال، دکمه‌ی ارسال را بزنید' : 'Enter برای ارسال · Shift+Enter برای خط جدید'}
       </p>
     </div>
   )

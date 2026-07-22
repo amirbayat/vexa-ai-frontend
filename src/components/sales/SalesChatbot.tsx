@@ -5,6 +5,7 @@ import { api } from '@/lib/api'
 import { useNavigate } from 'react-router-dom'
 import { useMe } from '@/queries/auth.queries'
 import { CodeBlock, PrePassthrough } from '@/components/chat/CodeBlock'
+import { useIsTouchDevice } from '@/hooks/useIsTouchDevice'
 import { track } from '@/lib/events'
 
 function LinkNewTab({ href, children }: { href?: string; children?: React.ReactNode }) {
@@ -47,6 +48,7 @@ export function SalesChatbot({ source = 'pricing_page' }: Props) {
   ])
   const [input, setInput] = useState('')
   const [loading, setLoading] = useState(false)
+  const isTouchDevice = useIsTouchDevice()
   const [isDone, setIsDone] = useState(false)
   const [recommendedPlan, setRecommendedPlan] = useState<string | null>(null)
   const [offerDiscount, setOfferDiscount] = useState(false)
@@ -117,7 +119,7 @@ export function SalesChatbot({ source = 'pricing_page' }: Props) {
   }
 
   function handleKeyDown(e: React.KeyboardEvent<HTMLTextAreaElement>) {
-    if (e.key === 'Enter' && !e.shiftKey) {
+    if (e.key === 'Enter' && !e.shiftKey && !isTouchDevice) {
       e.preventDefault()
       void send()
     }
